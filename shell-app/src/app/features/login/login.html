@@ -1,0 +1,29 @@
+<div class="login-page">
+    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+
+        <div class="login-logo">⚽</div>
+        <h1>Calcio Gestionale</h1>
+        <p class="subtitle">Accedi per continuare</p>
+
+        @if (errore()) {
+        <div class="alert-errore">{{ errore() }}</div>
+        }
+
+        <label>
+            Username
+            <input type="text" formControlName="username" autocomplete="username"
+                [attr.aria-invalid]="form.get('username')?.invalid && form.get('username')?.touched" />
+        </label>
+
+        <label>
+            Password
+            <input type="password" formControlName="password" autocomplete="current-password"
+                [attr.aria-invalid]="form.get('password')?.invalid && form.get('password')?.touched" />
+        </label>
+
+        <button type="submit" [disabled]="form.invalid || loading()">
+            {{ loading() ? 'Accesso in corso…' : 'Accedi' }}
+        </button>
+
+    </form>
+</div>
