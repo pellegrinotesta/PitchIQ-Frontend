@@ -1,5 +1,7 @@
 .home {
     padding: 2rem;
+    max-width: 960px;
+    margin: 0 auto;
 }
 
 .home-header {
@@ -11,42 +13,59 @@
     border-bottom: 1px solid #e5e7eb;
 }
 
-.home-header h1 {
+.home-title {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.logo-icon {
+    font-size: 2rem;
+}
+
+.home-title h1 {
     margin: 0;
     font-size: 1.8rem;
+    color: #1e3a5f;
 }
 
-.home-header button {
-    padding: .4rem .9rem;
-    background: #fee2e2;
-    color: #991b1b;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: .9rem;
-}
-
-.home-nav {
+.home-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    max-width: 500px;
+    gap: 1.25rem;
 }
 
-.home-nav a {
-    padding: 1.5rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    text-decoration: none;
-    color: #111;
-    font-size: 1rem;
-    font-weight: 500;
+:host ::ng-deep .sezione-card {
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+:host ::ng-deep .sezione-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+}
+
+.sezione-content {
     text-align: center;
-    transition: background .15s;
+    padding: 1rem;
 }
 
-.home-nav a:hover {
-    background: #eff6ff;
-    border-color: #2563eb;
+.sezione-icon {
+    font-size: 2.5rem;
+    color: #2563eb;
+    margin-bottom: .75rem;
+    display: block;
+}
+
+.sezione-content h2 {
+    margin: 0 0 .5rem;
+    font-size: 1.1rem;
+    color: #1e3a5f;
+}
+
+.sezione-content p {
+    margin: 0;
+    color: #6b7280;
+    font-size: .9rem;
+    line-height: 1.5;
 }

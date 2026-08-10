@@ -1,0 +1,103 @@
+.elenco {
+    padding: 1.5rem;
+}
+
+.elenco-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.filtri {
+    display: flex;
+    gap: .75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filtri input,
+.filtri select {
+    padding: .4rem .6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: .9rem;
+}
+
+.tabella {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabella th,
+.tabella td {
+    padding: .6rem .8rem;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.tabella th {
+    background: #f9fafb;
+    font-weight: 600;
+    font-size: .85rem;
+    text-transform: uppercase;
+}
+
+.tabella tbody tr:hover {
+    background: #f0f4ff;
+}
+
+.badge {
+    padding: .2rem .5rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.badge-attivo {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-infortunato {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-squalificato {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.btn-primary {
+    padding: .45rem .9rem;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: .9rem;
+}
+
+.btn-small {
+    padding: .25rem .6rem;
+    border-radius: 4px;
+    font-size: .8rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    margin-right: .25rem;
+    background: #e5e7eb;
+}
+
+.btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.stato {
+    color: #6b7280;
+}
+
+.errore {
+    color: #dc2626;
+}

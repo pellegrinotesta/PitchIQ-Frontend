@@ -3,25 +3,37 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { MessageModule } from 'primeng/message';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    MessageModule,
+    CardModule
+  ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login {
-  private fb          = inject(FormBuilder);
+  private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router      = inject(Router);
+  private router = inject(Router);
 
   form = this.fb.group({
     username: ['', Validators.required],
     password: ['', Validators.required],
   });
 
-  loading      = signal(false);
-  errore       = signal<string | null>(null);
+  loading = signal(false);
+  errore = signal<string | null>(null);
 
   submit(): void {
     if (this.form.invalid) return;

@@ -1,0 +1,100 @@
+<section class="form-wrapper">
+    <nav class="breadcrumb">
+        <a routerLink="../..">← Rosa</a>
+    </nav>
+
+    <h2>{{ isModifica ? 'Modifica giocatore' : 'Nuovo giocatore' }}</h2>
+
+    @if (errore()) {
+    <p class="errore">{{ errore() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+
+        <fieldset>
+            <legend>Anagrafica</legend>
+
+            <label>
+                Nome *
+                <input formControlName="nome" type="text" />
+                @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+                <span class="hint-errore">Campo obbligatorio</span>
+                }
+            </label>
+
+            <label>
+                Cognome *
+                <input formControlName="cognome" type="text" />
+                @if (form.get('cognome')?.invalid && form.get('cognome')?.touched) {
+                <span class="hint-errore">Campo obbligatorio</span>
+                }
+            </label>
+
+            <label>
+                Data di nascita
+                <input formControlName="dataNascita" type="date" />
+            </label>
+
+            <label>
+                Piede preferito
+                <select formControlName="piedePreferito">
+                    <option [value]="null">–</option>
+                    <option value="DESTRO">Destro</option>
+                    <option value="SINISTRO">Sinistro</option>
+                    <option value="AMBIDESTRO">Ambidestro</option>
+                </select>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Ruolo &amp; Maglia</legend>
+
+            <label>
+                Ruolo *
+                <select formControlName="ruolo">
+                    <option [value]="null">Seleziona…</option>
+                    @for (r of ruoli; track r) {
+                    <option [value]="r">{{ r }}</option>
+                    }
+                </select>
+                @if (form.get('ruolo')?.invalid && form.get('ruolo')?.touched) {
+                <span class="hint-errore">Campo obbligatorio</span>
+                }
+            </label>
+
+            <label>
+                Numero maglia
+                <input formControlName="numeroMaglia" type="number" min="1" max="99" />
+            </label>
+
+            <label>
+                Stato
+                <select formControlName="stato">
+                    @for (s of stati; track s) {
+                    <option [value]="s">{{ s }}</option>
+                    }
+                </select>
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Contratto</legend>
+            <label>
+                Inizio
+                <input formControlName="contrattoInizio" type="date" />
+            </label>
+            <label>
+                Fine
+                <input formControlName="contrattoFine" type="date" />
+            </label>
+        </fieldset>
+
+        <div class="form-actions">
+            <a routerLink="../.." class="btn-secondary">Annulla</a>
+            <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
+                {{ saving() ? 'Salvataggio…' : 'Salva' }}
+            </button>
+        </div>
+
+    </form>
+</section>

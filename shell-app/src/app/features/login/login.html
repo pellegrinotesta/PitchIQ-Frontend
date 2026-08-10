@@ -1,29 +1,38 @@
 <div class="login-page">
-    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+    <p-card class="login-card">
 
-        <div class="login-logo">⚽</div>
-        <h1>Calcio Gestionale</h1>
-        <p class="subtitle">Accedi per continuare</p>
+        <ng-template pTemplate="header">
+            <div class="login-logo">
+                <span class="logo-icon">⚽</span>
+                <h1>PitchIQ</h1>
+                <p>Accedi per continuare</p>
+            </div>
+        </ng-template>
 
         @if (errore()) {
-        <div class="alert-errore">{{ errore() }}</div>
+        <p-message severity="error" styleClass="w-full mb-3">
+            {{ errore() }}
+        </p-message>
         }
+        
+        <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
 
-        <label>
-            Username
-            <input type="text" formControlName="username" autocomplete="username"
-                [attr.aria-invalid]="form.get('username')?.invalid && form.get('username')?.touched" />
-        </label>
+            <div class="field">
+                <label for="username">Username</label>
+                <input pInputText id="username" formControlName="username" placeholder="Inserisci username"
+                    class="w-full" autocomplete="username" />
+            </div>
 
-        <label>
-            Password
-            <input type="password" formControlName="password" autocomplete="current-password"
-                [attr.aria-invalid]="form.get('password')?.invalid && form.get('password')?.touched" />
-        </label>
+            <div class="field">
+                <label for="password">Password</label>
+                <p-password id="password" formControlName="password" placeholder="Inserisci password" [feedback]="false"
+                    [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" autocomplete="current-password" />
+            </div>
 
-        <button type="submit" [disabled]="form.invalid || loading()">
-            {{ loading() ? 'Accesso in corso…' : 'Accedi' }}
-        </button>
+            <p-button type="submit" label="Accedi" icon="pi pi-sign-in" styleClass="w-full" [loading]="loading()"
+                [disabled]="form.invalid" />
 
-    </form>
+        </form>
+
+    </p-card>
 </div>

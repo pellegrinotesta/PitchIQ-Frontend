@@ -1,0 +1,64 @@
+<section class="elenco">
+    <header class="elenco-header">
+        <h2>Rosa</h2>
+        <a routerLink="nuovo" class="btn-primary">+ Aggiungi giocatore</a>
+    </header>
+
+    <!-- Filtri -->
+    <div class="filtri">
+        <input type="text" placeholder="Cerca per cognome..." [(ngModel)]="filtroCognome" (input)="carica()" />
+        <select [(ngModel)]="filtroRuolo" (change)="carica()">
+            <option value="">Tutti i ruoli</option>
+            @for (r of ruoli; track r) {
+            <option [value]="r">{{ r }}</option>
+            }
+        </select>
+        <select [(ngModel)]="filtroStato" (change)="carica()">
+            <option value="">Tutti gli stati</option>
+            @for (s of stati; track s) {
+            <option [value]="s">{{ s }}</option>
+            }
+        </select>
+    </div>
+
+    <!-- Feedback -->
+    @if (loading()) {
+    <p class="stato">Caricamento…</p>
+    } @else if (errore()) {
+    <p class="errore">{{ errore() }}</p>
+    } @else if (giocatori().length === 0) {
+    <p class="stato">Nessun giocatore trovato.</p>
+    } @else {
+    <table class="tabella">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Giocatore</th>
+                <th>Ruolo</th>
+                <th>Stato</th>
+                <th>Contratto</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (g of giocatori(); track g.id) {
+            <tr [class]="'stato-' + g.stato.toLowerCase()">
+                <td>{{ g.numeroMaglia ?? '–' }}</td>
+                <td>
+                    <a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a>
+                </td>
+                <td>{{ g.ruolo }}</td>
+                <td>
+                    <span class="badge badge-{{ g.stato.toLowerCase() }}">{{ g.stato }}</span>
+                </td>
+                <td>{{ g.contrattoFine ?? '–' }}</td>
+                <td>
+                    <a [routerLink]="[g.id, 'modifica']" class="btn-small">Modifica</a>
+                    <button class="btn-small btn-danger" (click)="elimina(g.id)">Elimina</button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+</section>
