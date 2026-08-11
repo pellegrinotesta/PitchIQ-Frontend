@@ -1,6 +1,27 @@
 @import "primeicons/primeicons.css";
 
-html, body {
+:root {
+  --verde: #00ff87;
+  --verde-scuro: #00cc6a;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-card: #1a1a1a;
+  --bg-hover: #222222;
+  --testo: #ffffff;
+  --testo-secondario: #888888;
+  --bordo: #2a2a2a;
+}
+
+* {
+  box-sizing: border-box;
   margin: 0;
-  font-family: system-ui, sans-serif;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--testo);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

@@ -1,38 +1,57 @@
 <div class="login-page">
-    <p-card class="login-card">
 
-        <ng-template pTemplate="header">
-            <div class="login-logo">
-                <span class="logo-icon">⚽</span>
-                <h1>PitchIQ</h1>
-                <p>Accedi per continuare</p>
-            </div>
-        </ng-template>
-
-        @if (errore()) {
-        <p-message severity="error" styleClass="w-full mb-3">
-            {{ errore() }}
-        </p-message>
-        }
-        
-        <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
-
-            <div class="field">
-                <label for="username">Username</label>
-                <input pInputText id="username" formControlName="username" placeholder="Inserisci username"
-                    class="w-full" autocomplete="username" />
-            </div>
-
-            <div class="field">
-                <label for="password">Password</label>
-                <p-password id="password" formControlName="password" placeholder="Inserisci password" [feedback]="false"
-                    [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" autocomplete="current-password" />
-            </div>
-
-            <p-button type="submit" label="Accedi" icon="pi pi-sign-in" styleClass="w-full" [loading]="loading()"
-                [disabled]="form.invalid" />
-
-        </form>
-
-    </p-card>
-</div>
+    <div class="login-box">
+      <div class="login-brand">
+        <span class="brand-icon">⚽</span>
+        <h1>PitchIQ</h1>
+        <p>La tua squadra. I tuoi dati.</p>
+      </div>
+  
+      @if (errore()) {
+        <div class="errore-box">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ errore() }}
+        </div>
+      }
+  
+      <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+        <div class="field">
+          <label>Username</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="username"
+            placeholder="Inserisci username"
+            autocomplete="username"
+            class="input-dark"
+          />
+        </div>
+  
+        <div class="field">
+          <label>Password</label>
+          <p-password
+            formControlName="password"
+            placeholder="Inserisci password"
+            [feedback]="false"
+            [toggleMask]="true"
+            styleClass="w-full"
+            inputStyleClass="input-dark w-full"
+            autocomplete="current-password"
+          />
+        </div>
+  
+        <button type="submit" class="btn-accedi" [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <i class="pi pi-spin pi-spinner"></i> Accesso in corso…
+          } @else {
+            Accedi <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+      </form>
+    </div>
+  
+    <div class="login-bg">
+      <div class="campo-pattern"></div>
+    </div>
+  
+  </div>

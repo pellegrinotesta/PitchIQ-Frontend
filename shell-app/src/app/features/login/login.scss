@@ -1,52 +1,165 @@
 .login-page {
     min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--bg-primary);
+  }
+  
+  .login-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    gap: 2rem;
+    background: var(--bg-primary);
+    z-index: 1;
+  }
+  
+  .login-brand {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  
+  .brand-icon {
+    font-size: 2.5rem;
+  }
+  
+  .login-brand h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--testo);
+  }
+  
+  .login-brand p {
+    color: var(--testo-secondario);
+    font-size: 1rem;
+  }
+  
+  .errore-box {
+    background: rgba(255, 50, 50, .1);
+    border: 1px solid rgba(255, 50, 50, .3);
+    color: #ff6b6b;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    font-size: .9rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-}
-
-.login-card {
-    width: 100%;
-    max-width: 400px;
-}
-
-.login-logo {
-    text-align: center;
-    padding: 1.5rem 1.5rem 0;
-}
-
-.logo-icon {
-    font-size: 3rem;
-}
-
-.login-logo h1 {
-    margin: .5rem 0 .25rem;
-    font-size: 1.8rem;
-    color: #1e3a5f;
-}
-
-.login-logo p {
-    margin: 0;
-    color: #6b7280;
-    font-size: .95rem;
-}
-
-.login-form {
+    gap: .5rem;
+  }
+  
+  .login-form {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    padding-top: .5rem;
-}
-
-.field {
+  }
+  
+  .field {
     display: flex;
     flex-direction: column;
-    gap: .4rem;
-}
-
-.field label {
+    gap: .5rem;
+  }
+  
+  .field label {
+    font-size: .85rem;
     font-weight: 600;
-    font-size: .9rem;
-    color: #374151;
-}
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  
+  :host ::ng-deep .input-dark {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--bordo) !important;
+    color: var(--testo) !important;
+    border-radius: 8px !important;
+    padding: .75rem 1rem !important;
+    font-size: 1rem !important;
+    width: 100%;
+    transition: border-color .2s;
+  }
+  
+  :host ::ng-deep .input-dark:focus {
+    border-color: var(--verde) !important;
+    box-shadow: 0 0 0 2px rgba(0, 255, 135, .15) !important;
+    outline: none !important;
+  }
+  
+  :host ::ng-deep .input-dark::placeholder {
+    color: var(--testo-secondario) !important;
+  }
+  
+  .btn-accedi {
+    margin-top: .5rem;
+    padding: .9rem 1.5rem;
+    background: var(--verde);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    transition: background .2s, transform .1s;
+    letter-spacing: .3px;
+  }
+  
+  .btn-accedi:hover:not(:disabled) {
+    background: var(--verde-scuro);
+    transform: translateY(-1px);
+  }
+  
+  .btn-accedi:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+  
+  /* Lato destro - campo da calcio stilizzato */
+  .login-bg {
+    background: linear-gradient(135deg, #0d1f0d 0%, #0a0a0a 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .campo-pattern {
+    width: 340px;
+    height: 500px;
+    border: 2px solid rgba(0, 255, 135, .15);
+    border-radius: 12px;
+    position: relative;
+  }
+  
+  .campo-pattern::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border: 2px solid rgba(0, 255, 135, .15);
+    border-radius: 50%;
+  }
+  
+  .campo-pattern::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(0, 255, 135, .15);
+  }
+  
+  @media (max-width: 768px) {
+    .login-page { grid-template-columns: 1fr; }
+    .login-bg { display: none; }
+    .login-box { padding: 2rem; }
+  }

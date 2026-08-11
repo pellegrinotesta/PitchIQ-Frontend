@@ -5,6 +5,7 @@ export default withNativeFederation({
 
   exposes: {
     './Component': './src/app/app.ts',
+    './Routes': './src/app/squadre.routes.ts',
   },
 
   shared: {

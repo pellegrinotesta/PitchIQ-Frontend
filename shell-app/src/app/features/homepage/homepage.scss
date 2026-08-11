@@ -1,71 +1,164 @@
 .home {
-    padding: 2rem;
-    max-width: 960px;
-    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
 }
 
-.home-header {
+.navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--bordo);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.home-title {
+.navbar-brand {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: .6rem;
+    font-size: 1.1rem;
 }
 
-.logo-icon {
-    font-size: 2rem;
+.brand-name {
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -.3px;
 }
 
-.home-title h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #1e3a5f;
+.btn-logout {
+    background: transparent;
+    border: 1px solid var(--bordo);
+    color: var(--testo-secondario);
+    padding: .45rem .9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    transition: border-color .2s, color .2s;
 }
 
-.home-grid {
+.btn-logout:hover {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.hero {
+    padding: 4rem 2.5rem 2rem;
+}
+
+.hero-label {
+    color: var(--verde);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .75rem;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1.5px;
+}
+
+.accent {
+    color: var(--verde);
+}
+
+.sezioni-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--bordo);
+    margin: 2rem 2.5rem;
+    border: 1px solid var(--bordo);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.sezione-card {
+    display: flex;
+    align-items: center;
     gap: 1.25rem;
-}
-
-:host ::ng-deep .sezione-card {
+    padding: 2rem;
+    background: var(--bg-card);
+    text-decoration: none;
+    color: var(--testo);
+    transition: background .2s;
     cursor: pointer;
-    transition: transform .15s, box-shadow .15s;
+    position: relative;
 }
 
-:host ::ng-deep .sezione-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+.sezione-card:hover {
+    background: var(--bg-hover);
 }
 
-.sezione-content {
-    text-align: center;
-    padding: 1rem;
+.sezione-card:hover .card-arrow {
+    color: var(--verde);
+    transform: translateX(4px);
 }
 
-.sezione-icon {
-    font-size: 2.5rem;
-    color: #2563eb;
-    margin-bottom: .75rem;
-    display: block;
+.card-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 255, 135, .08);
+    border: 1px solid rgba(0, 255, 135, .15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.sezione-content h2 {
-    margin: 0 0 .5rem;
-    font-size: 1.1rem;
-    color: #1e3a5f;
+.card-icon i {
+    font-size: 1.3rem;
+    color: var(--verde);
 }
 
-.sezione-content p {
-    margin: 0;
-    color: #6b7280;
+.card-body {
+    flex: 1;
+}
+
+.card-body h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.card-body p {
+    font-size: .85rem;
+    color: var(--testo-secondario);
+    line-height: 1.4;
+}
+
+.card-arrow {
+    color: var(--bordo);
     font-size: .9rem;
-    line-height: 1.5;
+    transition: color .2s, transform .2s;
+}
+
+@media (max-width: 768px) {
+    .sezioni-grid {
+        grid-template-columns: 1fr;
+        margin: 1rem;
+    }
+
+    .hero {
+        padding: 2rem 1.5rem 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .navbar {
+        padding: 1rem 1.5rem;
+    }
 }

@@ -1,11 +1,11 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { routes } from './allenamenti.routes';
+import { ALLENAMENTI_ROUTES } from './allenamenti.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
+    provideRouter(ALLENAMENTI_ROUTES)
   ]
 };

@@ -1,8 +1,5 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
-
-
 // Esposto via Native Federation come './Routes' e montato dallo shell sotto /squadre
 export const SQUADRE_ROUTES: Routes = [
     {

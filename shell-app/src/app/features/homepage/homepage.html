@@ -1,22 +1,32 @@
 <div class="home">
 
-    <header class="home-header">
-        <div class="home-title">
-            <span class="logo-icon">⚽</span>
-            <h1>PitchIQ</h1>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span>⚽</span>
+            <span class="brand-name">PitchIQ</span>
         </div>
-        <p-button label="Logout" icon="pi pi-sign-out" severity="danger" [outlined]="true" (onClick)="logout()" />
+        <button class="btn-logout" (click)="logout()">
+            <i class="pi pi-sign-out"></i> Esci
+        </button>
+    </nav>
+
+    <header class="hero">
+        <p class="hero-label">BENVENUTO</p>
+        <h1>La tua <span class="accent">squadra</span>,<br>tutto sotto controllo.</h1>
     </header>
 
-    <main class="home-grid">
-        @for (sezione of sezioni; track sezione.route) {
-        <p-card [routerLink]="sezione.route" styleClass="sezione-card">
-            <div class="sezione-content">
-                <i [class]="sezione.icon + ' sezione-icon'"></i>
-                <h2>{{ sezione.label }}</h2>
-                <p>{{ sezione.descrizione }}</p>
+    <main class="sezioni-grid">
+        @for (s of sezioni; track s.route) {
+        <a [routerLink]="s.route" class="sezione-card">
+            <div class="card-icon">
+                <i [class]="s.icon"></i>
             </div>
-        </p-card>
+            <div class="card-body">
+                <h2>{{ s.label }}</h2>
+                <p>{{ s.descrizione }}</p>
+            </div>
+            <i class="pi pi-arrow-right card-arrow"></i>
+        </a>
         }
     </main>
 

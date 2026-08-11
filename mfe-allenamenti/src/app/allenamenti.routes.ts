@@ -1,3 +1,3 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+export const ALLENAMENTI_ROUTES: Routes = [];
