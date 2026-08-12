@@ -1,64 +1,76 @@
-<section class="elenco">
-    <header class="elenco-header">
-        <h2>Rosa</h2>
-        <a routerLink="nuovo" class="btn-primary">+ Aggiungi giocatore</a>
+<p-confirmdialog />
+
+<div class="page">
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">GESTIONE ROSA</p>
+            <h1>Giocatori</h1>
+        </div>
+        <p-button label="Aggiungi" icon="pi pi-plus" (onClick)="apriNuovo()" />
     </header>
 
-    <!-- Filtri -->
     <div class="filtri">
-        <input type="text" placeholder="Cerca per cognome..." [(ngModel)]="filtroCognome" (input)="carica()" />
-        <select [(ngModel)]="filtroRuolo" (change)="carica()">
-            <option value="">Tutti i ruoli</option>
-            @for (r of ruoli; track r) {
-            <option [value]="r">{{ r }}</option>
-            }
-        </select>
-        <select [(ngModel)]="filtroStato" (change)="carica()">
-            <option value="">Tutti gli stati</option>
-            @for (s of stati; track s) {
-            <option [value]="s">{{ s }}</option>
-            }
-        </select>
+        <p-iconfield class="search-field">
+            <p-inputicon styleClass="pi pi-search" />
+            <input pInputText type="text" placeholder="Cerca per cognome…" [(ngModel)]="filtroCognome"
+                (input)="carica()" />
+        </p-iconfield>
+
+        <p-select [options]="ruoliOptions" [(ngModel)]="filtroRuolo" optionLabel="label" optionValue="value"
+            (onChange)="carica()" styleClass="select-filtro" />
+
+        <p-select [options]="statiOptions" [(ngModel)]="filtroStato" optionLabel="label" optionValue="value"
+            (onChange)="carica()" styleClass="select-filtro" />
     </div>
 
-    <!-- Feedback -->
     @if (loading()) {
-    <p class="stato">Caricamento…</p>
+    <div class="stato-box">
+        <p-progressspinner strokeWidth="3" styleClass="spinner-sm" />
+    </div>
     } @else if (errore()) {
-    <p class="errore">{{ errore() }}</p>
-    } @else if (giocatori().length === 0) {
-    <p class="stato">Nessun giocatore trovato.</p>
+    <p-message severity="error">{{ errore() }}</p-message>
     } @else {
-    <table class="tabella">
-        <thead>
+    <p-table [value]="giocatori()" [tableStyle]="{ 'min-width': '60rem' }" rowHover="true" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
             <tr>
                 <th>#</th>
                 <th>Giocatore</th>
                 <th>Ruolo</th>
                 <th>Stato</th>
-                <th>Contratto</th>
-                <th>Azioni</th>
+                <th>Scadenza contratto</th>
+                <th></th>
             </tr>
-        </thead>
-        <tbody>
-            @for (g of giocatori(); track g.id) {
-            <tr [class]="'stato-' + g.stato.toLowerCase()">
-                <td>{{ g.numeroMaglia ?? '–' }}</td>
+        </ng-template>
+        <ng-template pTemplate="body" let-g>
+            <tr>
+                <td class="maglia">{{ g.numeroMaglia ?? '–' }}</td>
                 <td>
-                    <a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a>
+                    <a [routerLink]="[g.id]" class="link-nome">
+                        {{ g.cognome }} {{ g.nome }}
+                    </a>
                 </td>
-                <td>{{ g.ruolo }}</td>
+                <td class="secondario">{{ g.ruolo }}</td>
                 <td>
-                    <span class="badge badge-{{ g.stato.toLowerCase() }}">{{ g.stato }}</span>
+                    <p-tag [value]="g.stato" [severity]="getSeverity(g.stato)" />
                 </td>
-                <td>{{ g.contrattoFine ?? '–' }}</td>
+                <td class="secondario">{{ g.contrattoFine ?? '–' }}</td>
                 <td>
-                    <a [routerLink]="[g.id, 'modifica']" class="btn-small">Modifica</a>
-                    <button class="btn-small btn-danger" (click)="elimina(g.id)">Elimina</button>
+                    <div class="azioni">
+                        <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary"
+                            (onClick)="apriModifica(g)" />
+                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                            (onClick)="elimina(g)" />
+                    </div>
                 </td>
             </tr>
-            }
-        </tbody>
-    </table>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6" class="empty">Nessun giocatore trovato.</td>
+            </tr>
+        </ng-template>
+    </p-table>
     }
-</section>
+
+</div>

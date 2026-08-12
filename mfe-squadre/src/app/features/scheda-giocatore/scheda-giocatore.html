@@ -1,1 +1,53 @@
-<p>scheda-giocatore works!</p>
+<div class="page">
+
+    @if (loading()) {
+    <div class="stato-box"><p-progressspinner strokeWidth="3" styleClass="spinner-sm" /></div>
+    } @else if (errore()) {
+    <p-message severity="error">{{ errore() }}</p-message>
+    } @else if (giocatore(); as g) {
+
+    <nav class="breadcrumb">
+        <p-button label="Rosa" icon="pi pi-arrow-left" [text]="true" severity="secondary" routerLink=".." />
+    </nav>
+
+    <header class="scheda-header">
+        <div class="maglia-badge">{{ g.numeroMaglia ?? '?' }}</div>
+        <div class="scheda-info">
+            <p class="page-label">{{ g.ruolo }}</p>
+            <h1>{{ g.cognome }} {{ g.nome }}</h1>
+            <p-tag [value]="g.stato" [severity]="getSeverity(g.stato)" styleClass="mt-1" />
+        </div>
+        <p-button label="Modifica" icon="pi pi-pencil" [routerLink]="['modifica']" />
+    </header>
+
+    <p-divider />
+
+    <div class="dettagli-grid">
+        <p-card>
+            <div class="dettaglio-item">
+                <span class="dettaglio-label">Data di nascita</span>
+                <span class="dettaglio-valore">{{ g.dataNascita ?? '–' }}</span>
+            </div>
+        </p-card>
+        <p-card>
+            <div class="dettaglio-item">
+                <span class="dettaglio-label">Piede preferito</span>
+                <span class="dettaglio-valore">{{ g.piedePreferito ?? '–' }}</span>
+            </div>
+        </p-card>
+        <p-card>
+            <div class="dettaglio-item">
+                <span class="dettaglio-label">Inizio contratto</span>
+                <span class="dettaglio-valore">{{ g.contrattoInizio ?? '–' }}</span>
+            </div>
+        </p-card>
+        <p-card>
+            <div class="dettaglio-item">
+                <span class="dettaglio-label">Fine contratto</span>
+                <span class="dettaglio-valore">{{ g.contrattoFine ?? '–' }}</span>
+            </div>
+        </p-card>
+    </div>
+
+    }
+</div>

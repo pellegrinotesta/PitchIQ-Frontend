@@ -1,0 +1,88 @@
+.page {
+    padding: 2rem 2.5rem;
+    min-height: 100vh;
+    background: var(--bg-primary, #0a0a0a);
+    color: var(--testo, #fff);
+}
+
+.stato-box {
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+}
+
+.spinner-sm {
+    width: 40px;
+    height: 40px;
+}
+
+.breadcrumb {
+    margin-bottom: 1.5rem;
+}
+
+.scheda-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.maglia-badge {
+    width: 72px;
+    height: 72px;
+    background: rgba(0, 255, 135, .08);
+    border: 2px solid rgba(0, 255, 135, .2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--verde, #00ff87);
+    flex-shrink: 0;
+}
+
+.scheda-info {
+    flex: 1;
+}
+
+.page-label {
+    color: var(--verde, #00ff87);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .4rem;
+}
+
+.scheda-info h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: .5rem;
+}
+
+.dettagli-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 640px;
+}
+
+.dettaglio-item {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.dettaglio-label {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--testo-secondario, #888);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.dettaglio-valore {
+    font-size: 1.1rem;
+    font-weight: 600;
+}

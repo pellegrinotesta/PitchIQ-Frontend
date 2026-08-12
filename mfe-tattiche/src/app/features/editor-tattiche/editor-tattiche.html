@@ -1,0 +1,101 @@
+<p-toast />
+
+<div class="editor">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <p class="sidebar-label">FORMAZIONI</p>
+            <button class="btn-nuovo" (click)="nuovaFormazione()">
+                <i class="pi pi-plus"></i>
+            </button>
+        </div>
+
+        <div class="formazioni-list">
+            @if (loading()) {
+            <p class="sidebar-empty">Caricamento…</p>
+            } @else if (formazioni().length === 0) {
+            <p class="sidebar-empty">Nessuna formazione</p>
+            } @else {
+            @for (f of formazioni(); track f.id) {
+            <div class="formazione-item" [class.active]="formazioneAttiva()?.id === f.id"
+                (click)="selezionaFormazione(f)">
+                <div class="formazione-info">
+                    <span class="formazione-nome">{{ f.nome }}</span>
+                    <span class="formazione-modulo">{{ f.modulo }}</span>
+                </div>
+                <button class="btn-elimina" (click)="$event.stopPropagation(); elimina(f)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </div>
+            }
+            }
+        </div>
+
+        <!-- ROSA DISPONIBILE -->
+        <div class="sidebar-header" style="margin-top: 1rem;">
+            <p class="sidebar-label">ROSA DISPONIBILE</p>
+        </div>
+
+        <div class="rosa-list">
+            @for (g of rosa(); track g.id) {
+            <div class="giocatore-item" draggable="true" (dragstart)="onDragStart($event, g)">
+                <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
+                <div class="giocatore-info">
+                    <span class="giocatore-nome">{{ g.cognome }}</span>
+                    <span class="giocatore-ruolo">{{ g.ruolo }}</span>
+                </div>
+                <i class="pi pi-arrows-alt drag-icon"></i>
+            </div>
+            }
+        </div>
+    </aside>
+
+    <!-- AREA PRINCIPALE -->
+    <main class="main">
+        @if (!formazioneAttiva()) {
+        <div class="placeholder">
+            <i class="pi pi-sitemap"></i>
+            <p>Seleziona una formazione o creane una nuova</p>
+            <button class="btn-primary" (click)="nuovaFormazione()">
+                <i class="pi pi-plus"></i> Nuova formazione
+            </button>
+        </div>
+        } @else {
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <input class="inp-nome" [(ngModel)]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
+                    placeholder="Nome formazione" />
+                <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"
+                    (ngModelChange)="onModuloChange($event)">
+                    @for (m of moduliOptions; track m.value) {
+                    <option [value]="m.value">{{ m.label }}</option>
+                    }
+                </select>
+            </div>
+            <div class="toolbar-right">
+                <span class="hint-drag">
+                    <i class="pi pi-info-circle"></i>
+                    Trascina i giocatori sul campo
+                </span>
+                <button class="btn-salva" (click)="salva()" [disabled]="salvando()">
+                    @if (salvando()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    } @else {
+                    <i class="pi pi-save"></i>
+                    }
+                    Salva
+                </button>
+            </div>
+        </div>
+
+        <!-- Campo da calcio -->
+        <div class="campo-wrapper">
+            <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
+                (posizioniChange)="onPosizioniChange($event)" />
+        </div>
+        }
+    </main>
+
+</div>

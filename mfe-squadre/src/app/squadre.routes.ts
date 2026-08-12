@@ -10,13 +10,6 @@ export const SQUADRE_ROUTES: Routes = [
             ),
     },
     {
-        path: 'nuovo',
-        loadComponent: () =>
-            import('./features/form-giocatore/form-giocatore').then(
-                (m) => m.FormGiocatore
-            ),
-    },
-    {
         path: ':id',
         loadComponent: () =>
             import('./features/scheda-giocatore/scheda-giocatore').then(

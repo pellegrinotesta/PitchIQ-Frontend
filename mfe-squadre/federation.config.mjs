@@ -13,14 +13,24 @@ export default withNativeFederation({
       { singleton: true, strictVersion: true, requiredVersion: 'auto', build: 'package' },
       {
         overrides: {
-          // includeSecondaries is an opt-out of ignoreUnusedDeps, so all of
-          // @angular/core is shared to prevent mismatches.
           '@angular/core': {
             singleton: true,
             strictVersion: true,
             requiredVersion: 'auto',
             build: 'package',
             includeSecondaries: { keepAll: true },
+          },
+          'primeng': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
+          '@primeuix/themes': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
           },
         },
       },

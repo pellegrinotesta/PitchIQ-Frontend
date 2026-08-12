@@ -1,100 +1,87 @@
-<section class="form-wrapper">
-    <nav class="breadcrumb">
-        <a routerLink="../..">← Rosa</a>
-    </nav>
-
-    <h2>{{ isModifica ? 'Modifica giocatore' : 'Nuovo giocatore' }}</h2>
+<div class="form-wrapper">
 
     @if (errore()) {
-    <p class="errore">{{ errore() }}</p>
+    <p-message severity="error" styleClass="mb-3">{{ errore() }}</p-message>
     }
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
 
-        <fieldset>
-            <legend>Anagrafica</legend>
+        <div class="form-section">
+            <h2 class="section-title">Anagrafica</h2>
 
-            <label>
-                Nome *
-                <input formControlName="nome" type="text" />
-                @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                <span class="hint-errore">Campo obbligatorio</span>
-                }
-            </label>
-
-            <label>
-                Cognome *
-                <input formControlName="cognome" type="text" />
-                @if (form.get('cognome')?.invalid && form.get('cognome')?.touched) {
-                <span class="hint-errore">Campo obbligatorio</span>
-                }
-            </label>
-
-            <label>
-                Data di nascita
-                <input formControlName="dataNascita" type="date" />
-            </label>
-
-            <label>
-                Piede preferito
-                <select formControlName="piedePreferito">
-                    <option [value]="null">–</option>
-                    <option value="DESTRO">Destro</option>
-                    <option value="SINISTRO">Sinistro</option>
-                    <option value="AMBIDESTRO">Ambidestro</option>
-                </select>
-            </label>
-        </fieldset>
-
-        <fieldset>
-            <legend>Ruolo &amp; Maglia</legend>
-
-            <label>
-                Ruolo *
-                <select formControlName="ruolo">
-                    <option [value]="null">Seleziona…</option>
-                    @for (r of ruoli; track r) {
-                    <option [value]="r">{{ r }}</option>
+            <div class="field-row">
+                <div class="field">
+                    <label>Nome *</label>
+                    <input pInputText formControlName="nome" placeholder="Es. Marco" />
+                    @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+                    <small class="hint-errore">Campo obbligatorio</small>
                     }
-                </select>
-                @if (form.get('ruolo')?.invalid && form.get('ruolo')?.touched) {
-                <span class="hint-errore">Campo obbligatorio</span>
-                }
-            </label>
-
-            <label>
-                Numero maglia
-                <input formControlName="numeroMaglia" type="number" min="1" max="99" />
-            </label>
-
-            <label>
-                Stato
-                <select formControlName="stato">
-                    @for (s of stati; track s) {
-                    <option [value]="s">{{ s }}</option>
+                </div>
+                <div class="field">
+                    <label>Cognome *</label>
+                    <input pInputText formControlName="cognome" placeholder="Es. Rossi" />
+                    @if (form.get('cognome')?.invalid && form.get('cognome')?.touched) {
+                    <small class="hint-errore">Campo obbligatorio</small>
                     }
-                </select>
-            </label>
-        </fieldset>
+                </div>
+            </div>
 
-        <fieldset>
-            <legend>Contratto</legend>
-            <label>
-                Inizio
-                <input formControlName="contrattoInizio" type="date" />
-            </label>
-            <label>
-                Fine
-                <input formControlName="contrattoFine" type="date" />
-            </label>
-        </fieldset>
+            <div class="field-row">
+                <div class="field">
+                    <label>Data di nascita</label>
+                    <input type="date" formControlName="dataNascita" class="input-date" />
+                </div>
+                <div class="field">
+                    <label>Piede preferito</label>
+                    <p-select [options]="piedeOptions" formControlName="piedePreferito" optionLabel="label"
+                        optionValue="value" placeholder="Seleziona…" appendTo="body" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">Ruolo & Maglia</h2>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Ruolo *</label>
+                    <p-select [options]="ruoliOptions" formControlName="ruolo" optionLabel="label" optionValue="value"
+                        placeholder="Seleziona…" appendTo="body" />
+                    @if (form.get('ruolo')?.invalid && form.get('ruolo')?.touched) {
+                    <small class="hint-errore">Campo obbligatorio</small>
+                    }
+                </div>
+                <div class="field">
+                    <label>Numero maglia</label>
+                    <input pInputText type="number" formControlName="numeroMaglia" placeholder="Es. 10" />
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Stato</label>
+                <p-selectbutton [options]="statiOptions" formControlName="stato" optionLabel="label"
+                    optionValue="value" />
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">Contratto</h2>
+            <div class="field-row">
+                <div class="field">
+                    <label>Inizio</label>
+                    <input type="date" formControlName="contrattoInizio" class="input-date" />
+                </div>
+                <div class="field">
+                    <label>Fine</label>
+                    <input type="date" formControlName="contrattoFine" class="input-date" />
+                </div>
+            </div>
+        </div>
 
         <div class="form-actions">
-            <a routerLink="../.." class="btn-secondary">Annulla</a>
-            <button type="submit" class="btn-primary" [disabled]="form.invalid || saving()">
-                {{ saving() ? 'Salvataggio…' : 'Salva' }}
-            </button>
+            <p-button label="Annulla" severity="secondary" [outlined]="true" type="button" (onClick)="annulla()" />
+            <p-button type="submit" label="Salva" icon="pi pi-check" [loading]="saving()" [disabled]="form.invalid" />
         </div>
 
     </form>
-</section>
+</div>

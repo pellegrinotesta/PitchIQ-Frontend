@@ -1,29 +1,61 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { RuoloGiocatore, StatoGiocatore, GiocatoreRequest } from '../../core/models/giocatore.model';
+import { RuoloGiocatore, StatoGiocatore, GiocatoreRequest, Giocatore } from '../../core/models/giocatore.model';
 import { GiocatoreService } from '../../core/services/giocatore.service';
+import { ButtonModule } from 'primeng/button';
+import { DividerModule } from 'primeng/divider';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-form-giocatore',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    SelectModule,
+    SelectButtonModule,
+    MessageModule,
+  ],
   templateUrl: './form-giocatore.html',
   styleUrl: './form-giocatore.scss',
 })
-export class FormGiocatore {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+export class FormGiocatore implements OnInit {
+  
   private service = inject(GiocatoreService);
   private fb = inject(FormBuilder);
+  private ref = inject(DynamicDialogRef);
+  private config = inject(DynamicDialogConfig);
 
-  // Se c'è un :id nella rotta, siamo in modalità modifica
-  id: number | null = null;
-  isModifica = false;
+  giocatore: Giocatore | null = null;
   errore = signal<string | null>(null);
   saving = signal(false);
 
-  readonly ruoli: RuoloGiocatore[] = ['PORTIERE', 'DIFENSORE', 'CENTROCAMPISTA', 'ATTACCANTE'];
-  readonly stati: StatoGiocatore[] = ['ATTIVO', 'INFORTUNATO', 'SQUALIFICATO'];
+  get isModifica(): boolean { return !!this.giocatore; }
+
+  readonly ruoliOptions = [
+    { label: 'Portiere', value: 'PORTIERE' },
+    { label: 'Difensore', value: 'DIFENSORE' },
+    { label: 'Centrocampista', value: 'CENTROCAMPISTA' },
+    { label: 'Attaccante', value: 'ATTACCANTE' },
+  ];
+
+  readonly statiOptions = [
+    { label: 'Attivo', value: 'ATTIVO' },
+    { label: 'Infortunato', value: 'INFORTUNATO' },
+    { label: 'Squalificato', value: 'SQUALIFICATO' },
+  ];
+
+  readonly piedeOptions = [
+    { label: 'Destro', value: 'DESTRO' },
+    { label: 'Sinistro', value: 'SINISTRO' },
+    { label: 'Ambidestro', value: 'AMBIDESTRO' },
+  ];
 
   form = this.fb.group({
     nome: ['', [Validators.required, Validators.maxLength(100)]],
@@ -38,37 +70,28 @@ export class FormGiocatore {
   });
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.id = Number(idParam);
-      this.isModifica = true;
-      this.caricaGiocatore(this.id);
+    this.giocatore = this.config.data?.giocatore ?? null;
+    if (this.giocatore) {
+      this.form.patchValue({ ...this.giocatore });
     }
-  }
-
-  private caricaGiocatore(id: number): void {
-    this.service.getById(id).subscribe({
-      next: (g) => this.form.patchValue({ ...g }),
-      error: () => this.errore.set('Impossibile caricare i dati del giocatore.'),
-    });
   }
 
   submit(): void {
     if (this.form.invalid) return;
-
     this.saving.set(true);
     const req = this.form.getRawValue() as GiocatoreRequest;
 
     const op$ = this.isModifica
-      ? this.service.update(this.id!, req)
+      ? this.service.update(this.giocatore!.id, req)
       : this.service.create(req);
 
     op$.subscribe({
-      next: (g) => this.router.navigate(['..', g.id], { relativeTo: this.route }),
-      error: () => {
-        this.errore.set('Salvataggio fallito. Controlla i dati e riprova.');
-        this.saving.set(false);
-      },
+      next: () => { this.ref.close(true); },
+      error: () => { this.errore.set('Salvataggio fallito.'); this.saving.set(false); },
     });
+  }
+
+  annulla(): void {
+    this.ref.close(false);
   }
 }

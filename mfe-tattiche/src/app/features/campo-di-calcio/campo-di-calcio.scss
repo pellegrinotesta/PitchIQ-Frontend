@@ -1,0 +1,123 @@
+:host {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.campo {
+    position: relative;
+    height: 100%;
+    max-height: calc(100vh - 120px);
+    aspect-ratio: 68 / 105;
+    background: linear-gradient(180deg,
+            #1a3a1a 0%, #1e4a1e 8.33%,
+            #1a3a1a 8.33%, #1a3a1a 16.66%,
+            #1e4a1e 16.66%, #1e4a1e 25%,
+            #1a3a1a 25%, #1a3a1a 33.33%,
+            #1e4a1e 33.33%, #1e4a1e 41.66%,
+            #1a3a1a 41.66%, #1a3a1a 50%,
+            #1e4a1e 50%, #1e4a1e 58.33%,
+            #1a3a1a 58.33%, #1a3a1a 66.66%,
+            #1e4a1e 66.66%, #1e4a1e 75%,
+            #1a3a1a 75%, #1a3a1a 83.33%,
+            #1e4a1e 83.33%, #1e4a1e 91.66%,
+            #1a3a1a 91.66%, #1a3a1a 100%);
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, .8);
+    overflow: visible;
+}
+
+.campo-linee {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.giocatore-pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: grab;
+    z-index: 10;
+    user-select: none;
+}
+
+.giocatore-pin:active {
+    cursor: grabbing;
+}
+
+.pin-avatar {
+    width: 36px;
+    height: 36px;
+    background: #00ff87;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 800;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+    transition: transform .15s;
+}
+
+.giocatore-pin:hover .pin-avatar {
+    transform: scale(1.1);
+}
+
+.pin-nome {
+    font-size: .62rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
+    white-space: nowrap;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.pin-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 16px;
+    height: 16px;
+    background: #ff6464;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: .55rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.giocatore-pin:hover .pin-remove {
+    display: flex;
+}
+
+.campo-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 255, 255, 0.15);
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    pointer-events: none;
+    white-space: nowrap;
+}
