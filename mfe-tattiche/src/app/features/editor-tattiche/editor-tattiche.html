@@ -4,6 +4,19 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
+
+        <!-- Tab switcher -->
+        <div class="tab-switcher">
+            <button class="tab-btn" [class.active]="tabAttivo === 'formazioni'" (click)="cambiaTab('formazioni')">
+                Formazioni
+            </button>
+            <button class="tab-btn" [class.active]="tabAttivo === 'schemi'" (click)="cambiaTab('schemi')">
+                Schemi
+            </button>
+        </div>
+
+        <!-- TAB FORMAZIONI -->
+        @if (tabAttivo === 'formazioni') {
         <div class="sidebar-header">
             <p class="sidebar-label">FORMAZIONI</p>
             <button class="btn-nuovo" (click)="nuovaFormazione()">
@@ -11,33 +24,29 @@
             </button>
         </div>
 
-        <div class="formazioni-list">
-            @if (loading()) {
-            <p class="sidebar-empty">Caricamento…</p>
-            } @else if (formazioni().length === 0) {
-            <p class="sidebar-empty">Nessuna formazione</p>
-            } @else {
+        <div class="lista-scroll">
             @for (f of formazioni(); track f.id) {
-            <div class="formazione-item" [class.active]="formazioneAttiva()?.id === f.id"
-                (click)="selezionaFormazione(f)">
-                <div class="formazione-info">
-                    <span class="formazione-nome">{{ f.nome }}</span>
-                    <span class="formazione-modulo">{{ f.modulo }}</span>
+            <div class="lista-item" [class.active]="formazioneAttiva()?.id === f.id" (click)="selezionaFormazione(f)">
+                <div class="item-info">
+                    <span class="item-nome">{{ f.nome }}</span>
+                    <span class="item-sub">{{ f.modulo }}</span>
                 </div>
-                <button class="btn-elimina" (click)="$event.stopPropagation(); elimina(f)">
+                <button class="btn-elimina" (click)="$event.stopPropagation(); eliminaFormazione(f)">
                     <i class="pi pi-trash"></i>
                 </button>
             </div>
             }
+            @if (formazioni().length === 0) {
+            <p class="sidebar-empty">Nessuna formazione</p>
             }
         </div>
 
-        <!-- ROSA DISPONIBILE -->
-        <div class="sidebar-header" style="margin-top: 1rem;">
+        <!-- Rosa disponibile -->
+        <div class="sidebar-header" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #1a1a1a;">
             <p class="sidebar-label">ROSA DISPONIBILE</p>
         </div>
 
-        <div class="rosa-list">
+        <div class="lista-scroll rosa">
             @for (g of rosa(); track g.id) {
             <div class="giocatore-item" draggable="true" (dragstart)="onDragStart($event, g)">
                 <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
@@ -49,10 +58,50 @@
             </div>
             }
         </div>
+        }
+
+        <!-- TAB SCHEMI -->
+        @if (tabAttivo === 'schemi') {
+        <div class="sidebar-header">
+            <p class="sidebar-label">SCHEMI</p>
+            <button class="btn-nuovo" (click)="nuovoSchema()">
+                <i class="pi pi-plus"></i>
+            </button>
+        </div>
+
+        <div class="lista-scroll">
+            @for (s of schemi(); track s.id) {
+            <div class="lista-item" [class.active]="schemaAttivo()?.id === s.id" (click)="selezionaSchema(s)">
+                <div class="item-info">
+                    <span class="item-nome">{{ s.nome }}</span>
+                    <span class="item-sub">{{ s.modulo }}</span>
+                </div>
+                <div class="item-actions">
+                    @if (formazioneAttiva()?.id) {
+                    <button class="btn-applica" title="Applica alla formazione attiva"
+                        (click)="$event.stopPropagation(); applicaSchema(s)">
+                        <i class="pi pi-play"></i>
+                    </button>
+                    }
+                    <button class="btn-elimina" (click)="$event.stopPropagation(); eliminaSchema(s)">
+                        <i class="pi pi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            }
+            @if (schemi().length === 0) {
+            <p class="sidebar-empty">Nessuno schema</p>
+            }
+        </div>
+        }
+
     </aside>
 
     <!-- AREA PRINCIPALE -->
     <main class="main">
+
+        <!-- TAB FORMAZIONI -->
+        @if (tabAttivo === 'formazioni') {
         @if (!formazioneAttiva()) {
         <div class="placeholder">
             <i class="pi pi-sitemap"></i>
@@ -62,15 +111,14 @@
             </button>
         </div>
         } @else {
-        <!-- Toolbar -->
         <div class="toolbar">
             <div class="toolbar-left">
-                <input class="inp-nome" [(ngModel)]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
+                <input class="inp-nome" [ngModel]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
                     placeholder="Nome formazione" />
                 <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"
                     (ngModelChange)="onModuloChange($event)">
-                    @for (m of moduliOptions; track m.value) {
-                    <option [value]="m.value">{{ m.label }}</option>
+                    @for (m of moduliOptions; track m) {
+                    <option [value]="m">{{ m }}</option>
                     }
                 </select>
             </div>
@@ -79,23 +127,64 @@
                     <i class="pi pi-info-circle"></i>
                     Trascina i giocatori sul campo
                 </span>
-                <button class="btn-salva" (click)="salva()" [disabled]="salvando()">
-                    @if (salvando()) {
-                    <i class="pi pi-spin pi-spinner"></i>
-                    } @else {
-                    <i class="pi pi-save"></i>
-                    }
+                <button class="btn-salva" (click)="salvaFormazione()" [disabled]="salvando()">
+                    @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
+                    @else { <i class="pi pi-save"></i> }
                     Salva
                 </button>
             </div>
         </div>
 
-        <!-- Campo da calcio -->
         <div class="campo-wrapper">
             <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
                 (posizioniChange)="onPosizioniChange($event)" />
         </div>
         }
+        }
+
+        <!-- TAB SCHEMI -->
+        @if (tabAttivo === 'schemi') {
+        @if (!schemaAttivo()) {
+        <div class="placeholder">
+            <i class="pi pi-pencil"></i>
+            <p>Seleziona uno schema o creane uno nuovo</p>
+            <button class="btn-primary" (click)="nuovoSchema()">
+                <i class="pi pi-plus"></i> Nuovo schema
+            </button>
+        </div>
+        } @else {
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <input class="inp-nome" [ngModel]="schemaAttivo()!.nome" (ngModelChange)="onNomeSchemaChange($event)"
+                    placeholder="Nome schema" />
+                <select class="inp-modulo" [ngModel]="schemaAttivo()!.modulo"
+                    (ngModelChange)="onModuloSchemaChange($event)">
+                    @for (m of moduliOptions; track m) {
+                    <option [value]="m">{{ m }}</option>
+                    }
+                </select>
+            </div>
+            <div class="toolbar-right">
+                <span class="hint-drag">
+                    <i class="pi pi-info-circle"></i>
+                    Click sul campo per aggiungere slot · Click+trascina per frecce
+                </span>
+                <button class="btn-salva" (click)="salvaSchema()" [disabled]="salvando()">
+                    @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
+                    @else { <i class="pi pi-save"></i> }
+                    Salva
+                </button>
+            </div>
+        </div>
+
+        <div class="campo-wrapper">
+            <app-campo-schema [slot]="schemaAttivo()!.slot" [frecce]="schemaAttivo()!.frecce"
+                [modulo]="schemaAttivo()!.modulo" (slotChange)="onSlotChange($event)"
+                (frecceChange)="onFrecceChange($event)" />
+        </div>
+        }
+        }
+
     </main>
 
 </div>

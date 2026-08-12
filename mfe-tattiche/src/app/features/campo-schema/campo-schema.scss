@@ -1,0 +1,320 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.schema-editor {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.modalita-bar {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    background: #0f0f0f;
+    border-bottom: 1px solid #1a1a1a;
+    flex-shrink: 0;
+}
+
+.mode-btn {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .85rem;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #555;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.mode-btn:hover {
+    color: #888;
+    border-color: #333;
+}
+
+.mode-btn.active {
+    background: rgba(0, 255, 135, .08);
+    border-color: rgba(0, 255, 135, .2);
+    color: #00ff87;
+}
+
+.mode-hint {
+    font-size: .78rem;
+    color: #333;
+    margin-left: .5rem;
+}
+
+.editor-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    gap: 1rem;
+    padding: 1.5rem;
+    align-items: flex-start;
+}
+
+.campo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* Campo */
+.campo {
+    position: relative;
+    height: 100%;
+    max-height: calc(100vh - 200px);
+    aspect-ratio: 68 / 105;
+    background: linear-gradient(180deg,
+            #1a3a1a 0%, #1e4a1e 8.33%,
+            #1a3a1a 8.33%, #1a3a1a 16.66%,
+            #1e4a1e 16.66%, #1e4a1e 25%,
+            #1a3a1a 25%, #1a3a1a 33.33%,
+            #1e4a1e 33.33%, #1e4a1e 41.66%,
+            #1a3a1a 41.66%, #1a3a1a 50%,
+            #1e4a1e 50%, #1e4a1e 58.33%,
+            #1a3a1a 58.33%, #1a3a1a 66.66%,
+            #1e4a1e 66.66%, #1e4a1e 75%,
+            #1a3a1a 75%, #1a3a1a 83.33%,
+            #1e4a1e 83.33%, #1e4a1e 91.66%,
+            #1a3a1a 91.66%, #1a3a1a 100%);
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, .8);
+    cursor: crosshair;
+    user-select: none;
+}
+
+.campo.mode-freccia {
+    cursor: crosshair;
+}
+
+.campo-linee,
+.frecce-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.frecce-overlay {
+    pointer-events: all;
+}
+
+.freccia-line {
+    cursor: pointer;
+    transition: opacity .15s;
+}
+
+.freccia-line:hover {
+    opacity: .6;
+}
+
+/* Slot pin */
+.slot-pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: grab;
+    z-index: 10;
+    user-select: none;
+}
+
+.slot-pin:active {
+    cursor: grabbing;
+}
+
+.slot-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .6rem;
+    font-weight: 800;
+    border: 2px solid rgba(255, 255, 255, .2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+    color: #000;
+    transition: transform .15s;
+}
+
+.slot-pin.selected .slot-avatar {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .3);
+}
+
+.slot-pin:hover .slot-avatar {
+    transform: scale(1.1);
+}
+
+/* Colori per ruolo */
+.ruolo-portiere {
+    background: #f59e0b;
+}
+
+.ruolo-difensore {
+    background: #3b82f6;
+}
+
+.ruolo-centrocampista {
+    background: #00ff87;
+}
+
+.ruolo-attaccante {
+    background: #ef4444;
+}
+
+.slot-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 15px;
+    height: 15px;
+    background: #ff6464;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: .5rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.slot-pin:hover .slot-remove {
+    display: flex;
+}
+
+.campo-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 255, 255, .12);
+    font-size: .82rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Pannello dettaglio */
+.slot-detail {
+    width: 220px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+.detail-title {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #00ff87;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.detail-hint {
+    font-size: .75rem;
+    color: #444;
+    margin: 0;
+}
+
+.detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.detail-field label {
+    font-size: .72rem;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.inp {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #fff;
+    padding: .45rem .6rem;
+    font-size: .85rem;
+    outline: none;
+    width: 100%;
+    transition: border-color .15s;
+    color-scheme: dark;
+    resize: vertical;
+}
+
+.inp:focus {
+    border-color: #00ff87;
+}
+
+.inp.inp-sm {
+    padding: .3rem .5rem;
+    font-size: .8rem;
+}
+
+.btn-chiudi {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #555;
+    padding: .4rem;
+    cursor: pointer;
+    font-size: .82rem;
+    transition: all .15s;
+}
+
+.btn-chiudi:hover {
+    border-color: #555;
+    color: #888;
+}
+
+.freccia-item {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+}
+
+.btn-elimina-freccia {
+    background: transparent;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    padding: .25rem;
+    font-size: .8rem;
+    transition: color .15s;
+}
+
+.btn-elimina-freccia:hover {
+    color: #ff6464;
+}

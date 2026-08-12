@@ -1,0 +1,156 @@
+<div class="schema-editor">
+
+    <!-- Controlli modalità -->
+    <div class="modalita-bar">
+        <button class="mode-btn" [class.active]="modalita === 'slot'" (click)="modalita = 'slot'">
+            <i class="pi pi-map-marker"></i> Slot
+        </button>
+        <button class="mode-btn" [class.active]="modalita === 'freccia'" (click)="modalita = 'freccia'">
+            <i class="pi pi-arrow-right"></i> Frecce
+        </button>
+        <span class="mode-hint">
+            @if (modalita === 'slot') { Click sul campo per aggiungere uno slot, trascina per spostarlo }
+            @if (modalita === 'freccia') { Click e trascina sul campo per disegnare una freccia }
+        </span>
+    </div>
+
+    <div class="editor-body">
+
+        <!-- Campo -->
+        <div class="campo-container">
+            <div class="campo" [class.mode-freccia]="modalita === 'freccia'" (click)="onCampoClick($event)"
+                (mousedown)="onCampoMouseDown($event)" (mousemove)="onCampoMouseMove($event)"
+                (mouseup)="onCampoMouseUp($event)" (dragover)="onCampoDragOver($event)" (drop)="onCampoDrop($event)">
+                <!-- Linee campo SVG -->
+                <svg class="campo-linee" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <rect x="2" y="2" width="96" height="96" fill="none" stroke="rgba(255,255,255,0.15)"
+                        stroke-width=".4" />
+                    <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(255,255,255,0.15)" stroke-width=".4" />
+                    <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width=".4" />
+                    <circle cx="50" cy="50" r=".8" fill="rgba(255,255,255,0.3)" />
+                    <rect x="22" y="75" width="56" height="23" fill="none" stroke="rgba(255,255,255,0.15)"
+                        stroke-width=".4" />
+                    <rect x="35" y="88" width="30" height="10" fill="none" stroke="rgba(255,255,255,0.15)"
+                        stroke-width=".4" />
+                    <rect x="22" y="2" width="56" height="23" fill="none" stroke="rgba(255,255,255,0.15)"
+                        stroke-width=".4" />
+                    <rect x="35" y="2" width="30" height="10" fill="none" stroke="rgba(255,255,255,0.15)"
+                        stroke-width=".4" />
+                    <circle cx="50" cy="84" r=".8" fill="rgba(255,255,255,0.3)" />
+                    <circle cx="50" cy="16" r=".8" fill="rgba(255,255,255,0.3)" />
+                </svg>
+
+                <!-- Frecce SVG overlay -->
+                <svg class="frecce-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <defs>
+                        @for (colore of ['#00ff87','#ff6464','#ffb400','#ffffff','#60a5fa']; track colore) {
+                        <marker [attr.id]="'arrow-' + colore.slice(1)" markerWidth="6" markerHeight="6" refX="5"
+                            refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L6,3 z" [attr.fill]="colore" />
+                        </marker>
+                        }
+                    </defs>
+
+                    @for (f of frecce; track $index) {
+                    <line [attr.x1]="f.startX" [attr.y1]="f.startY" [attr.x2]="f.endX" [attr.y2]="f.endY"
+                        [attr.stroke]="f.colore" stroke-width="1.2"
+                        [attr.marker-end]="'url(#arrow-' + f.colore.slice(1) + ')'" class="freccia-line"
+                        (click)="rimuoviFreccia($index); $event.stopPropagation()" />
+                    @if (f.etichetta) {
+                    <text [attr.x]="(f.startX + f.endX) / 2" [attr.y]="(f.startY + f.endY) / 2 - 2"
+                        [attr.fill]="f.colore" font-size="4" text-anchor="middle">{{ f.etichetta }}</text>
+                    }
+                    }
+
+                    <!-- Freccia in corso di disegno -->
+                    @if (disegnandoFreccia && frecciaInCorso) {
+                    <line [attr.x1]="frecciaInCorso.startX" [attr.y1]="frecciaInCorso.startY" [attr.x2]="mouseX"
+                        [attr.y2]="mouseY" stroke="#00ff87" stroke-width="1" stroke-dasharray="2,2" opacity=".6" />
+                    }
+                </svg>
+
+                <!-- Slot ruolo -->
+                @for (s of slot; track $index) {
+                <div class="slot-pin" [class.selected]="slotSelezionato === s" [style.left.%]="s.coordX"
+                    [style.top.%]="s.coordY" draggable="true" (dragstart)="onSlotDragStart($event, $index)"
+                    (click)="selezionaSlot(s, $event)">
+                    <div class="slot-avatar ruolo-{{ s.ruolo.toLowerCase() }}">
+                        {{ s.slotRuolo }}
+                    </div>
+                    <button class="slot-remove" (click)="rimuoviSlot($index, $event)">
+                        <i class="pi pi-times"></i>
+                    </button>
+                </div>
+                }
+
+                @if (slot.length === 0 && frecce.length === 0) {
+                <div class="campo-hint">
+                    @if (modalita === 'slot') { <i class="pi pi-map-marker"></i> Click per aggiungere slot }
+                    @if (modalita === 'freccia') { <i class="pi pi-arrow-right"></i> Trascina per disegnare }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Pannello dettaglio slot selezionato -->
+        @if (slotSelezionato) {
+        <div class="slot-detail">
+            <p class="detail-title">Configura slot</p>
+
+            <div class="detail-field">
+                <label>Nome slot</label>
+                <input class="inp" [ngModel]="slotSelezionato.slotRuolo"
+                    (ngModelChange)="aggiornaSlot(getSlotIndex(slotSelezionato), 'slotRuolo', $event)"
+                    placeholder="Es. CB1, ST, LM..." />
+            </div>
+
+            <div class="detail-field">
+                <label>Ruolo</label>
+                <select class="inp" [ngModel]="slotSelezionato.ruolo"
+                    (ngModelChange)="aggiornaSlot(getSlotIndex(slotSelezionato), 'ruolo', $event)">
+                    @for (r of ruoliOptions; track r.value) {
+                    <option [value]="r.value">{{ r.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="detail-field">
+                <label>Note tattiche</label>
+                <textarea class="inp" rows="3" [ngModel]="slotSelezionato.note"
+                    (ngModelChange)="aggiornaSlot(getSlotIndex(slotSelezionato), 'note', $event)"
+                    placeholder="Es. Pressing alto, coprire la fascia..."></textarea>
+            </div>
+
+            <button class="btn-chiudi" (click)="slotSelezionato = null">
+                Chiudi
+            </button>
+        </div>
+        }
+
+        <!-- Pannello frecce -->
+        @if (frecce.length > 0 && modalita === 'freccia') {
+        <div class="slot-detail">
+            <p class="detail-title">Frecce ({{ frecce.length }})</p>
+            <p class="detail-hint">Click su una freccia per eliminarla</p>
+
+            @for (f of frecce; track $index) {
+            <div class="freccia-item">
+                <select class="inp inp-sm" [ngModel]="f.colore"
+                    (ngModelChange)="frecceChange.emit(frecce.map((fr, i) => i === $index ? {...fr, colore: $event} : fr))">
+                    @for (c of coloriOptions; track c.value) {
+                    <option [value]="c.value">{{ c.label }}</option>
+                    }
+                </select>
+                <input class="inp inp-sm" [ngModel]="f.etichetta"
+                    (ngModelChange)="frecceChange.emit(frecce.map((fr, i) => i === $index ? {...fr, etichetta: $event} : fr))"
+                    placeholder="Etichetta..." />
+                <button class="btn-elimina-freccia" (click)="rimuoviFreccia($index)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </div>
+            }
+        </div>
+        }
+
+    </div>
+</div>
