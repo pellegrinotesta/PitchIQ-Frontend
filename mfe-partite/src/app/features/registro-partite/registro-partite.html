@@ -1,0 +1,95 @@
+<div class="page">
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">MATCH ANALYSIS</p>
+            <h1>Registro Partite</h1>
+        </div>
+        <div class="header-actions">
+            <a routerLink="scouting" class="btn-secondary">
+                <i class="pi pi-eye"></i> Scouting
+            </a>
+            <button class="btn-primary" (click)="apriNuova()">
+                <i class="pi pi-plus"></i> Nuova partita
+            </button>
+        </div>
+    </header>
+
+    <!-- Statistiche aggregate -->
+    @if (partite().length > 0) {
+    <div class="stats-aggregate">
+        <div class="stat-box vittoria">
+            <span class="stat-num">{{ vittorie }}</span>
+            <span class="stat-lbl">Vittorie</span>
+        </div>
+        <div class="stat-box pareggio">
+            <span class="stat-num">{{ pareggi }}</span>
+            <span class="stat-lbl">Pareggi</span>
+        </div>
+        <div class="stat-box sconfitta">
+            <span class="stat-num">{{ sconfitte }}</span>
+            <span class="stat-lbl">Sconfitte</span>
+        </div>
+        <div class="stat-box neutro">
+            <span class="stat-num">{{ golFatti }}</span>
+            <span class="stat-lbl">Gol fatti</span>
+        </div>
+        <div class="stat-box neutro">
+            <span class="stat-num">{{ golSubiti }}</span>
+            <span class="stat-lbl">Gol subiti</span>
+        </div>
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (partite().length === 0) {
+    <div class="stato-box">Nessuna partita registrata.</div>
+    } @else {
+    <div class="partite-list">
+        @for (p of partite(); track p.id) {
+        <a [routerLink]="[p.id]" class="partita-card">
+
+            <div class="risultato-badge" [class]="getRisultatoClass(p.risultato)">
+                {{ p.risultato }}
+            </div>
+
+            <div class="partita-score">
+                <span class="score">{{ p.golFatti }} – {{ p.golSubiti }}</span>
+                <span class="vs">vs {{ p.avversario }}</span>
+            </div>
+
+            <div class="partita-meta">
+                <span class="meta-item">
+                    <i class="pi pi-calendar"></i> {{ p.data }}
+                </span>
+                @if (p.competizione) {
+                <span class="meta-item">
+                    <i class="pi pi-tag"></i> {{ p.competizione }}
+                </span>
+                }
+                <span class="meta-item" [class]="p.casaTrasferta === 'CASA' ? 'casa' : 'trasferta'">
+                    <i class="pi pi-home"></i> {{ getCasaTrasfertaLabel(p.casaTrasferta) }}
+                </span>
+                @if (p.modulo) {
+                <span class="meta-item">
+                    <i class="pi pi-sitemap"></i> {{ p.modulo }}
+                </span>
+                }
+            </div>
+
+            <div class="partita-actions">
+                <button class="btn-icon" (click)="apriModifica(p, $event)" title="Modifica">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn-icon btn-danger" (click)="elimina(p, $event)" title="Elimina">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </div>
+
+        </a>
+        }
+    </div>
+    }
+
+</div>

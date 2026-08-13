@@ -52,6 +52,14 @@ export const routes: Routes = [
             ),
     },
     {
+        path: 'partite',
+        canActivate: [authGuard],
+        loadChildren: () =>
+            loadRemoteModule('mfe-partite', './Routes').then(
+                (m) => m.PARTITE_ROUTES
+            )
+    },
+    {
         path: '**',
         redirectTo: 'home',
     },

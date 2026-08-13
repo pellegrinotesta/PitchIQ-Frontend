@@ -19,6 +19,7 @@ export class Homepage {
     { label: 'Allenamenti', icon: 'pi pi-calendar', route: '/allenamenti', descrizione: 'Pianifica le sedute e registra le presenze' },
     { label: 'Tattiche', icon: 'pi pi-map', route: '/tattiche', descrizione: 'Crea formazioni e schemi di gioco' },
     { label: 'Statistiche', icon: 'pi pi-chart-line', route: '/statistiche', descrizione: 'Analizza la crescita e il rendimento dei giocatori' },
+    { label: 'Partite', icon: 'pi pi-futbol', route: '/partite', descrizione: 'Registra le partite, gli eventi e le statistiche' },
   ];
 
   logout(): void {

@@ -1,0 +1,64 @@
+import { withNativeFederation, shareAll } from '@angular-architects/native-federation/config';
+
+export default withNativeFederation({
+  name: 'mfe-partite',
+
+  exposes: {
+    './Component': './src/app/app.ts',
+    './Routes': './src/app/partite.routes.ts',
+  },
+
+  shared: {
+    ...shareAll(
+      { singleton: true, strictVersion: true, requiredVersion: 'auto', build: 'package' },
+      {
+        overrides: {
+          '@angular/core': {
+            singleton: true,
+            strictVersion: true,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
+          'primeng': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
+          '@primeuix/themes': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
+          },
+        },
+      },
+    ),
+  },
+
+  skip: [
+    'rxjs/ajax',
+    'rxjs/fetch',
+    'rxjs/testing',
+    'rxjs/webSocket',
+    'chart.js',
+    'chart.js/auto',
+    '@angular/cdk/drag-drop',
+    'primeng/chart',
+    'primeng/listbox',
+    'primeng/orderlist',
+    'primeng/picklist',
+  ],
+
+  // Please read our FAQ about sharing libs:
+  // https://shorturl.at/jmzH0
+
+  features: {
+    // ignoreUnusedDeps is enabled by default now
+    // ignoreUnusedDeps: true,
+
+    // Opt-in: groups chunks in remoteEntry.json for smaller metadata file
+    denseChunking: true,
+  },
+});

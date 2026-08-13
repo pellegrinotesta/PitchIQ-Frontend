@@ -1,0 +1,262 @@
+.page {
+    padding: 2rem 2.5rem;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.page-label {
+    color: #00ff87;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .4rem;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1.2rem;
+    background: #00ff87;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: #00cc6a;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1rem;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #888;
+    font-size: .9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+}
+
+.btn-secondary:hover {
+    border-color: #555;
+    color: #fff;
+}
+
+/* Stats aggregate */
+.stats-aggregate {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.stat-box {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: .75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+    min-width: 80px;
+}
+
+.stat-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.stat-lbl {
+    font-size: .7rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.stat-box.vittoria {
+    border-color: rgba(0, 255, 135, .2);
+}
+
+.stat-box.vittoria .stat-num {
+    color: #00ff87;
+}
+
+.stat-box.pareggio {
+    border-color: rgba(255, 180, 0, .2);
+}
+
+.stat-box.pareggio .stat-num {
+    color: #ffb400;
+}
+
+.stat-box.sconfitta {
+    border-color: rgba(255, 100, 100, .2);
+}
+
+.stat-box.sconfitta .stat-num {
+    color: #ff6464;
+}
+
+.stat-box.neutro .stat-num {
+    color: #fff;
+}
+
+/* Lista partite */
+.partite-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.partita-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: #fff;
+    transition: border-color .15s, transform .1s;
+}
+
+.partita-card:hover {
+    border-color: #2a2a2a;
+    transform: translateX(3px);
+}
+
+.risultato-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.vittoria {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.pareggio {
+    background: rgba(255, 180, 0, .1);
+    color: #ffb400;
+}
+
+.sconfitta {
+    background: rgba(255, 100, 100, .1);
+    color: #ff6464;
+}
+
+.partita-score {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    min-width: 140px;
+}
+
+.score {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.vs {
+    font-size: .82rem;
+    color: #888;
+}
+
+.partita-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .82rem;
+    color: #555;
+}
+
+.meta-item.casa {
+    color: #00ff87;
+}
+
+.meta-item.trasferta {
+    color: #60a5fa;
+}
+
+.partita-actions {
+    display: flex;
+    gap: .4rem;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #222;
+    border-radius: 6px;
+    color: #444;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: border-color .15s, color .15s;
+}
+
+.btn-icon:hover {
+    border-color: #00ff87;
+    color: #00ff87;
+}
+
+.btn-danger:hover {
+    border-color: #ff6464 !important;
+    color: #ff6464 !important;
+}
+
+.stato-box {
+    text-align: center;
+    color: #444;
+    padding: 4rem;
+}

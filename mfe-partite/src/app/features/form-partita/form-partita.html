@@ -1,0 +1,74 @@
+<div class="form-wrapper">
+    @if (errore()) {
+    <div class="errore-box">{{ errore() }}</div>
+    }
+
+    <div class="form-section">
+        <p class="section-title">Dettagli partita</p>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Data *</label>
+                <input class="inp" type="date" [(ngModel)]="data" />
+            </div>
+            <div class="field">
+                <label>Casa/Trasferta</label>
+                <select class="inp" [(ngModel)]="casaTrasferta">
+                    @for (o of casaTrasfertaOptions; track o.value) {
+                    <option [value]="o.value">{{ o.label }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Avversario *</label>
+            <input class="inp" type="text" [(ngModel)]="avversario" placeholder="Es. AC Milan" />
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Competizione</label>
+                <input class="inp" type="text" [(ngModel)]="competizione" placeholder="Es. Serie A" />
+            </div>
+            <div class="field">
+                <label>Modulo</label>
+                <select class="inp" [(ngModel)]="modulo">
+                    <option value="">–</option>
+                    @for (m of moduliOptions; track m) {
+                    <option [value]="m">{{ m }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <p class="section-title">Risultato</p>
+        <div class="score-input">
+            <div class="score-field">
+                <label>Gol fatti</label>
+                <input class="inp inp-score" type="number" min="0" [(ngModel)]="golFatti" />
+            </div>
+            <span class="score-sep">–</span>
+            <div class="score-field">
+                <label>Gol subiti</label>
+                <input class="inp inp-score" type="number" min="0" [(ngModel)]="golSubiti" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <p class="section-title">Note</p>
+        <textarea class="inp" rows="3" [(ngModel)]="note" placeholder="Considerazioni sulla partita…"></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn-annulla" type="button" (click)="annulla()">Annulla</button>
+        <button class="btn-salva" (click)="submit()" [disabled]="!data || !avversario || saving()">
+            @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-check"></i> }
+            Salva
+        </button>
+    </div>
+</div>

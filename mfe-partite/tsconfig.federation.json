@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "files": [
+    "src/app/app.ts",
+    "src/app/partite.routes.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}

@@ -1,0 +1,94 @@
+<div class="page">
+    <nav class="breadcrumb">
+        <a routerLink=".."><i class="pi pi-arrow-left"></i> Partite</a>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">MATCH ANALYSIS</p>
+            <h1>Scouting Avversari</h1>
+        </div>
+        <button class="btn-primary" (click)="apriNuovo()">
+            <i class="pi pi-plus"></i> Nuovo
+        </button>
+    </header>
+
+    <div class="scouting-layout">
+
+        <!-- Lista avversari -->
+        <aside class="avversari-list">
+            @if (loading()) {
+            <p class="stato-box">Caricamento…</p>
+            } @else if (avversari().length === 0) {
+            <p class="stato-box">Nessun avversario scouting</p>
+            } @else {
+            @for (a of avversari(); track a.id) {
+            <div class="avversario-item" [class.active]="selezionato()?.id === a.id" (click)="selezionato.set(a)">
+                <div class="avv-info">
+                    <span class="avv-nome">{{ a.nome }}</span>
+                    @if (a.modulo) {
+                    <span class="avv-modulo">{{ a.modulo }}</span>
+                    }
+                </div>
+                <div class="avv-actions">
+                    <button class="btn-icon" (click)="$event.stopPropagation(); apriModifica(a)">
+                        <i class="pi pi-pencil"></i>
+                    </button>
+                    <button class="btn-icon btn-danger" (click)="$event.stopPropagation(); elimina(a)">
+                        <i class="pi pi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            }
+            }
+        </aside>
+
+        <!-- Dettaglio scouting -->
+        <main class="scouting-detail">
+            @if (!selezionato()) {
+            <div class="placeholder">
+                <i class="pi pi-eye"></i>
+                <p>Seleziona un avversario per vedere il report</p>
+            </div>
+            } @else if (selezionato(); as a) {
+            <div class="report">
+                <div class="report-header">
+                    <h2>{{ a.nome }}</h2>
+                    @if (a.modulo) {
+                    <span class="modulo-badge">{{ a.modulo }}</span>
+                    }
+                </div>
+
+                @if (a.puntiForza) {
+                <div class="report-section forza">
+                    <p class="section-titolo"><i class="pi pi-arrow-up"></i> Punti di forza</p>
+                    <p class="section-testo">{{ a.puntiForza }}</p>
+                </div>
+                }
+
+                @if (a.debolezze) {
+                <div class="report-section debolezza">
+                    <p class="section-titolo"><i class="pi pi-arrow-down"></i> Debolezze</p>
+                    <p class="section-testo">{{ a.debolezze }}</p>
+                </div>
+                }
+
+                @if (a.giocatoriChiave) {
+                <div class="report-section neutro">
+                    <p class="section-titolo"><i class="pi pi-star"></i> Giocatori chiave</p>
+                    <p class="section-testo">{{ a.giocatoriChiave }}</p>
+                </div>
+                }
+
+                @if (a.note) {
+                <div class="report-section note">
+                    <p class="section-titolo"><i class="pi pi-info-circle"></i> Note tattiche</p>
+                    <p class="section-testo">{{ a.note }}</p>
+                </div>
+                }
+            </div>
+            }
+        </main>
+
+    </div>
+</div>

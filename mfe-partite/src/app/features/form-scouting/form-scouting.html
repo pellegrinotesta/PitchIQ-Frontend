@@ -1,0 +1,54 @@
+<div class="form-wrapper">
+    <div class="form-section">
+        <p class="section-title">Avversario</p>
+        <div class="field-row">
+            <div class="field">
+                <label>Nome *</label>
+                <input class="inp" type="text" [(ngModel)]="nome" placeholder="Es. AC Milan" />
+            </div>
+            <div class="field">
+                <label>Modulo</label>
+                <select class="inp" [(ngModel)]="modulo">
+                    <option value="">–</option>
+                    @for (m of moduliOptions; track m) {
+                    <option [value]="m">{{ m }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <p class="section-title">Analisi tattica</p>
+        <div class="field">
+            <label>Punti di forza</label>
+            <textarea class="inp" rows="2" [(ngModel)]="puntiForza"
+                placeholder="Es. Pressing alto organizzato, velocità sulle fasce…"></textarea>
+        </div>
+        <div class="field">
+            <label>Debolezze</label>
+            <textarea class="inp" rows="2" [(ngModel)]="debolezze"
+                placeholder="Es. Vulnerabile sui calci piazzati, difesa alta…"></textarea>
+        </div>
+        <div class="field">
+            <label>Giocatori chiave</label>
+            <input class="inp" type="text" [(ngModel)]="giocatoriChiave"
+                placeholder="Es. Leao, Theo Hernandez, Giroud" />
+        </div>
+    </div>
+
+    <div class="form-section">
+        <p class="section-title">Note tattiche</p>
+        <textarea class="inp" rows="3" [(ngModel)]="note"
+            placeholder="Strategia consigliata, schemi da utilizzare…"></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn-annulla" type="button" (click)="annulla()">Annulla</button>
+        <button class="btn-salva" (click)="submit()" [disabled]="!nome || saving()">
+            @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-check"></i> }
+            Salva
+        </button>
+    </div>
+</div>
