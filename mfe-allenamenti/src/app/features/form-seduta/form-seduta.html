@@ -1,0 +1,56 @@
+<div class="form-wrapper">
+
+    @if (errore()) {
+    <div class="errore-box">{{ errore() }}</div>
+    }
+
+    <div class="form-section">
+        <p class="section-title">Dettagli seduta</p>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Data *</label>
+                <input class="inp" type="date" [(ngModel)]="data" />
+            </div>
+            <div class="field">
+                <label>Tipo *</label>
+                <select class="inp" [(ngModel)]="tipo">
+                    @for (t of tipiOptions; track t.value) {
+                    <option [value]="t.value">{{ t.label }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Ora inizio *</label>
+                <input class="inp" type="time" [(ngModel)]="oraInizio" />
+            </div>
+            <div class="field">
+                <label>Ora fine *</label>
+                <input class="inp" type="time" [(ngModel)]="oraFine" />
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Luogo</label>
+            <input class="inp" type="text" [(ngModel)]="luogo" placeholder="Es. Campo Principale" />
+        </div>
+
+        <div class="field">
+            <label>Note</label>
+            <textarea class="inp" rows="3" [(ngModel)]="note" placeholder="Obiettivi e note sulla seduta…"></textarea>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn-annulla" type="button" (click)="annulla()">Annulla</button>
+        <button class="btn-salva" (click)="submit()" [disabled]="!data || !oraInizio || !oraFine || saving()">
+            @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-check"></i> }
+            Salva
+        </button>
+    </div>
+
+</div>

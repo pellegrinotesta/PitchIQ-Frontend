@@ -1,0 +1,372 @@
+.page {
+    padding: 1.5rem 2rem;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.breadcrumb a {
+    color: #555;
+    text-decoration: none;
+    font-size: .9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    transition: color .15s;
+}
+
+.breadcrumb a:hover {
+    color: #00ff87;
+}
+
+.stato-box {
+    text-align: center;
+    color: #444;
+    padding: 4rem;
+}
+
+.scheda-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 1.5rem;
+    height: calc(100vh - 100px);
+}
+
+/* SIDEBAR */
+.categorie-sidebar {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    overflow-y: auto;
+}
+
+.sidebar-label {
+    font-size: .7rem;
+    font-weight: 700;
+    color: #444;
+    letter-spacing: 1.5px;
+    margin: 0 0 .5rem;
+}
+
+.sidebar-empty {
+    color: #333;
+    font-size: .85rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.categoria-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .65rem .75rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    text-align: left;
+    width: 100%;
+}
+
+.categoria-btn:hover {
+    background: #1a1a1a;
+}
+
+.categoria-btn.active {
+    background: rgba(0, 255, 135, .06);
+    border-color: rgba(0, 255, 135, .15);
+}
+
+.cat-info {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.cat-nome {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.cat-ultimo {
+    font-size: .75rem;
+    color: #555;
+}
+
+.cat-badge {
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .2rem .5rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    white-space: nowrap;
+}
+
+.cat-badge.crescita {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.cat-badge.calo {
+    background: rgba(255, 100, 100, .1);
+    color: #ff6464;
+}
+
+.cat-badge.stabile {
+    background: rgba(255, 255, 255, .05);
+    color: #888;
+}
+
+/* Form inserimento */
+.inserimento-form {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+
+.form-field label {
+    font-size: .7rem;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.inp {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #fff;
+    padding: .45rem .6rem;
+    font-size: .85rem;
+    outline: none;
+    width: 100%;
+    transition: border-color .15s;
+    color-scheme: dark;
+}
+
+.inp:focus {
+    border-color: #00ff87;
+}
+
+.btn-salva {
+    padding: .5rem;
+    background: #00ff87;
+    color: #000;
+    border: none;
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    transition: background .15s;
+}
+
+.btn-salva:hover:not(:disabled) {
+    background: #00cc6a;
+}
+
+.btn-salva:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+.msg-salvataggio {
+    font-size: .78rem;
+    color: #00ff87;
+    text-align: center;
+    margin: 0;
+}
+
+/* AREA GRAFICO */
+.grafico-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.placeholder {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #333;
+}
+
+.placeholder i {
+    font-size: 3rem;
+    color: #1e1e1e;
+}
+
+.grafico-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-label {
+    color: #00ff87;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .3rem;
+}
+
+.grafico-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    margin: 0;
+}
+
+.indici {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.indice-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+    min-width: 90px;
+}
+
+.indice-card.crescita {
+    border-color: rgba(0, 255, 135, .2);
+}
+
+.indice-card.calo {
+    border-color: rgba(255, 100, 100, .2);
+}
+
+.indice-card.neutro {
+    border-color: #1e1e1e;
+}
+
+.indice-valore {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.indice-card.crescita .indice-valore {
+    color: #00ff87;
+}
+
+.indice-card.calo .indice-valore {
+    color: #ff6464;
+}
+
+.indice-card.neutro .indice-valore {
+    color: #fff;
+}
+
+.indice-label {
+    font-size: .7rem;
+    color: #555;
+    text-align: center;
+}
+
+/* Tabella */
+.tabella-dati {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabella-titolo {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #444;
+    letter-spacing: 1px;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #1a1a1a;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.tabella {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabella th {
+    padding: .6rem 1rem;
+    font-size: .72rem;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: left;
+    border-bottom: 1px solid #141414;
+}
+
+.tabella td {
+    padding: .65rem 1rem;
+    font-size: .88rem;
+    border-bottom: 1px solid #141414;
+    color: #fff;
+}
+
+.tabella tbody tr:hover {
+    background: #111;
+}
+
+.riga-proiezione td {
+    color: #555;
+    font-style: italic;
+}
+
+.valore {
+    font-weight: 700;
+}
+
+.badge {
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 700;
+}
+
+.badge.reale {
+    background: rgba(0, 255, 135, .08);
+    color: #00ff87;
+}
+
+.badge.proiezione {
+    background: rgba(255, 255, 255, .04);
+    color: #555;
+}

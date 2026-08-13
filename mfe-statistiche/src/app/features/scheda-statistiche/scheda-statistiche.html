@@ -1,0 +1,143 @@
+<div class="page">
+
+    <nav class="breadcrumb">
+        <a routerLink="..">
+            <i class="pi pi-arrow-left"></i> Panoramica Rosa
+        </a>
+    </nav>
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else {
+
+    <div class="scheda-layout">
+
+        <!-- SIDEBAR CATEGORIE -->
+        <aside class="categorie-sidebar">
+            <p class="sidebar-label">METRICHE</p>
+
+            @if (trends().length === 0) {
+            <p class="sidebar-empty">Nessun dato ancora</p>
+            } @else {
+            @for (t of trends(); track t.categoria) {
+            <button class="categoria-btn" [class.active]="trendSelezionato()?.categoria === t.categoria"
+                (click)="selezionaCategoria(t)">
+                <div class="cat-info">
+                    <span class="cat-nome">{{ getCategoriaLabel(t.categoria) }}</span>
+                    <span class="cat-ultimo">
+                        {{ t.storico.length > 0 ? t.storico[t.storico.length - 1].valore : '–' }}
+                    </span>
+                </div>
+                <span class="cat-badge" [class]="getTendenzaClass(t.tendenza)">
+                    <i [class]="getTendenzaIcon(t.tendenza)"></i>
+                    {{ t.indiceCrescita > 0 ? '+' : '' }}{{ t.indiceCrescita }}%
+                </span>
+            </button>
+            }
+            }
+
+            <!-- Form inserimento dato -->
+            <div class="inserimento-form">
+                <p class="sidebar-label" style="margin-top: 1rem;">INSERISCI DATO</p>
+
+                <div class="form-field">
+                    <label>Periodo</label>
+                    <input class="inp" type="month" [(ngModel)]="nuovoPeriodo" />
+                </div>
+
+                <div class="form-field">
+                    <label>Metrica</label>
+                    <select class="inp" [(ngModel)]="nuovaCategoria">
+                        @for (c of categorieOptions; track c.value) {
+                        <option [value]="c.value">{{ c.label }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label>Valore</label>
+                    <input class="inp" type="number" [(ngModel)]="nuovoValore" placeholder="Es. 7.5" step="0.1" />
+                </div>
+
+                <button class="btn-salva" (click)="inserisciDato()" [disabled]="!nuovoValore || salvando()">
+                    @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
+                    Salva dato
+                </button>
+
+                @if (messaggioSalvataggio()) {
+                <p class="msg-salvataggio">{{ messaggioSalvataggio() }}</p>
+                }
+            </div>
+        </aside>
+
+        <!-- AREA GRAFICO -->
+        <main class="grafico-area">
+            @if (!trendSelezionato()) {
+            <div class="placeholder">
+                <i class="pi pi-chart-line"></i>
+                <p>Seleziona una metrica per vedere il grafico</p>
+            </div>
+            } @else {
+            <div class="grafico-header">
+                <div>
+                    <p class="page-label">{{ getCategoriaLabel(trendSelezionato()!.categoria) }}</p>
+                    <h2>{{ trendSelezionato()!.nomeGiocatore }}</h2>
+                </div>
+                <div class="indici">
+                    <div class="indice-card" [class]="getTendenzaClass(trendSelezionato()!.tendenza)">
+                        <i [class]="getTendenzaIcon(trendSelezionato()!.tendenza)"></i>
+                        <span class="indice-valore">
+                            {{ trendSelezionato()!.indiceCrescita > 0 ? '+' : '' }}{{ trendSelezionato()!.indiceCrescita
+                            }}%
+                        </span>
+                        <span class="indice-label">ultimi 3 mesi</span>
+                    </div>
+                    <div class="indice-card neutro">
+                        <span class="indice-valore">{{ trendSelezionato()!.storico.length }}</span>
+                        <span class="indice-label">rilevazioni</span>
+                    </div>
+                    <div class="indice-card neutro">
+                        <span class="indice-valore">{{ trendSelezionato()!.proiezione.length }}</span>
+                        <span class="indice-label">mesi proiettati</span>
+                    </div>
+                </div>
+            </div>
+
+            <stat-grafico-trend [trend]="trendSelezionato()!" [mesiProiezione]="mesiProiezione" />
+
+            <!-- Tabella dati -->
+            <div class="tabella-dati">
+                <p class="tabella-titolo">Storico dati</p>
+                <table class="tabella">
+                    <thead>
+                        <tr>
+                            <th>Periodo</th>
+                            <th>Valore</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (p of trendSelezionato()!.storico; track p.periodo) {
+                        <tr>
+                            <td>{{ p.periodo }}</td>
+                            <td class="valore">{{ p.valore }}</td>
+                            <td><span class="badge reale">Reale</span></td>
+                        </tr>
+                        }
+                        @for (p of trendSelezionato()!.proiezione; track p.periodo) {
+                        <tr class="riga-proiezione">
+                            <td>{{ p.periodo }}</td>
+                            <td class="valore">{{ p.valore }}</td>
+                            <td><span class="badge proiezione">Proiezione</span></td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            }
+        </main>
+
+    </div>
+    }
+
+</div>

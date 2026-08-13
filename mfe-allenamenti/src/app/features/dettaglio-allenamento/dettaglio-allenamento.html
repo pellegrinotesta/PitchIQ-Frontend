@@ -1,0 +1,144 @@
+<div class="page">
+
+    <nav class="breadcrumb">
+        <a routerLink=".."><i class="pi pi-arrow-left"></i> Allenamenti</a>
+    </nav>
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (seduta(); as s) {
+
+    <header class="page-header">
+        <div class="header-left">
+            <div class="tipo-icon" [class]="getTipoClass(s.tipo)">
+                <i class="pi pi-bolt"></i>
+            </div>
+            <div>
+                <p class="page-label">{{ s.tipo }}</p>
+                <h1>{{ s.data }}</h1>
+                <p class="ora-luogo">
+                    {{ s.oraInizio }} – {{ s.oraFine }}
+                    @if (s.luogo) { · <i class="pi pi-map-marker"></i> {{ s.luogo }} }
+                </p>
+            </div>
+        </div>
+        <div class="header-right">
+            @if (messaggio()) {
+            <span class="msg-ok">{{ messaggio() }}</span>
+            }
+            @if (s.presenze.length === 0) {
+            <button class="btn-secondary" (click)="generaPresenze()">
+                <i class="pi pi-users"></i> Genera presenze
+            </button>
+            }
+            <button class="btn-primary" (click)="salvaPresenze()" [disabled]="salvando()">
+                @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
+                @else { <i class="pi pi-save"></i> }
+                Salva presenze
+            </button>
+        </div>
+    </header>
+
+    @if (s.note) {
+    <div class="note-box">
+        <i class="pi pi-info-circle"></i> {{ s.note }}
+    </div>
+    }
+
+    <!-- Stats presenze -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-valore presenti">{{ s.totalePresenti }}</span>
+            <span class="stat-label">Presenti</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-valore assenti">{{ s.totaleAssenti }}</span>
+            <span class="stat-label">Assenti</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-valore">{{ s.presenze.length }}</span>
+            <span class="stat-label">Totale</span>
+        </div>
+        @if (s.presenze.length > 0) {
+        <div class="stat-card">
+            <span class="stat-valore">
+                {{ ((s.totalePresenti / s.presenze.length) * 100).toFixed(0) }}%
+            </span>
+            <span class="stat-label">Partecipazione</span>
+        </div>
+        }
+    </div>
+
+    <!-- Lista presenze -->
+    @if (s.presenze.length === 0) {
+    <div class="stato-box">
+        Nessuna presenza registrata.
+        <button class="btn-link" (click)="generaPresenze()">
+            Genera automaticamente per tutta la rosa
+        </button>
+    </div>
+    } @else {
+    <div class="presenze-grid">
+
+        <!-- Presenti -->
+        <div class="gruppo">
+            <p class="gruppo-titolo presenti">
+                <i class="pi pi-check-circle"></i> Presenti ({{ s.totalePresenti }})
+            </p>
+            @for (p of s.presenze; track p.giocatoreId) {
+            @if (p.presente) {
+            <div class="presenza-row">
+                <div class="g-maglia">{{ p.numeroMaglia ?? '?' }}</div>
+                <div class="g-info">
+                    <span class="g-nome">{{ p.cognomeGiocatore }} {{ p.nomeGiocatore }}</span>
+                    <span class="g-ruolo">{{ p.ruolo }}</span>
+                </div>
+
+                <!-- Valutazione stelline -->
+                <div class="valutazione">
+                    @for (v of [1,2,3,4,5,6,7,8,9,10]; track v) {
+                    <button class="stella" [class.attiva]="(p.valutazione ?? 0) >= v"
+                        (click)="p.valutazione = p.valutazione === v ? null : v">●</button>
+                    }
+                    @if (p.valutazione) {
+                    <span class="val-numero">{{ p.valutazione }}</span>
+                    }
+                </div>
+
+                <button class="btn-toggle assente" (click)="togglePresenza(p)" title="Segna assente">
+                    <i class="pi pi-times"></i>
+                </button>
+            </div>
+            }
+            }
+        </div>
+
+        <!-- Assenti -->
+        @if (s.totaleAssenti > 0) {
+        <div class="gruppo">
+            <p class="gruppo-titolo assenti">
+                <i class="pi pi-times-circle"></i> Assenti ({{ s.totaleAssenti }})
+            </p>
+            @for (p of s.presenze; track p.giocatoreId) {
+            @if (!p.presente) {
+            <div class="presenza-row assente">
+                <div class="g-maglia">{{ p.numeroMaglia ?? '?' }}</div>
+                <div class="g-info">
+                    <span class="g-nome">{{ p.cognomeGiocatore }} {{ p.nomeGiocatore }}</span>
+                    <span class="g-ruolo">{{ p.ruolo }}</span>
+                </div>
+                <input class="inp-motivo" [(ngModel)]="p.motivoAssenza" placeholder="Motivo assenza…" />
+                <button class="btn-toggle presente" (click)="togglePresenza(p)" title="Segna presente">
+                    <i class="pi pi-check"></i>
+                </button>
+            </div>
+            }
+            }
+        </div>
+        }
+
+    </div>
+    }
+
+    }
+</div>

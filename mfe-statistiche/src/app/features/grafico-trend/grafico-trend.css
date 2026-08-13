@@ -1,0 +1,44 @@
+.grafico-wrapper {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.grafico-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.punto {
+    cursor: pointer;
+    transition: r .15s;
+}
+
+.punto:hover {
+    r: 7;
+}
+
+.legenda {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: .75rem;
+    justify-content: flex-end;
+}
+
+.legenda-item {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .78rem;
+    color: #555;
+}
+
+.no-grafico {
+    text-align: center;
+    color: #333;
+    padding: 3rem;
+    font-style: italic;
+    font-size: .9rem;
+}

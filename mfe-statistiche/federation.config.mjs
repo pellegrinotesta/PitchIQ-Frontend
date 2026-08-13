@@ -5,6 +5,7 @@ export default withNativeFederation({
 
   exposes: {
     './Component': './src/app/app.ts',
+    './Routes': './src/app/statistiche.routes.ts',
   },
 
   shared: {
@@ -12,14 +13,24 @@ export default withNativeFederation({
       { singleton: true, strictVersion: true, requiredVersion: 'auto', build: 'package' },
       {
         overrides: {
-          // includeSecondaries is an opt-out of ignoreUnusedDeps, so all of
-          // @angular/core is shared to prevent mismatches.
           '@angular/core': {
             singleton: true,
             strictVersion: true,
             requiredVersion: 'auto',
             build: 'package',
             includeSecondaries: { keepAll: true },
+          },
+          'primeng': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
+            build: 'package',
+            includeSecondaries: { keepAll: true },
+          },
+          '@primeuix/themes': {
+            singleton: true,
+            strictVersion: false,
+            requiredVersion: 'auto',
           },
         },
       },
@@ -31,7 +42,13 @@ export default withNativeFederation({
     'rxjs/fetch',
     'rxjs/testing',
     'rxjs/webSocket',
-    // Add further packages you don't need at runtime
+    'chart.js',
+    'chart.js/auto',
+    '@angular/cdk/drag-drop',
+    'primeng/chart',
+    'primeng/listbox',
+    'primeng/orderlist',
+    'primeng/picklist',
   ],
 
   // Please read our FAQ about sharing libs:

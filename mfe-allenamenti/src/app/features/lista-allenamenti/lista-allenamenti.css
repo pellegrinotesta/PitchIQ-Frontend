@@ -1,0 +1,236 @@
+.page {
+    padding: 2rem 2.5rem;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.page-label {
+    color: #00ff87;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .4rem;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1.2rem;
+    background: #00ff87;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.btn-primary:hover {
+    background: #00cc6a;
+}
+
+.sedute-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.seduta-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: border-color .15s;
+}
+
+.seduta-card:hover {
+    border-color: #2a2a2a;
+}
+
+.seduta-tipo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.tecnico {
+    background: rgba(96, 165, 250, .1);
+    color: #60a5fa;
+}
+
+.tattico {
+    background: rgba(167, 139, 250, .1);
+    color: #a78bfa;
+}
+
+.atletico {
+    background: rgba(251, 191, 36, .1);
+    color: #fbbf24;
+}
+
+.partitella {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.seduta-info {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.seduta-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.seduta-data {
+    font-weight: 700;
+    font-size: .95rem;
+}
+
+.seduta-ora {
+    font-size: .82rem;
+    color: #555;
+}
+
+.seduta-meta {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.badge {
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.tipo-tecnico {
+    background: rgba(96, 165, 250, .1);
+    color: #60a5fa;
+}
+
+.tipo-tattico {
+    background: rgba(167, 139, 250, .1);
+    color: #a78bfa;
+}
+
+.tipo-atletico {
+    background: rgba(251, 191, 36, .1);
+    color: #fbbf24;
+}
+
+.tipo-partitella {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.seduta-luogo {
+    font-size: .8rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+.presenze-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.presenze-bar {
+    width: 120px;
+    height: 4px;
+    background: #1e1e1e;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.presenze-fill {
+    height: 100%;
+    background: #00ff87;
+    border-radius: 999px;
+    transition: width .3s;
+}
+
+.presenze-label {
+    font-size: .75rem;
+    color: #555;
+    white-space: nowrap;
+}
+
+.seduta-azioni {
+    display: flex;
+    gap: .4rem;
+    margin-left: auto;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid #222;
+    border-radius: 6px;
+    color: #444;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: border-color .15s, color .15s;
+}
+
+.btn-icon:hover {
+    border-color: #00ff87;
+    color: #00ff87;
+}
+
+.btn-danger:hover {
+    border-color: #ff6464 !important;
+    color: #ff6464 !important;
+}
+
+.stato-box {
+    text-align: center;
+    color: #444;
+    padding: 4rem;
+}
+
+.errore-box {
+    background: rgba(255, 100, 100, .1);
+    border: 1px solid rgba(255, 100, 100, .2);
+    color: #ff6464;
+    padding: 1rem;
+    border-radius: 8px;
+}

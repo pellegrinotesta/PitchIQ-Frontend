@@ -1,0 +1,57 @@
+<div class="page">
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">CRESCITA & STATISTICHE</p>
+            <h1>Panoramica Rosa</h1>
+        </div>
+    </header>
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (rosa().length === 0) {
+    <div class="stato-box">Nessun giocatore nella rosa.</div>
+    } @else {
+    <div class="giocatori-grid">
+        @for (g of rosa(); track g.id) {
+        <a [routerLink]="['giocatore', g.id]" class="giocatore-card">
+            <div class="card-header">
+                <div class="maglia-badge">{{ g.numeroMaglia ?? '?' }}</div>
+                <div class="card-info">
+                    <span class="card-nome">{{ g.cognome }} {{ g.nome }}</span>
+                    <span class="card-ruolo">{{ g.ruolo }}</span>
+                </div>
+            </div>
+
+            @if (getTrend(g.id); as trend) {
+            <div class="card-trend">
+                <div class="indice-box" [class]="getTendenzaClass(trend.tendenza)">
+                    <i [class]="getTendenzaIcon(trend.tendenza)"></i>
+                    <span class="indice-valore">
+                        {{ trend.indiceCrescita > 0 ? '+' : '' }}{{ trend.indiceCrescita }}%
+                    </span>
+                </div>
+                <span class="trend-label">{{ trend.tendenza }}</span>
+            </div>
+
+            <!-- Mini sparkline SVG -->
+            @if (trend.storico.length > 1) {
+            <svg class="sparkline" viewBox="0 0 100 30" preserveAspectRatio="none">
+                <polyline [attr.points]="getSparklinePoints(trend.storico)" fill="none"
+                    [attr.stroke]="trend.tendenza === 'CRESCITA' ? '#00ff87' : trend.tendenza === 'CALO' ? '#ff6464' : '#888'"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            }
+            } @else {
+            <div class="no-dati">Nessun dato disponibile</div>
+            }
+
+            <div class="card-arrow">
+                <i class="pi pi-arrow-right"></i>
+            </div>
+        </a>
+        }
+    </div>
+    }
+
+</div>

@@ -1,0 +1,65 @@
+<div class="page">
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">PIANIFICAZIONE</p>
+            <h1>Allenamenti</h1>
+        </div>
+        <button class="btn-primary" (click)="apriNuova()">
+            <i class="pi pi-plus"></i> Nuova seduta
+        </button>
+    </header>
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (errore()) {
+    <div class="errore-box">{{ errore() }}</div>
+    } @else if (sedute().length === 0) {
+    <div class="stato-box">Nessuna seduta pianificata.</div>
+    } @else {
+    <div class="sedute-list">
+        @for (s of sedute(); track s.id) {
+        <div class="seduta-card">
+            <div class="seduta-tipo" [class]="getTipoClass(s.tipo)">
+                <i [class]="getTipoIcon(s.tipo)"></i>
+            </div>
+
+            <div class="seduta-info" [routerLink]="[s.id]" style="cursor:pointer; flex:1">
+                <div class="seduta-header">
+                    <span class="seduta-data">{{ s.data }}</span>
+                    <span class="seduta-ora">{{ s.oraInizio }} – {{ s.oraFine }}</span>
+                </div>
+                <div class="seduta-meta">
+                    <span class="badge tipo-{{ getTipoClass(s.tipo) }}">{{ s.tipo }}</span>
+                    @if (s.luogo) {
+                    <span class="seduta-luogo">
+                        <i class="pi pi-map-marker"></i> {{ s.luogo }}
+                    </span>
+                    }
+                </div>
+                @if (s.totalePresenti + s.totaleAssenti > 0) {
+                <div class="presenze-bar-wrapper">
+                    <div class="presenze-bar">
+                        <div class="presenze-fill"
+                            [style.width.%]="(s.totalePresenti / (s.totalePresenti + s.totaleAssenti)) * 100"></div>
+                    </div>
+                    <span class="presenze-label">
+                        {{ s.totalePresenti }}/{{ s.totalePresenti + s.totaleAssenti }} presenti
+                    </span>
+                </div>
+                }
+            </div>
+
+            <div class="seduta-azioni">
+                <button class="btn-icon" (click)="apriModifica(s)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn-icon btn-danger" (click)="elimina(s)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>
