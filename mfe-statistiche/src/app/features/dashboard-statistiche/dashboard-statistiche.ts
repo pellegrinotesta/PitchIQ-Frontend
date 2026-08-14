@@ -15,6 +15,7 @@ export class DashboardStatistiche implements OnInit {
   rosa = signal<GiocatoreStatistica[]>([]);
   panoramica = signal<TrendDto[]>([]);
   loading = signal(true);
+  readonly history = history;
 
   ngOnInit(): void {
     this.service.getRosa().subscribe({

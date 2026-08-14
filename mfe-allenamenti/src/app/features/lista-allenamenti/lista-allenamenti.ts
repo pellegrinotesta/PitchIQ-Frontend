@@ -20,6 +20,7 @@ export class ListaAllenamenti implements OnInit {
   private dialogService = inject(DialogService);
   private confirmService = inject(ConfirmationService);
   private ref: DynamicDialogRef | null = null;
+  readonly history = history;
 
   sedute  = signal<SedutaAllenamento[]>([]);
   loading = signal(true);

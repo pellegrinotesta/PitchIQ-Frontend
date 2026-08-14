@@ -3,9 +3,14 @@
 <div class="page">
 
     <header class="page-header">
-        <div>
-            <p class="page-label">GESTIONE ROSA</p>
-            <h1>Giocatori</h1>
+        <div class="header-left">
+            <a (click)="history.back()" class="btn-back">
+                <i class="pi pi-arrow-left"></i>
+            </a>
+            <div>
+                <p class="page-label">GESTIONE ROSA</p>
+                <h1>Giocatori</h1>
+            </div>
         </div>
         <p-button label="Aggiungi" icon="pi pi-plus" (onClick)="apriNuovo()" />
     </header>

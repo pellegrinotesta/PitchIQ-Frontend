@@ -6,7 +6,16 @@
 }
 
 .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 2rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .page-label {
@@ -176,4 +185,26 @@
 .btn-secondary:hover {
     border-color: #555;
     color: #fff;
+}
+
+.btn-back {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #555;
+    cursor: pointer;
+    font-size: .9rem;
+    transition: border-color .15s, color .15s;
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    border-color: #00ff87;
+    color: #00ff87;
 }

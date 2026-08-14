@@ -113,6 +113,9 @@
         } @else {
         <div class="toolbar">
             <div class="toolbar-left">
+                <a (click)="history.back()" class="btn-back" title="Indietro">
+                    <i class="pi pi-arrow-left"></i>
+                  </a>
                 <input class="inp-nome" [ngModel]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
                     placeholder="Nome formazione" />
                 <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"

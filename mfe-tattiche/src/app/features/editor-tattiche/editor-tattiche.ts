@@ -37,6 +37,7 @@ export class EditorTattiche implements OnInit {
 
   // Tab attivo
   tabAttivo: 'formazioni' | 'schemi' = 'formazioni';
+  readonly history = history;
 
   // Formazioni
   formazioni = signal<Formazione[]>([]);

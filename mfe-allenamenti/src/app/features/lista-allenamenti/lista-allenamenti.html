@@ -1,13 +1,19 @@
 <div class="page">
 
     <header class="page-header">
-        <div>
-            <p class="page-label">PIANIFICAZIONE</p>
-            <h1>Allenamenti</h1>
+        <div class="header-left">
+            <a (click)="history.back()" class="btn-back">
+                <i class="pi pi-arrow-left"></i>
+            </a>
+            <div>
+                <p class="page-label">PIANIFICAZIONE</p>
+                <h1>Allenamenti</h1>
+            </div>
+            <button class="btn-primary" (click)="apriNuova()">
+                <i class="pi pi-plus"></i> Nuova seduta
+            </button>
         </div>
-        <button class="btn-primary" (click)="apriNuova()">
-            <i class="pi pi-plus"></i> Nuova seduta
-        </button>
+
     </header>
 
     @if (loading()) {

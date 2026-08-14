@@ -47,6 +47,7 @@ export class ElencoGiocatori implements OnInit {
   giocatori = signal<Giocatore[]>([]);
   loading = signal(false);
   errore = signal<string | null>(null);
+  readonly history = history;
 
   filtroCognome = '';
   filtroRuolo: RuoloGiocatore | null = null;

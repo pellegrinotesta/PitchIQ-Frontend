@@ -1,10 +1,16 @@
 <div class="page">
 
     <header class="page-header">
-        <div>
-            <p class="page-label">CRESCITA & STATISTICHE</p>
-            <h1>Panoramica Rosa</h1>
+        <div class="header-left">
+            <a (click)="history.back()" class="btn-back">
+                <i class="pi pi-arrow-left"></i>
+            </a>
+            <div>
+                <p class="page-label">CRESCITA & STATISTICHE</p>
+                <h1>Panoramica Rosa</h1>
+            </div>
         </div>
+
         <a routerLink="confronto" class="btn-secondary">
             <i class="pi pi-chart-pie"></i> Confronta giocatori
         </a>
