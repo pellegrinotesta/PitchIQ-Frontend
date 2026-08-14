@@ -40,3 +40,21 @@ export interface GiocatoreStatistica {
     numeroMaglia: number | null;
     ruolo: string;
 }
+
+export interface PuntoRadar {
+    categoria: CategoriaMetrica;
+    label: string;
+    valore: number;
+    valorePct: number;
+}
+
+export interface GiocatoreRadar {
+    giocatoreId: number;
+    nomeGiocatore: string;
+    valori: PuntoRadar[];
+}
+
+export interface ConfrontoDto {
+    giocatore1: GiocatoreRadar;
+    giocatore2: GiocatoreRadar;
+}

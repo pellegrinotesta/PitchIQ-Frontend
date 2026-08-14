@@ -1,0 +1,29 @@
+.radar-container {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radar-svg {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    display: block;
+}
+
+.punto {
+    cursor: pointer;
+    transition: r .15s;
+}
+
+.punto:hover {
+    r: 6;
+}
+
+.asse-label {
+    pointer-events: none;
+}

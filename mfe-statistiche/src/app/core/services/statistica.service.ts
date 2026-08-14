@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { TrendDto, StatisticaRequest, CategoriaMetrica, GiocatoreStatistica } from '../models/statistica.model';
+import { TrendDto, StatisticaRequest, CategoriaMetrica, GiocatoreStatistica, ConfrontoDto } from '../models/statistica.model';
 
 const BFF = 'http://localhost:8080/api';
 
@@ -33,5 +33,12 @@ export class StatisticaService {
 
   getRosa(): Observable<GiocatoreStatistica[]> {
     return this.http.get<GiocatoreStatistica[]>(`${BFF}/squadre/giocatori`);
+  }
+
+  confronta(id1: number, id2: number): Observable<ConfrontoDto> {
+    return this.http.get<ConfrontoDto>(
+      `${BFF}/statistiche/confronto`,
+      { params: new HttpParams().set('id1', id1).set('id2', id2) }
+    );
   }
 }

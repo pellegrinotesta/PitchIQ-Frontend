@@ -1,0 +1,66 @@
+<div class="radar-container">
+    <svg viewBox="0 0 400 400" class="radar-svg">
+        <defs>
+            <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#00ff87" stop-opacity=".4" />
+                <stop offset="100%" stop-color="#00ff87" stop-opacity=".05" />
+            </radialGradient>
+            <radialGradient id="grad2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#60a5fa" stop-opacity=".4" />
+                <stop offset="100%" stop-color="#60a5fa" stop-opacity=".05" />
+            </radialGradient>
+        </defs>
+
+        <!-- Griglia -->
+        @for (g of griglia; track $index) {
+        <path [attr.d]="g" fill="none" stroke="#1e1e1e" stroke-width=".8" />
+        }
+
+        <!-- Assi -->
+        @for (asse of assi; track $index) {
+        <line [attr.x1]="CX" [attr.y1]="CY" [attr.x2]="asse.x" [attr.y2]="asse.y" stroke="#1e1e1e" stroke-width=".8" />
+        }
+
+        <!-- Area giocatore 2 (sotto) -->
+        <path [attr.d]="path2" fill="url(#grad2)" stroke="#60a5fa" stroke-width="1.5" stroke-linejoin="round"
+            opacity=".8" />
+
+        <!-- Area giocatore 1 (sopra) -->
+        <path [attr.d]="path1" fill="url(#grad1)" stroke="#00ff87" stroke-width="1.5" stroke-linejoin="round"
+            opacity=".8" />
+
+        <!-- Punti giocatore 1 -->
+        @for (p of punti1; track $index) {
+        <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#00ff87" stroke="#0a0a0a" stroke-width="1.5" class="punto"
+            (mouseenter)="mostraTooltip($index)" (mouseleave)="nascondiTooltip()" />
+        }
+
+        <!-- Punti giocatore 2 -->
+        @for (p of punti2; track $index) {
+        <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#60a5fa" stroke="#0a0a0a" stroke-width="1.5" class="punto"
+            (mouseenter)="mostraTooltip($index)" (mouseleave)="nascondiTooltip()" />
+        }
+
+        <!-- Label assi -->
+        @for (asse of assi; track $index) {
+        <text [attr.x]="asse.lx" [attr.y]="asse.ly" fill="#555" font-size="9" text-anchor="middle"
+            dominant-baseline="middle" class="asse-label">{{ asse.label }}</text>
+        }
+
+        <!-- Tooltip -->
+        @if (tooltip.visible) {
+        <g>
+            <rect [attr.x]="tooltip.x - 55" [attr.y]="tooltip.y - 42" width="110" height="42" rx="6" fill="#1a1a1a"
+                stroke="#2a2a2a" />
+            <text [attr.x]="tooltip.x" [attr.y]="tooltip.y - 28" fill="#888" font-size="8" text-anchor="middle">{{
+                tooltip.label }}</text>
+            <circle [attr.cx]="tooltip.x - 30" [attr.cy]="tooltip.y - 14" r="3" fill="#00ff87" />
+            <text [attr.x]="tooltip.x - 22" [attr.y]="tooltip.y - 10" fill="#00ff87" font-size="9" font-weight="bold">{{
+                tooltip.v1 }}</text>
+            <circle [attr.cx]="tooltip.x + 10" [attr.cy]="tooltip.y - 14" r="3" fill="#60a5fa" />
+            <text [attr.x]="tooltip.x + 18" [attr.y]="tooltip.y - 10" fill="#60a5fa" font-size="9" font-weight="bold">{{
+                tooltip.v2 }}</text>
+        </g>
+        }
+    </svg>
+</div>

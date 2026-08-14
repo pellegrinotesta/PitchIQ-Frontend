@@ -1,0 +1,110 @@
+<div class="page">
+
+    <nav class="breadcrumb">
+        <a routerLink=".."><i class="pi pi-arrow-left"></i> Statistiche</a>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">MATCH ANALYSIS</p>
+            <h1>Confronto Giocatori</h1>
+        </div>
+    </header>
+
+    <!-- Selezione giocatori -->
+    <div class="selezione-card">
+        <div class="selezione-row">
+            <div class="giocatore-selector g1">
+                <label>Giocatore 1</label>
+                <select class="inp" [(ngModel)]="giocatore1Id">
+                    <option [ngValue]="null">Seleziona…</option>
+                    @for (g of rosa(); track g.id) {
+                    <option [value]="g.id">
+                        {{ g.numeroMaglia ? '#' + g.numeroMaglia + ' ' : '' }}{{ g.cognome }} {{ g.nome }}
+                    </option>
+                    }
+                </select>
+            </div>
+
+            <div class="vs-badge">VS</div>
+
+            <div class="giocatore-selector g2">
+                <label>Giocatore 2</label>
+                <select class="inp" [(ngModel)]="giocatore2Id">
+                    <option [ngValue]="null">Seleziona…</option>
+                    @for (g of rosa(); track g.id) {
+                    <option [value]="g.id">
+                        {{ g.numeroMaglia ? '#' + g.numeroMaglia + ' ' : '' }}{{ g.cognome }} {{ g.nome }}
+                    </option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-confronta" (click)="eseguiConfronto()"
+            [disabled]="!giocatore1Id || !giocatore2Id || giocatore1Id === giocatore2Id || loading()">
+            @if (loading()) { <i class="pi pi-spin pi-spinner"></i> }
+            @else { <i class="pi pi-chart-pie"></i> }
+            Confronta
+        </button>
+    </div>
+
+    @if (confronto(); as c) {
+    <div class="confronto-layout">
+
+        <!-- Radar chart -->
+        <div class="radar-wrapper">
+            <app-radar-chart [giocatore1]="c.giocatore1" [giocatore2]="c.giocatore2" />
+            <div class="legenda">
+                <div class="legenda-item">
+                    <div class="legenda-dot g1"></div>
+                    <span>{{ g1Nome }}</span>
+                </div>
+                <div class="legenda-item">
+                    <div class="legenda-dot g2"></div>
+                    <span>{{ g2Nome }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabella comparativa -->
+        <div class="tabella-confronto">
+            <div class="tab-header">
+                <span class="col-g1">{{ g1Nome }}</span>
+                <span class="col-cat">Metrica</span>
+                <span class="col-g2">{{ g2Nome }}</span>
+            </div>
+
+            @for (v1 of c.giocatore1.valori; track v1.categoria; let i = $index) {
+            @if (c.giocatore2.valori[i]; as v2) {
+            <div class="tab-row" [class.winner1]="getVincitore(i) === 1" [class.winner2]="getVincitore(i) === 2">
+                <div class="col-g1">
+                    <span class="valore" [class.best]="getVincitore(i) === 1">
+                        {{ v1.valore }}
+                    </span>
+                    <div class="bar-mini bar-g1">
+                        <div class="bar-fill-g1" [style.width.%]="v1.valorePct"></div>
+                    </div>
+                </div>
+
+                <div class="col-cat">
+                    <span>{{ v1.label }}</span>
+                </div>
+
+                <div class="col-g2">
+                    <div class="bar-mini bar-g2">
+                        <div class="bar-fill-g2" [style.width.%]="v2.valorePct"></div>
+                    </div>
+                    <span class="valore" [class.best]="getVincitore(i) === 2">
+                        {{ v2.valore }}
+                    </span>
+                </div>
+            </div>
+            }
+            }
+        </div>
+
+    </div>
+    }
+
+</div>

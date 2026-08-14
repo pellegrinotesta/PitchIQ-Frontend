@@ -9,6 +9,13 @@ export const STATISTICHE_ROUTES: Routes = [
       ),
   },
   {
+    path: 'confronto',
+    loadComponent: () =>
+      import('./features/confronto-giocatori/confronto-giocatori').then(
+        (m) => m.ConfrontoGiocatori
+      ),
+  },
+  {
     path: 'giocatore/:id',
     loadComponent: () =>
       import('./features/scheda-statistiche/scheda-statistiche').then(

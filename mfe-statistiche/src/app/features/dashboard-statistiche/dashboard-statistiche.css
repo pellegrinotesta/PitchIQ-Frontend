@@ -157,3 +157,23 @@
     color: #00ff87;
     transform: translateX(3px);
 }
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1rem;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #888;
+    font-size: .9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+}
+
+.btn-secondary:hover {
+    border-color: #555;
+    color: #fff;
+}
