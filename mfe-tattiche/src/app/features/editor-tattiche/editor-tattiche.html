@@ -1,11 +1,8 @@
-<p-toast />
-
 <div class="editor">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <!-- SIDEBAR SINISTRA: formazioni/schemi -->
+    <aside class="sidebar-sinistra">
 
-        <!-- Tab switcher -->
         <div class="tab-switcher">
             <button class="tab-btn" [class.active]="tabAttivo === 'formazioni'" (click)="cambiaTab('formazioni')">
                 Formazioni
@@ -15,7 +12,6 @@
             </button>
         </div>
 
-        <!-- TAB FORMAZIONI -->
         @if (tabAttivo === 'formazioni') {
         <div class="sidebar-header">
             <p class="sidebar-label">FORMAZIONI</p>
@@ -23,7 +19,6 @@
                 <i class="pi pi-plus"></i>
             </button>
         </div>
-
         <div class="lista-scroll">
             @for (f of formazioni(); track f.id) {
             <div class="lista-item" [class.active]="formazioneAttiva()?.id === f.id" (click)="selezionaFormazione(f)">
@@ -40,27 +35,8 @@
             <p class="sidebar-empty">Nessuna formazione</p>
             }
         </div>
-
-        <!-- Rosa disponibile -->
-        <div class="sidebar-header" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #1a1a1a;">
-            <p class="sidebar-label">ROSA DISPONIBILE</p>
-        </div>
-
-        <div class="lista-scroll rosa">
-            @for (g of rosa(); track g.id) {
-            <div class="giocatore-item" draggable="true" (dragstart)="onDragStart($event, g)">
-                <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
-                <div class="giocatore-info">
-                    <span class="giocatore-nome">{{ g.cognome }}</span>
-                    <span class="giocatore-ruolo">{{ g.ruolo }}</span>
-                </div>
-                <i class="pi pi-arrows-alt drag-icon"></i>
-            </div>
-            }
-        </div>
         }
 
-        <!-- TAB SCHEMI -->
         @if (tabAttivo === 'schemi') {
         <div class="sidebar-header">
             <p class="sidebar-label">SCHEMI</p>
@@ -68,7 +44,6 @@
                 <i class="pi pi-plus"></i>
             </button>
         </div>
-
         <div class="lista-scroll">
             @for (s of schemi(); track s.id) {
             <div class="lista-item" [class.active]="schemaAttivo()?.id === s.id" (click)="selezionaSchema(s)">
@@ -78,8 +53,7 @@
                 </div>
                 <div class="item-actions">
                     @if (formazioneAttiva()?.id) {
-                    <button class="btn-applica" title="Applica alla formazione attiva"
-                        (click)="$event.stopPropagation(); applicaSchema(s)">
+                    <button class="btn-applica" title="Applica" (click)="$event.stopPropagation(); applicaSchema(s)">
                         <i class="pi pi-play"></i>
                     </button>
                     }
@@ -100,7 +74,6 @@
     <!-- AREA PRINCIPALE -->
     <main class="main">
 
-        <!-- TAB FORMAZIONI -->
         @if (tabAttivo === 'formazioni') {
         @if (!formazioneAttiva()) {
         <div class="placeholder">
@@ -125,17 +98,13 @@
                     }
                 </select>
                 @if (moduloSuggerito() && moduloSuggerito() !== formazioneAttiva()!.modulo) {
-                <div class="modulo-suggerito" (click)="onModuloChange(moduloSuggerito()!)">
+                <div class="modulo-suggerito" (click)="accettaModuloSuggerito()">
                     <i class="pi pi-lightbulb"></i>
                     Riconosciuto: {{ moduloSuggerito() }}
                 </div>
                 }
             </div>
             <div class="toolbar-right">
-                <span class="hint-drag">
-                    <i class="pi pi-info-circle"></i>
-                    Trascina i giocatori sul campo
-                </span>
                 <button class="btn-salva" (click)="salvaFormazione()" [disabled]="salvando()">
                     @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
                     @else { <i class="pi pi-save"></i> }
@@ -143,15 +112,14 @@
                 </button>
             </div>
         </div>
-
         <div class="campo-wrapper">
             <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
-                (posizioniChange)="onPosizioniChange($event)" (moduloChange)="onModuloSuggerito($event)" />
+                [rosa]="rosa()" (posizioniChange)="onPosizioniChange($event)"
+                (moduloChange)="onModuloSuggerito($event)" />
         </div>
         }
         }
 
-        <!-- TAB SCHEMI -->
         @if (tabAttivo === 'schemi') {
         @if (!schemaAttivo()) {
         <div class="placeholder">
@@ -164,6 +132,9 @@
         } @else {
         <div class="toolbar">
             <div class="toolbar-left">
+                <a (click)="history.back()" class="btn-back" title="Indietro">
+                    <i class="pi pi-arrow-left"></i>
+                </a>
                 <input class="inp-nome" [ngModel]="schemaAttivo()!.nome" (ngModelChange)="onNomeSchemaChange($event)"
                     placeholder="Nome schema" />
                 <select class="inp-modulo" [ngModel]="schemaAttivo()!.modulo"
@@ -174,10 +145,6 @@
                 </select>
             </div>
             <div class="toolbar-right">
-                <span class="hint-drag">
-                    <i class="pi pi-info-circle"></i>
-                    Click sul campo per aggiungere slot · Click+trascina per frecce
-                </span>
                 <button class="btn-salva" (click)="salvaSchema()" [disabled]="salvando()">
                     @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
                     @else { <i class="pi pi-save"></i> }
@@ -185,7 +152,6 @@
                 </button>
             </div>
         </div>
-
         <div class="campo-wrapper">
             <app-campo-schema [slot]="schemaAttivo()!.slot" [frecce]="schemaAttivo()!.frecce"
                 [modulo]="schemaAttivo()!.modulo" (slotChange)="onSlotChange($event)"
@@ -195,5 +161,26 @@
         }
 
     </main>
+
+    <!-- SIDEBAR DESTRA: rosa disponibile (solo tab formazioni) -->
+    @if (tabAttivo === 'formazioni' && formazioneAttiva()) {
+    <aside class="sidebar-destra">
+        <div class="sidebar-header">
+            <p class="sidebar-label">ROSA</p>
+        </div>
+        <div class="rosa-list">
+            @for (g of rosa(); track g.id) {
+            <div class="giocatore-item" draggable="true" (dragstart)="onDragStart($event, g)">
+                <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
+                <div class="giocatore-info">
+                    <span class="giocatore-nome">{{ g.cognome }}</span>
+                    <span class="giocatore-ruolo">{{ g.ruolo }}</span>
+                </div>
+                <i class="pi pi-arrows-alt drag-icon"></i>
+            </div>
+            }
+        </div>
+    </aside>
+    }
 
 </div>

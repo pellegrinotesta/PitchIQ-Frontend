@@ -12,9 +12,11 @@ export class CampoDiCalcio {
   @Input() modulo = '4-3-3';
   @Output() posizioniChange = new EventEmitter<PosizioneCampo[]>();
   @Output() moduloChange = new EventEmitter<string>();
+  @Input() rosa: GiocatoreDisponibile[] = [];
 
   giocatoreSelezionato: PosizioneCampo | null = null;
   draggingPosizione: PosizioneCampo | null = null;
+  pinAperto: PosizioneCampo | null = null;
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -100,7 +102,7 @@ export class CampoDiCalcio {
   }
 
   private riconosciModulo(posizioni: PosizioneCampo[]): string {
-    
+
     const titolari = posizioni.filter(p =>
       p.titolare &&
       p.giocatoreId != null &&
@@ -167,5 +169,50 @@ export class CampoDiCalcio {
     }
     linee.push(lineaCorrente);
     return linee.map(l => l.length).join('-');
+  }
+
+  togglePin(p: PosizioneCampo, event: MouseEvent): void {
+    event.stopPropagation();
+    this.pinAperto = this.pinAperto?.giocatoreId === p.giocatoreId ? null : p;
+  }
+
+  chiudiPin(): void {
+    this.pinAperto = null;
+  }
+
+  slotToRuolo(slotRuolo: string | null): string | null {
+    if (!slotRuolo) return null;
+    const s = slotRuolo.toUpperCase();
+    if (s === 'GK') return 'PORTIERE';
+    if (['CB', 'CB1', 'CB2', 'CB3', 'LB', 'RB', 'LWB', 'RWB'].some(r => s.startsWith(r))) return 'DIFENSORE';
+    if (['CM', 'CM1', 'CM2', 'CM3', 'LM', 'RM', 'DM', 'AM'].some(r => s.startsWith(r))) return 'CENTROCAMPISTA';
+    if (['ST', 'ST1', 'ST2', 'LW', 'RW', 'CF'].some(r => s.startsWith(r))) return 'ATTACCANTE';
+    return null;
+  }
+
+  giocatoriPerPin(p: PosizioneCampo): GiocatoreDisponibile[] {
+    const ruolo = this.slotToRuolo(p.slotRuolo);
+    const giàInCampo = new Set(this.posizioni.map(pos => pos.giocatoreId));
+
+    return this.rosa.filter(g =>
+      (!ruolo || g.ruolo === ruolo) &&
+      (g.id === p.giocatoreId || !giàInCampo.has(g.id))
+    );
+  }
+
+  cambiaGiocatore(pin: PosizioneCampo, nuovoGiocatore: GiocatoreDisponibile): void {
+    const updated = this.posizioni.map(p =>
+      p.giocatoreId === pin.giocatoreId
+        ? {
+          ...p,
+          giocatoreId: nuovoGiocatore.id,
+          nomeGiocatore: nuovoGiocatore.nome,
+          cognomeGiocatore: nuovoGiocatore.cognome,
+          numeroMaglia: nuovoGiocatore.numeroMaglia,
+        }
+        : p
+    );
+    this.pinAperto = null;
+    this.posizioniChange.emit(updated);
   }
 }
