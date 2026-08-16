@@ -43,6 +43,7 @@ export class EditorTattiche implements OnInit {
   formazioni = signal<Formazione[]>([]);
   formazioneAttiva = signal<Formazione | null>(null);
   rosa = signal<GiocatoreDisponibile[]>([]);
+  moduloSuggerito = signal<string | null>(null);
 
   // Schemi
   schemi = signal<SchemaFormazione[]>([]);
@@ -164,6 +165,18 @@ export class EditorTattiche implements OnInit {
         });
       },
     });
+  }
+
+  onModuloSuggerito(modulo: string): void {
+    this.moduloSuggerito.set(modulo);
+  }
+
+  accettaModuloSuggerito(): void {
+    const m = this.moduloSuggerito();
+    if (m) {
+      this.onModuloChange(m);
+      this.moduloSuggerito.set(null);
+    }
   }
 
   // ===== SCHEMI =====

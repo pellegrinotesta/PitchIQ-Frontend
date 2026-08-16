@@ -115,7 +115,7 @@
             <div class="toolbar-left">
                 <a (click)="history.back()" class="btn-back" title="Indietro">
                     <i class="pi pi-arrow-left"></i>
-                  </a>
+                </a>
                 <input class="inp-nome" [ngModel]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
                     placeholder="Nome formazione" />
                 <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"
@@ -124,6 +124,12 @@
                     <option [value]="m">{{ m }}</option>
                     }
                 </select>
+                @if (moduloSuggerito() && moduloSuggerito() !== formazioneAttiva()!.modulo) {
+                <div class="modulo-suggerito" (click)="onModuloChange(moduloSuggerito()!)">
+                    <i class="pi pi-lightbulb"></i>
+                    Riconosciuto: {{ moduloSuggerito() }}
+                </div>
+                }
             </div>
             <div class="toolbar-right">
                 <span class="hint-drag">
@@ -140,7 +146,7 @@
 
         <div class="campo-wrapper">
             <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
-                (posizioniChange)="onPosizioniChange($event)" />
+                (posizioniChange)="onPosizioniChange($event)" (moduloChange)="onModuloSuggerito($event)" />
         </div>
         }
         }

@@ -449,3 +449,22 @@
     border-color: #00ff87;
     color: #00ff87;
 }
+
+.modulo-suggerito {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .75rem;
+    background: rgba(251, 191, 36, .08);
+    border: 1px solid rgba(251, 191, 36, .2);
+    border-radius: 6px;
+    color: #fbbf24;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.modulo-suggerito:hover {
+    background: rgba(251, 191, 36, .15);
+}

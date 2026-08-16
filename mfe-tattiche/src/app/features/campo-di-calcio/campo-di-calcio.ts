@@ -11,6 +11,7 @@ export class CampoDiCalcio {
   @Input() posizioni: PosizioneCampo[] = [];
   @Input() modulo = '4-3-3';
   @Output() posizioniChange = new EventEmitter<PosizioneCampo[]>();
+  @Output() moduloChange = new EventEmitter<string>();
 
   giocatoreSelezionato: PosizioneCampo | null = null;
   draggingPosizione: PosizioneCampo | null = null;
@@ -22,7 +23,6 @@ export class CampoDiCalcio {
   onDropFromSidebar(event: DragEvent): void {
     event.preventDefault();
 
-    // Se è un riposizionamento di un pin esistente, gestiscilo separatamente
     const posizioneRaw = event.dataTransfer?.getData('posizione');
     if (posizioneRaw) {
       this.onDropPosizione(event);
@@ -51,14 +51,19 @@ export class CampoDiCalcio {
       titolare: true,
     };
 
-    this.posizioniChange.emit([...this.posizioni, nuovaPosizione]);
+    const updated = [...this.posizioni, nuovaPosizione];
+    this.posizioniChange.emit(updated);
+
+    const moduloRiconosciuto = this.riconosciModulo(updated);
+    if (moduloRiconosciuto !== this.modulo) {
+      this.moduloChange.emit(moduloRiconosciuto);
+    }
   }
 
   onDropPosizione(event: DragEvent): void {
     event.preventDefault();
     if (!this.draggingPosizione) return;
 
-    // Calcola le coordinate rispetto al campo
     const el = (event.currentTarget as HTMLElement);
     const rect = el.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -76,6 +81,11 @@ export class CampoDiCalcio {
 
     this.draggingPosizione = null;
     this.posizioniChange.emit(updated);
+
+    const moduloRiconosciuto = this.riconosciModulo(updated);
+    if (moduloRiconosciuto !== this.modulo) {
+      this.moduloChange.emit(moduloRiconosciuto);
+    }
   }
 
   onDragStartPosizione(event: DragEvent, p: PosizioneCampo): void {
@@ -83,8 +93,79 @@ export class CampoDiCalcio {
     event.dataTransfer?.setData('posizione', JSON.stringify(p));
   }
 
-
   rimuoviGiocatore(p: PosizioneCampo): void {
-    this.posizioniChange.emit(this.posizioni.filter(pos => pos.giocatoreId !== p.giocatoreId));
+    this.posizioniChange.emit(
+      this.posizioni.filter(pos => pos.giocatoreId !== p.giocatoreId)
+    );
+  }
+
+  private riconosciModulo(posizioni: PosizioneCampo[]): string {
+    
+    const titolari = posizioni.filter(p =>
+      p.titolare &&
+      p.giocatoreId != null &&
+      p.cognomeGiocatore &&
+      p.cognomeGiocatore.trim() !== ''
+    );
+
+    if (titolari.length < 10) return this.modulo;
+
+    // Ordina per Y decrescente (portiere in fondo = Y maggiore)
+    const ordinati = [...titolari].sort((a, b) => b.coordY - a.coordY);
+
+    // Il portiere è sempre il più in basso
+    const [, ...outfield] = ordinati;
+
+    if (outfield.length < 9) return this.modulo;
+
+    // Soglia adattiva: usa il 20% del range Y totale
+    const yMin = Math.min(...outfield.map(p => p.coordY));
+    const yMax = Math.max(...outfield.map(p => p.coordY));
+    const soglia = (yMax - yMin) * 0.25;
+
+    // Clustering gerarchico agglomerativo
+    const linee: PosizioneCampo[][] = [];
+    let lineaCorrente: PosizioneCampo[] = [outfield[0]];
+    const mediaY = (l: PosizioneCampo[]) =>
+      l.reduce((s, p) => s + p.coordY, 0) / l.length;
+
+    for (let i = 1; i < outfield.length; i++) {
+      const diffY = Math.abs(mediaY(lineaCorrente) - outfield[i].coordY);
+      if (diffY > soglia) {
+        linee.push([...lineaCorrente]);
+        lineaCorrente = [outfield[i]];
+      } else {
+        lineaCorrente.push(outfield[i]);
+      }
+    }
+    linee.push(lineaCorrente);
+
+    // Se troppo frammentato (es 5+ linee per 10 giocatori), aumenta soglia
+    if (linee.length > 4) {
+      return this.riconosciConSogliaFissa(outfield, soglia * 1.5);
+    }
+
+    return linee.map(l => l.length).join('-');
+  }
+
+  private riconosciConSogliaFissa(
+    outfield: PosizioneCampo[],
+    soglia: number
+  ): string {
+    const linee: PosizioneCampo[][] = [];
+    let lineaCorrente: PosizioneCampo[] = [outfield[0]];
+    const mediaY = (l: PosizioneCampo[]) =>
+      l.reduce((s, p) => s + p.coordY, 0) / l.length;
+
+    for (let i = 1; i < outfield.length; i++) {
+      if (Math.abs(mediaY(lineaCorrente) - outfield[i].coordY) > soglia) {
+        linee.push([...lineaCorrente]);
+        lineaCorrente = [outfield[i]];
+      } else {
+        lineaCorrente.push(outfield[i]);
+      }
+    }
+    linee.push(lineaCorrente);
+    return linee.map(l => l.length).join('-');
   }
 }
