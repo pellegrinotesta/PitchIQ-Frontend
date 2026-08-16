@@ -29,7 +29,7 @@
     <!-- Giocatori posizionati -->
     @for (p of posizioni; track p.giocatoreId) {
     <div class="giocatore-pin" [style.left.%]="p.coordX" [style.top.%]="p.coordY" draggable="true"
-        (dragstart)="onDragStartPosizione($event, p)" (drop)="onDropPosizione($event)" (dragover)="onDragOver($event)">
+        (dragstart)="onDragStartPosizione($event, p)" (dragend)="draggingPosizione = null">
         <div class="pin-avatar">{{ p.numeroMaglia ?? p.cognomeGiocatore[0] }}</div>
         <div class="pin-nome">{{ p.cognomeGiocatore }}</div>
         <button class="pin-remove" (click)="rimuoviGiocatore(p)">
