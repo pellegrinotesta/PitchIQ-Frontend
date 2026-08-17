@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     Partita, HeatmapZona, ScoutingAvversario, GiocatoreBase,
@@ -76,5 +76,12 @@ export class PartitaService {
     // Rosa
     getRosa(): Observable<GiocatoreBase[]> {
         return this.http.get<GiocatoreBase[]>(`${BFF}/squadre/giocatori`);
+    }
+
+    getXgPreview(x: number, y: number): Observable<{ xg: number }> {
+        return this.http.get<{ xg: number }>(
+            `${BFF}/partite/xg-preview`,
+            { params: new HttpParams().set('x', x).set('y', y) }
+        );
     }
 }

@@ -31,6 +31,9 @@ export class DettaglioPartita implements OnInit {
   nuovoTipo: TipoEvento = 'GOL';
   nuovoGiocatoreId: number | null = null;
   nuovaNota = '';
+  posizioneX: number | null = null;
+  posizioneY: number | null = null;
+  xgPreview: number | null = null;
 
   // Statistiche form
   stats: StatistichePartita = this.emptyStats();
@@ -81,12 +84,17 @@ export class DettaglioPartita implements OnInit {
       tipo: this.nuovoTipo,
       giocatoreId: this.nuovoGiocatoreId,
       nota: this.nuovaNota || null,
+      coordX: this.posizioneX,
+      coordY: this.posizioneY,
     }).subscribe({
       next: (updated) => {
         this.partita.set(updated);
         this.nuovoMinuto = 0;
         this.nuovaNota = '';
         this.nuovoGiocatoreId = null;
+        this.posizioneX = null;
+        this.posizioneY = null;
+        this.xgPreview = null;
         this.mostraMsg('Evento aggiunto');
       },
     });
@@ -182,5 +190,18 @@ export class DettaglioPartita implements OnInit {
   private mostraMsg(msg: string): void {
     this.messaggio.set(msg);
     setTimeout(() => this.messaggio.set(null), 2500);
+  }
+
+  selezionaPosizioneTiro(event: MouseEvent): void {
+    const el = event.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    this.posizioneX = Math.round(((event.clientX - rect.left) / rect.width) * 100);
+    // La metà campo è la zona offensiva (Y 0-50 del campo reale)
+    this.posizioneY = Math.round(((event.clientY - rect.top) / rect.height) * 50);
+
+    // Chiama il backend per preview xG
+    this.service.getXgPreview(this.posizioneX, this.posizioneY).subscribe({
+      next: (res) => this.xgPreview = res.xg,
+    });
   }
 }

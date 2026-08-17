@@ -74,6 +74,39 @@
                     <label>Nota</label>
                     <input class="inp inp-sm" type="text" [(ngModel)]="nuovaNota" placeholder="Es. Gol di testa…" />
                 </div>
+                <!-- Aggiungi dopo il campo Nota -->
+                @if (nuovoTipo === 'TIRO' || nuovoTipo === 'GOL') {
+                <div class="field">
+                    <label>Posizione tiro</label>
+                    <div class="xg-campo-mini" (click)="selezionaPosizioneTiro($event)">
+                        <!-- Campo mini SVG per selezionare la posizione -->
+                        <svg viewBox="0 0 100 60" class="campo-mini-svg">
+                            <!-- Solo metà campo (zona offensiva) -->
+                            <rect width="100" height="60" fill="#1a3a1a" />
+                            <rect x="2" y="2" width="96" height="56" fill="none" stroke="rgba(255,255,255,0.2)"
+                                stroke-width=".8" />
+                            <line x1="2" y1="30" x2="98" y2="30" stroke="rgba(255,255,255,0.2)" stroke-width=".5" />
+                            <rect x="25" y="2" width="50" height="18" fill="none" stroke="rgba(255,255,255,0.2)"
+                                stroke-width=".5" />
+                            <rect x="38" y="2" width="24" height="8" fill="none" stroke="rgba(255,255,255,0.2)"
+                                stroke-width=".5" />
+                            <!-- Punto selezionato -->
+                            @if (posizioneX !== null && posizioneY !== null) {
+                            <circle [attr.cx]="posizioneX" [attr.cy]="posizioneY * 0.6" r="3" fill="#00ff87"
+                                opacity=".9" />
+                            }
+                            <text x="50" y="45" fill="rgba(255,255,255,0.2)" font-size="6" text-anchor="middle">
+                                Click per posizionare
+                            </text>
+                        </svg>
+                        @if (xgPreview !== null) {
+                        <div class="xg-preview">
+                            xG stimato: <strong>{{ xgPreview }}</strong>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
                 <button class="btn-add" (click)="aggiungiEvento()">
                     <i class="pi pi-plus"></i>
                 </button>
