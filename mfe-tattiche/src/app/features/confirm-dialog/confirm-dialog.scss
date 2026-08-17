@@ -1,0 +1,63 @@
+.confirm-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: .25rem;
+}
+
+.messaggio {
+    font-size: .95rem;
+    color: #ccc;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+}
+
+.btn-annulla {
+    height: 36px;
+    padding: 0 1.2rem;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 7px;
+    color: #888;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+}
+
+.btn-annulla:hover {
+    border-color: #555;
+    color: #fff;
+}
+
+.btn-conferma {
+    height: 36px;
+    padding: 0 1.2rem;
+    background: #2a2a2a;
+    border: none;
+    border-radius: 7px;
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.btn-conferma.pericoloso {
+    background: rgba(255, 100, 100, .15);
+    color: #ff6464;
+    border: 1px solid rgba(255, 100, 100, .2);
+}
+
+.btn-conferma.pericoloso:hover {
+    background: rgba(255, 100, 100, .25);
+}
+
+.btn-conferma:not(.pericoloso):hover {
+    background: #3a3a3a;
+}

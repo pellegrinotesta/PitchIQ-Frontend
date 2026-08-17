@@ -92,4 +92,8 @@ export class ListaAllenamenti implements OnInit {
     };
     return map[tipo];
   }
+
+  goToDashboard(): void {
+    window.location.href = '/dashboard';
+  }
 }

@@ -1,88 +1,430 @@
 .page {
-    padding: 2rem 2.5rem;
+    padding: 1.5rem 2rem;
     min-height: 100vh;
-    background: var(--bg-primary, #0a0a0a);
-    color: var(--testo, #fff);
+    background: #0a0a0a;
+    color: #fff;
 }
 
-.stato-box {
-    display: flex;
-    justify-content: center;
-    padding: 4rem;
-}
-
-.spinner-sm {
-    width: 40px;
-    height: 40px;
-}
-
-.breadcrumb {
-    margin-bottom: 1.5rem;
-}
-
-.scheda-header {
-    display: flex;
+.breadcrumb a {
+    color: #555;
+    text-decoration: none;
+    font-size: .9rem;
+    display: inline-flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: .4rem;
     margin-bottom: 1.5rem;
+    display: block;
+    transition: color .15s;
 }
 
-.maglia-badge {
-    width: 72px;
-    height: 72px;
-    background: rgba(0, 255, 135, .08);
-    border: 2px solid rgba(0, 255, 135, .2);
+.breadcrumb a:hover {
+    color: #00ff87;
+}
+
+/* Hero card */
+.hero-card {
+    display: flex;
+    gap: 2rem;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
+    border: 2px solid;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--verde, #00ff87);
     flex-shrink: 0;
+    position: relative;
 }
 
-.scheda-info {
-    flex: 1;
-}
-
-.page-label {
-    color: var(--verde, #00ff87);
-    font-size: .75rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    margin-bottom: .4rem;
-}
-
-.scheda-info h1 {
+.avatar-iniziali {
     font-size: 2rem;
     font-weight: 800;
     letter-spacing: -1px;
-    margin-bottom: .5rem;
 }
 
-.dettagli-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    max-width: 640px;
+.avatar-maglia {
+    position: absolute;
+    bottom: -10px;
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 800;
+    padding: .1rem .4rem;
+    color: #888;
 }
 
-.dettaglio-item {
+.hero-info {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: .5rem;
+    gap: 1rem;
 }
 
-.dettaglio-label {
-    font-size: .75rem;
+.hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.hero-top h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0 0 .5rem;
+}
+
+.hero-sub {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Quick stats */
+.quick-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.quick-stat {
+    display: flex;
+    flex-direction: column;
+    gap: .1rem;
+}
+
+.qs-valore {
+    font-size: 1.1rem;
     font-weight: 700;
-    color: var(--testo-secondario, #888);
+    color: #fff;
+}
+
+.qs-label {
+    font-size: .68rem;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: .5px;
 }
 
-.dettaglio-valore {
-    font-size: 1.1rem;
+.quick-stat.highlight .qs-valore {
+    color: #00ff87;
+}
+
+/* Badge */
+.ruolo-badge {
+    padding: .2rem .6rem;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.ruolo-badge.secondario {
+    background: rgba(255, 255, 255, .05) !important;
+    color: #888 !important;
+}
+
+.badge {
+    padding: .25rem .65rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-attivo {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.badge-infortunato {
+    background: rgba(255, 100, 100, .1);
+    color: #ff6464;
+}
+
+.badge-squalificato {
+    background: rgba(255, 180, 0, .1);
+    color: #ffb400;
+}
+
+/* Tab bar */
+.tab-bar {
+    display: flex;
+    gap: .25rem;
+    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #555;
+    font-size: .88rem;
     font-weight: 600;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+    margin-bottom: -1px;
+}
+
+.tab-btn:hover {
+    color: #888;
+}
+
+.tab-btn.active {
+    color: #00ff87;
+    border-bottom-color: #00ff87;
+}
+
+.tab-content {
+    animation: fadeIn .2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Griglia dettagli */
+.dettagli-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.dettaglio-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.card-titolo {
+    font-size: .72rem;
+    font-weight: 700;
+    color: #00ff87;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 1rem;
+    padding-bottom: .6rem;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.campi {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+}
+
+.campo-label {
+    font-size: .7rem;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.campo-val {
+    font-size: .92rem;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.campo-val em {
+    color: #555;
+    font-style: normal;
+    font-size: .82rem;
+}
+
+.valore-grande {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #00ff87;
+}
+
+.ruoli-sec {
+    display: flex;
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+
+/* Scadenza contratto */
+.scadenza-bar-wrapper {
+    margin-top: .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+.scadenza-bar {
+    height: 4px;
+    background: #1e1e1e;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.scadenza-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .3s;
+}
+
+.scadenza-fill.scadenza-ok {
+    background: #00ff87;
+}
+
+.scadenza-fill.scadenza-warning {
+    background: #ffb400;
+}
+
+.scadenza-fill.scadenza-critica {
+    background: #ff6464;
+}
+
+.scadenza-testo {
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.scadenza-ok {
+    color: #00ff87;
+}
+
+.scadenza-warning {
+    color: #ffb400;
+}
+
+.scadenza-critica {
+    color: #ff6464;
+}
+
+/* Medico */
+.note-testo {
+    font-size: .9rem;
+    color: #ccc;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.note-vuote {
+    font-size: .88rem;
+    color: #333;
+    font-style: italic;
+    margin: 0;
+}
+
+.stato-medico {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .75rem 0;
+}
+
+.stato-icon {
+    font-size: 2rem;
+}
+
+.stato-icon.attivo i {
+    color: #00ff87;
+}
+
+.stato-icon.infortunato i {
+    color: #ff6464;
+}
+
+.stato-icon.squalificato i {
+    color: #ffb400;
+}
+
+.stato-nome {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 .2rem;
+}
+
+.stato-nome.attivo {
+    color: #00ff87;
+}
+
+.stato-nome.infortunato {
+    color: #ff6464;
+}
+
+.stato-nome.squalificato {
+    color: #ffb400;
+}
+
+.stato-sub {
+    font-size: .82rem;
+    color: #555;
+    margin: 0;
+}
+
+/* Pulsanti */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1.2rem;
+    background: #00ff87;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-primary:hover {
+    background: #00cc6a;
+}
+
+.stato-box {
+    text-align: center;
+    color: #444;
+    padding: 4rem;
+}
+
+.errore-box {
+    background: rgba(255, 100, 100, .1);
+    border: 1px solid rgba(255, 100, 100, .2);
+    color: #ff6464;
+    padding: 1rem;
+    border-radius: 8px;
 }

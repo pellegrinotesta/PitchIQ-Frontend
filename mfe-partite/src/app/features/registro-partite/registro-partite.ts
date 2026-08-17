@@ -87,6 +87,10 @@ export class RegistroPartite implements OnInit {
     if (ct === 'TRASFERTA') return 'Trasferta';
     return 'Neutro';
   }
+
+  goToDashboard() {
+    window.location.href = '/dashboard';
+  }
 }
 
 

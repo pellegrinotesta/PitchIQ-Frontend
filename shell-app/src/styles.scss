@@ -19,10 +19,30 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background: var(--bg-primary);
   color: var(--testo);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+// Sovrascrive le variabili CSS del tema Aura per le dialog
+.p-dialog {
+  --p-dialog-background: #111;
+  --p-dialog-border-color: #2a2a2a;
+  --p-dialog-color: #fff;
+  --p-dialog-header-background: #0f0f0f;
+  --p-dialog-header-color: #fff;
+  --p-dialog-header-border-color: #1e1e1e;
+  --p-dialog-content-background: #111;
+  --p-dialog-content-color: #fff;
+  --p-dialog-border-radius: 12px;
+  --p-dialog-shadow: 0 24px 64px rgba(0, 0, 0, .8);
+}
+
+.p-dialog-mask {
+  --p-overlay-modal-background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(4px);
 }

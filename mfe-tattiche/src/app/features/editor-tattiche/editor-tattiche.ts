@@ -4,6 +4,7 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { DynamicDialogModule, DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService as CS } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -13,6 +14,7 @@ import { Formazione, GiocatoreDisponibile, PosizioneCampo } from '../../core/mod
 import { FormazioneService } from '../../core/services/formazione.service';
 import { SchemaFormazione, SlotSchema, FrecciaSchema } from '../../core/model/schema.model';
 import { CampoSchema } from '../campo-schema/campo-schema';
+import { ConfirmService } from '../confirm-dialog/confirm.service';
 
 @Component({
   selector: 'app-editor-tattiche',
@@ -24,16 +26,15 @@ import { CampoSchema } from '../campo-schema/campo-schema';
     DynamicDialogModule,
     ToastModule,
     CampoDiCalcio,
-    CampoSchema
-  ],
-  providers: [DialogService, ConfirmationService, MessageService],
+    CampoSchema  ],
+  providers: [MessageService, DialogService, ConfirmService],
   templateUrl: './editor-tattiche.html',
   styleUrl: './editor-tattiche.scss',
 })
 export class EditorTattiche implements OnInit {
   private service = inject(FormazioneService);
-  private confirmService = inject(ConfirmationService);
   private messageService = inject(MessageService);
+  private confirmService = inject(ConfirmService);
 
   // Tab attivo
   tabAttivo: 'formazioni' | 'schemi' = 'formazioni';
@@ -150,20 +151,20 @@ export class EditorTattiche implements OnInit {
   }
 
   eliminaFormazione(f: Formazione): void {
-    this.confirmService.confirm({
-      message: `Eliminare "${f.nome}"?`,
-      header: 'Conferma',
-      acceptLabel: 'Elimina',
-      rejectLabel: 'Annulla',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.service.delete(f.id).subscribe({
-          next: () => {
-            if (this.formazioneAttiva()?.id === f.id) this.formazioneAttiva.set(null);
-            this.caricaFormazioni();
-          },
-        });
-      },
+    this.confirmService.conferma({
+      header: 'Elimina formazione',
+      messaggio: `Eliminare "${f.nome}"? L'operazione non può essere annullata.`,
+      labelConferma: 'Elimina',
+      labelAnnulla: 'Annulla',
+      pericoloso: true,
+    }).subscribe(confermato => {
+      if (!confermato) return;
+      this.service.delete(f.id).subscribe({
+        next: () => {
+          if (this.formazioneAttiva()?.id === f.id) this.formazioneAttiva.set(null);
+          this.caricaFormazioni();
+        },
+      });
     });
   }
 
@@ -253,20 +254,20 @@ export class EditorTattiche implements OnInit {
   }
 
   eliminaSchema(s: SchemaFormazione): void {
-    this.confirmService.confirm({
-      message: `Eliminare "${s.nome}"?`,
+    this.confirmService.conferma({
+      messaggio: `Eliminare "${s.nome}"? L'operazione non può essere annullata.`,
       header: 'Conferma',
-      acceptLabel: 'Elimina',
-      rejectLabel: 'Annulla',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.service.deleteSchema(s.id).subscribe({
-          next: () => {
-            if (this.schemaAttivo()?.id === s.id) this.schemaAttivo.set(null);
-            this.caricaSchemi();
-          },
-        });
-      },
+      labelConferma: 'Elimina',
+      labelAnnulla: 'Annulla',
+      pericoloso: true,
+    }).subscribe(confermato => {
+      if (!confermato) return;
+      this.service.delete(s.id).subscribe({
+        next: () => {
+          if (this.schemaAttivo()?.id === s.id) this.schemaAttivo.set(null);
+          this.caricaSchemi();
+        },
+      });
     });
   }
 
@@ -277,21 +278,22 @@ export class EditorTattiche implements OnInit {
       this.toast('error', 'Salva prima la formazione');
       return;
     }
-    this.confirmService.confirm({
-      message: `Applicare "${s.nome}" a "${f.nome}"? Le posizioni attuali verranno sovrascritte.`,
+    this.confirmService.conferma({
+      messaggio: `Applicare "${s.nome}" a "${f.nome}"? Le posizioni attuali verranno sovrascritte.`,
       header: 'Applica schema',
-      acceptLabel: 'Applica',
-      rejectLabel: 'Annulla',
-      accept: () => {
-        this.service.applicaSchema(s.id, f.id).subscribe({
-          next: (updated) => {
-            this.formazioneAttiva.set(updated);
-            this.cambiaTab('formazioni');
-            this.toast('success', 'Schema applicato');
-          },
-          error: () => this.toast('error', 'Applicazione fallita'),
-        });
-      },
+      labelConferma: 'Applica',
+      labelAnnulla: 'Annulla',
+      pericoloso: false,
+    }).subscribe(confermato => {
+      if (!confermato) return;
+      this.service.applicaSchema(s.id, f.id).subscribe({
+        next: (updated) => {
+          this.formazioneAttiva.set(updated);
+          this.cambiaTab('formazioni');
+          this.toast('success', 'Schema applicato');
+        },
+        error: () => this.toast('error', 'Applicazione fallita'),
+      });
     });
   }
 

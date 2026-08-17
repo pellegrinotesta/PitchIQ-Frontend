@@ -7,13 +7,24 @@ export interface Giocatore {
     nome: string;
     cognome: string;
     dataNascita: string | null;
+    eta: number | null;
     ruolo: RuoloGiocatore;
-    numeroMaglia: number;
+    ruoliSecondari: string | null;
+    numeroMaglia: number | null;
     piedePreferito: string | null;
     contrattoInizio: string | null;
     contrattoFine: string | null;
     stato: StatoGiocatore;
-}
+    nazionalita: string | null;
+    luogoNascita: string | null;
+    altezzaCm: number | null;
+    pesoKg: number | null;
+    stipendioAnnuo: number | null;
+    valoreMercato: number | null;
+    clausola: number | null;
+    noteMediche: string | null;
+    agente: string | null;
+  }
 
 export interface GiocatoreRequest {
     nome: string;

@@ -5,6 +5,7 @@ import { TATTICHE_ROUTES } from './tattiche.routes';
 import { provideHttpClient } from '@angular/common/http';
 import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
+import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,5 +18,6 @@ export const appConfig: ApplicationConfig = {
         options: { darkModeSelector: '.dark' }
       }
     }),
+    DialogService
   ]
 };

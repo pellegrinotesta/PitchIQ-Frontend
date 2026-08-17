@@ -1,0 +1,9 @@
+<div class="confirm-wrapper">
+    <p class="messaggio">{{ messaggio }}</p>
+    <div class="actions">
+        <button class="btn-annulla" (click)="annulla()">{{ labelAnnulla }}</button>
+        <button class="btn-conferma" [class.pericoloso]="pericoloso" (click)="conferma()">
+            {{ labelConferma }}
+        </button>
+    </div>
+</div>

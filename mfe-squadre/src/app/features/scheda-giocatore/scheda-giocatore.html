@@ -1,53 +1,264 @@
 <div class="page">
 
-    @if (loading()) {
-    <div class="stato-box"><p-progressspinner strokeWidth="3" styleClass="spinner-sm" /></div>
-    } @else if (errore()) {
-    <p-message severity="error">{{ errore() }}</p-message>
-    } @else if (giocatore(); as g) {
-
     <nav class="breadcrumb">
-        <p-button label="Rosa" icon="pi pi-arrow-left" [text]="true" severity="secondary" routerLink=".." />
+        <a routerLink=".."><i class="pi pi-arrow-left"></i> Rosa</a>
     </nav>
 
-    <header class="scheda-header">
-        <div class="maglia-badge">{{ g.numeroMaglia ?? '?' }}</div>
-        <div class="scheda-info">
-            <p class="page-label">{{ g.ruolo }}</p>
-            <h1>{{ g.cognome }} {{ g.nome }}</h1>
-            <p-tag [value]="g.stato" [severity]="getSeverity(g.stato)" styleClass="mt-1" />
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (errore()) {
+    <div class="errore-box">{{ errore() }}</div>
+    } @else if (giocatore(); as g) {
+
+    <!-- Hero card -->
+    <div class="hero-card">
+        <!-- Avatar placeholder -->
+        <div class="avatar" [style.background]="getRuoloColore(g.ruolo) + '22'"
+            [style.border-color]="getRuoloColore(g.ruolo) + '44'">
+            <span class="avatar-iniziali" [style.color]="getRuoloColore(g.ruolo)">
+                {{ getIniziali(g) }}
+            </span>
+            @if (g.numeroMaglia) {
+            <span class="avatar-maglia">#{{ g.numeroMaglia }}</span>
+            }
         </div>
-        <p-button label="Modifica" icon="pi pi-pencil" [routerLink]="['modifica']" />
-    </header>
 
-    <p-divider />
+        <!-- Info principale -->
+        <div class="hero-info">
+            <div class="hero-top">
+                <div>
+                    <h1>{{ g.cognome }} {{ g.nome }}</h1>
+                    <div class="hero-sub">
+                        <span class="ruolo-badge" [style.background]="getRuoloColore(g.ruolo) + '22'"
+                            [style.color]="getRuoloColore(g.ruolo)">
+                            {{ g.ruolo }}
+                        </span>
+                        @if (g.ruoliSecondari) {
+                        @for (r of g.ruoliSecondari.split(','); track r) {
+                        <span class="ruolo-badge secondario">{{ r.trim() }}</span>
+                        }
+                        }
+                        <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
+                    </div>
+                </div>
+                <button class="btn-primary" (click)="apriModifica()">
+                    <i class="pi pi-pencil"></i> Modifica
+                </button>
+            </div>
 
-    <div class="dettagli-grid">
-        <p-card>
-            <div class="dettaglio-item">
-                <span class="dettaglio-label">Data di nascita</span>
-                <span class="dettaglio-valore">{{ g.dataNascita ?? '–' }}</span>
+            <!-- Stat rapide -->
+            <div class="quick-stats">
+                @if (g.eta) {
+                <div class="quick-stat">
+                    <span class="qs-valore">{{ g.eta }}</span>
+                    <span class="qs-label">anni</span>
+                </div>
+                }
+                @if (g.altezzaCm) {
+                <div class="quick-stat">
+                    <span class="qs-valore">{{ g.altezzaCm }}</span>
+                    <span class="qs-label">cm</span>
+                </div>
+                }
+                @if (g.pesoKg) {
+                <div class="quick-stat">
+                    <span class="qs-valore">{{ g.pesoKg }}</span>
+                    <span class="qs-label">kg</span>
+                </div>
+                }
+                @if (g.piedePreferito) {
+                <div class="quick-stat">
+                    <span class="qs-valore">{{ g.piedePreferito[0] }}</span>
+                    <span class="qs-label">piede</span>
+                </div>
+                }
+                @if (g.nazionalita) {
+                <div class="quick-stat">
+                    <span class="qs-valore">{{ g.nazionalita }}</span>
+                    <span class="qs-label">naz.</span>
+                </div>
+                }
+                @if (g.valoreMercato) {
+                <div class="quick-stat highlight">
+                    <span class="qs-valore">{{ formatValuta(g.valoreMercato) }}</span>
+                    <span class="qs-label">valore</span>
+                </div>
+                }
             </div>
-        </p-card>
-        <p-card>
-            <div class="dettaglio-item">
-                <span class="dettaglio-label">Piede preferito</span>
-                <span class="dettaglio-valore">{{ g.piedePreferito ?? '–' }}</span>
-            </div>
-        </p-card>
-        <p-card>
-            <div class="dettaglio-item">
-                <span class="dettaglio-label">Inizio contratto</span>
-                <span class="dettaglio-valore">{{ g.contrattoInizio ?? '–' }}</span>
-            </div>
-        </p-card>
-        <p-card>
-            <div class="dettaglio-item">
-                <span class="dettaglio-label">Fine contratto</span>
-                <span class="dettaglio-valore">{{ g.contrattoFine ?? '–' }}</span>
-            </div>
-        </p-card>
+        </div>
     </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+        <button class="tab-btn" [class.active]="tabAttivo === 'anagrafica'" (click)="tabAttivo = 'anagrafica'">
+            <i class="pi pi-user"></i> Anagrafica
+        </button>
+        <button class="tab-btn" [class.active]="tabAttivo === 'contratto'" (click)="tabAttivo = 'contratto'">
+            <i class="pi pi-file"></i> Contratto & Finanza
+        </button>
+        <button class="tab-btn" [class.active]="tabAttivo === 'medico'" (click)="tabAttivo = 'medico'">
+            <i class="pi pi-heart"></i> Medico
+        </button>
+    </div>
+
+    <!-- TAB ANAGRAFICA -->
+    @if (tabAttivo === 'anagrafica') {
+    <div class="tab-content">
+        <div class="dettagli-grid">
+            <div class="dettaglio-card">
+                <p class="card-titolo">Dati personali</p>
+                <div class="campi">
+                    <div class="campo"><span class="campo-label">Nome completo</span><span class="campo-val">{{ g.nome
+                            }} {{ g.cognome }}</span></div>
+                    <div class="campo"><span class="campo-label">Data di nascita</span><span class="campo-val">{{
+                            g.dataNascita ?? '–' }} @if(g.eta){<em>({{ g.eta }} anni)</em>}</span></div>
+                    <div class="campo"><span class="campo-label">Luogo di nascita</span><span class="campo-val">{{
+                            g.luogoNascita ?? '–' }}</span></div>
+                    <div class="campo"><span class="campo-label">Nazionalità</span><span class="campo-val">{{
+                            g.nazionalita ?? '–' }}</span></div>
+                </div>
+            </div>
+
+            <div class="dettaglio-card">
+                <p class="card-titolo">Dati fisici</p>
+                <div class="campi">
+                    <div class="campo"><span class="campo-label">Altezza</span><span class="campo-val">{{ g.altezzaCm ?
+                            g.altezzaCm + ' cm' : '–' }}</span></div>
+                    <div class="campo"><span class="campo-label">Peso</span><span class="campo-val">{{ g.pesoKg ?
+                            g.pesoKg + ' kg' : '–' }}</span></div>
+                    <div class="campo"><span class="campo-label">Piede preferito</span><span class="campo-val">{{
+                            g.piedePreferito ?? '–' }}</span></div>
+                </div>
+            </div>
+
+            <div class="dettaglio-card">
+                <p class="card-titolo">Ruolo</p>
+                <div class="campi">
+                    <div class="campo"><span class="campo-label">Ruolo principale</span>
+                        <span class="campo-val">
+                            <span class="ruolo-badge" [style.background]="getRuoloColore(g.ruolo) + '22'"
+                                [style.color]="getRuoloColore(g.ruolo)">{{ g.ruolo }}</span>
+                        </span>
+                    </div>
+                    @if (g.ruoliSecondari) {
+                    <div class="campo"><span class="campo-label">Ruoli secondari</span>
+                        <span class="campo-val ruoli-sec">
+                            @for (r of g.ruoliSecondari.split(','); track r) {
+                            <span class="ruolo-badge secondario">{{ r.trim() }}</span>
+                            }
+                        </span>
+                    </div>
+                    }
+                    <div class="campo"><span class="campo-label">Numero maglia</span><span class="campo-val">#{{
+                            g.numeroMaglia ?? '–' }}</span></div>
+                </div>
+            </div>
+
+            <div class="dettaglio-card">
+                <p class="card-titolo">Management</p>
+                <div class="campi">
+                    <div class="campo"><span class="campo-label">Agente</span><span class="campo-val">{{ g.agente ?? '–'
+                            }}</span></div>
+                    <div class="campo"><span class="campo-label">Stato</span>
+                        <span class="campo-val">
+                            <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    <!-- TAB CONTRATTO & FINANZA -->
+    @if (tabAttivo === 'contratto') {
+    <div class="tab-content">
+        <div class="dettagli-grid">
+
+            <div class="dettaglio-card">
+                <p class="card-titolo">Contratto</p>
+                <div class="campi">
+                    <div class="campo"><span class="campo-label">Inizio</span><span class="campo-val">{{
+                            g.contrattoInizio ?? '–' }}</span></div>
+                    <div class="campo"><span class="campo-label">Scadenza</span>
+                        <span class="campo-val" [class]="getScadenzaClass(giorniAllaScadenza(g.contrattoFine))">
+                            {{ g.contrattoFine ?? '–' }}
+                            @if (giorniAllaScadenza(g.contrattoFine); as giorni) {
+                            <em>({{ giorni }} giorni)</em>
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Barra scadenza -->
+                @if (g.contrattoInizio && g.contrattoFine) {
+                @if (giorniAllaScadenza(g.contrattoFine); as giorni) {
+                <div class="scadenza-bar-wrapper">
+                    <div class="scadenza-bar">
+                        <div class="scadenza-fill" [class]="getScadenzaClass(giorni)"
+                            [style.width.%]="calcolaLarghezzaScadenza(giorni)">
+                        </div>
+                    </div>
+                    <span class="scadenza-testo" [class]="getScadenzaClass(giorni)">
+                        @if (giorni < 90) { ⚠️ Rinnovo urgente } @else if (giorni < 180) { Rinnovo consigliato } @else {
+                            Contratto regolare } </span>
+                </div>
+                }
+                }
+            </div>
+
+            <div class="dettaglio-card">
+                <p class="card-titolo">Valori finanziari</p>
+                <div class="campi">
+                    <div class="campo">
+                        <span class="campo-label">Valore di mercato</span>
+                        <span class="campo-val valore-grande">{{ formatValuta(g.valoreMercato) }}</span>
+                    </div>
+                    <div class="campo">
+                        <span class="campo-label">Stipendio annuo</span>
+                        <span class="campo-val">{{ formatValuta(g.stipendioAnnuo) }}</span>
+                    </div>
+                    <div class="campo">
+                        <span class="campo-label">Clausola rescissoria</span>
+                        <span class="campo-val">{{ formatValuta(g.clausola) }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    }
+
+    <!-- TAB MEDICO -->
+    @if (tabAttivo === 'medico') {
+    <div class="tab-content">
+        <div class="dettaglio-card">
+            <p class="card-titolo">Note mediche</p>
+            @if (g.noteMediche) {
+            <p class="note-testo">{{ g.noteMediche }}</p>
+            } @else {
+            <p class="note-vuote">Nessuna nota medica registrata.</p>
+            }
+        </div>
+
+        <div class="dettaglio-card" style="margin-top: 1rem;">
+            <p class="card-titolo">Stato attuale</p>
+            <div class="stato-medico">
+                <div class="stato-icon" [class]="getSeverityClass(g.stato)">
+                    @if (g.stato === 'ATTIVO') { <i class="pi pi-check-circle"></i> }
+                    @else if (g.stato === 'INFORTUNATO') { <i class="pi pi-times-circle"></i> }
+                    @else { <i class="pi pi-exclamation-circle"></i> }
+                </div>
+                <div>
+                    <p class="stato-nome" [class]="getSeverityClass(g.stato)">{{ g.stato }}</p>
+                    @if (g.stato === 'INFORTUNATO') {
+                    <p class="stato-sub">Il giocatore non è disponibile per la selezione</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
 
     }
 </div>
