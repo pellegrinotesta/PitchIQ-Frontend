@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, signal } from '@angular/core';
 import { PosizioneCampo, GiocatoreDisponibile } from '../../core/model/formazione.model';
 
 @Component({
@@ -17,6 +17,66 @@ export class CampoDiCalcio {
   giocatoreSelezionato: PosizioneCampo | null = null;
   draggingPosizione: PosizioneCampo | null = null;
   pinAperto: PosizioneCampo | null = null;
+  private el = inject(ElementRef);
+
+  @HostListener('dragenter')
+  onDragEnter(): void {
+    (this.el.nativeElement as HTMLElement)
+      .querySelector('.campo')?.setAttribute('data-dragging', '');
+  }
+
+  @HostListener('dragleave')
+  onDragLeave(): void {
+    (this.el.nativeElement as HTMLElement)
+      .querySelector('.campo')?.removeAttribute('data-dragging');
+  }
+
+  // Mappa slot → categoria ruolo attesa
+  private readonly SLOT_CATEGORIA: Record<string, string> = {
+    'GK': 'PORTIERE',
+    'CB': 'DIFENSORE', 'CB1': 'DIFENSORE', 'CB2': 'DIFENSORE', 'CB3': 'DIFENSORE',
+    'LB': 'DIFENSORE', 'RB': 'DIFENSORE', 'LWB': 'DIFENSORE', 'RWB': 'DIFENSORE',
+    'CM': 'CENTROCAMPISTA', 'CM1': 'CENTROCAMPISTA', 'CM2': 'CENTROCAMPISTA', 'CM3': 'CENTROCAMPISTA',
+    'LM': 'CENTROCAMPISTA', 'RM': 'CENTROCAMPISTA', 'DM': 'CENTROCAMPISTA',
+    'AM': 'CENTROCAMPISTA', 'LW': 'CENTROCAMPISTA', 'RW': 'CENTROCAMPISTA',
+    'ST': 'ATTACCANTE', 'ST1': 'ATTACCANTE', 'ST2': 'ATTACCANTE', 'CF': 'ATTACCANTE',
+  };
+
+  // Determina la categoria della zona campo in base alla coordinata Y
+  private getCategoriaZona(coordY: number): string {
+    if (coordY >= 80) return 'PORTIERE';
+    if (coordY >= 60) return 'DIFENSORE';
+    if (coordY >= 35) return 'CENTROCAMPISTA';
+    return 'ATTACCANTE';
+  }
+
+  // Verifica se il giocatore può essere posizionato in quella zona
+  private isCompatibile(g: GiocatoreDisponibile, coordY: number): boolean {
+    const zonaCategoria = this.getCategoriaZona(coordY);
+    const ruoloCategoria = (g as any).categoriaRuolo ?? this.inferisciCategoria(g.ruolo);
+    return zonaCategoria === ruoloCategoria;
+  }
+
+  private inferisciCategoria(ruolo: string): string {
+    const portieri = ['POR'];
+    const difensori = ['DC', 'TSD', 'TSS', 'LB'];
+    const centrocampisti = ['CDC', 'CC', 'MOC', 'ALD', 'ALS', 'W'];
+    const attaccanti = ['PC', 'SP', 'FW'];
+
+    if (portieri.includes(ruolo)) return 'PORTIERE';
+    if (difensori.includes(ruolo)) return 'DIFENSORE';
+    if (centrocampisti.includes(ruolo)) return 'CENTROCAMPISTA';
+    if (attaccanti.includes(ruolo)) return 'ATTACCANTE';
+    return '';
+  }
+
+  // Notifica errore ruolo
+  erroreRuolo = signal<string | null>(null);
+
+  private mostraErroreRuolo(g: GiocatoreDisponibile, zona: string): void {
+    this.erroreRuolo.set(`${g.cognome} (${g.ruolo}) non può giocare in ${zona}`);
+    setTimeout(() => this.erroreRuolo.set(null), 3000);
+  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -26,10 +86,7 @@ export class CampoDiCalcio {
     event.preventDefault();
 
     const posizioneRaw = event.dataTransfer?.getData('posizione');
-    if (posizioneRaw) {
-      this.onDropPosizione(event);
-      return;
-    }
+    if (posizioneRaw) { this.onDropPosizione(event); return; }
 
     const raw = event.dataTransfer?.getData('giocatore');
     if (!raw) return;
@@ -39,8 +96,23 @@ export class CampoDiCalcio {
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-    const esisteGia = this.posizioni.some(p => p.giocatoreId === g.id);
-    if (esisteGia) return;
+    // Blocca se già in campo
+    if (this.posizioni.some(p => p.giocatoreId === g.id)) return;
+
+    // Blocca se fuori ruolo
+    if (!this.isCompatibile(g, y)) {
+      const zona = this.getCategoriaZona(y);
+      this.mostraErroreRuolo(g, zona);
+      return;
+    }
+
+    // Blocca se già 11 giocatori in campo
+    const titolari = this.posizioni.filter(p => p.titolare).length;
+    if (titolari >= 11) {
+      this.erroreRuolo.set('Hai già 11 giocatori in campo');
+      setTimeout(() => this.erroreRuolo.set(null), 3000);
+      return;
+    }
 
     const nuovaPosizione: PosizioneCampo = {
       giocatoreId: g.id,
@@ -70,6 +142,17 @@ export class CampoDiCalcio {
     const rect = el.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+    // Trova il giocatore corrispondente nella rosa
+    const giocatore = this.rosa.find(g => g.id === this.draggingPosizione!.giocatoreId);
+
+    // Blocca se fuori ruolo
+    if (giocatore && !this.isCompatibile(giocatore, y)) {
+      const zona = this.getCategoriaZona(y);
+      this.mostraErroreRuolo(giocatore, zona);
+      this.draggingPosizione = null;
+      return;
+    }
 
     const updated = this.posizioni.map(p =>
       p.giocatoreId === this.draggingPosizione!.giocatoreId

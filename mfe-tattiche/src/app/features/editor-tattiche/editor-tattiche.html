@@ -1,4 +1,3 @@
-
 <div class="editor">
 
     <!-- SIDEBAR SINISTRA: formazioni/schemi -->
@@ -175,11 +174,13 @@
                 <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
                 <div class="giocatore-info">
                     <span class="giocatore-nome">{{ g.cognome }}</span>
-                    <span class="giocatore-ruolo">{{ g.ruolo }}</span>
+                    <span class="giocatore-ruolo" [class]="'ruolo-' + (g.categoriaRuolo ?? '').toLowerCase()">
+                        {{ g.ruolo }}
+                    </span>
                 </div>
                 <i class="pi pi-arrows-alt drag-icon"></i>
             </div>
-            }
+            } 
         </div>
     </aside>
     }

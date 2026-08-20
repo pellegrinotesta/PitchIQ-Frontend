@@ -39,4 +39,5 @@ export interface GiocatoreDisponibile {
     cognome: string;
     numeroMaglia: number | null;
     ruolo: string;
-}
+    categoriaRuolo: string; // PORTIERE | DIFENSORE | CENTROCAMPISTA | ATTACCANTE
+  }

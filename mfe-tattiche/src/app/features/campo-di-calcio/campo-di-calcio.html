@@ -1,4 +1,19 @@
 <div class="campo" (dragover)="onDragOver($event)" (drop)="onDropFromSidebar($event)">
+
+    <!-- Zone ruolo visive (appaiono solo durante il drag) -->
+    <div class="zona-campo zona-portiere">POR</div>
+    <div class="zona-campo zona-difesa">DEF</div>
+    <div class="zona-campo zona-centrocampo">CEN</div>
+    <div class="zona-campo zona-attacco">ATT</div>
+
+    <!-- Notifica errore -->
+    @if (erroreRuolo()) {
+    <div class="errore-ruolo">
+        <i class="pi pi-times-circle"></i>
+        {{ erroreRuolo() }}
+    </div>
+    }
+
     <!-- Linee del campo SVG -->
     <svg class="campo-linee" viewBox="0 0 100 100" preserveAspectRatio="none">
         <!-- Bordo esterno -->
