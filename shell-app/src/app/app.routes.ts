@@ -60,6 +60,11 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'tracking',
+        loadChildren: () =>
+            loadRemoteModule('mfe-tracking', './Routes').then(m => m.routes),
+    },
+    {
         path: '**',
         redirectTo: 'home',
     },
