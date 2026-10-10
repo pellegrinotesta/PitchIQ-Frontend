@@ -26,7 +26,7 @@ import { ConfirmService } from '../confirm-dialog/confirm.service';
     DynamicDialogModule,
     ToastModule,
     CampoDiCalcio,
-    CampoSchema  ],
+    CampoSchema],
   providers: [MessageService, DialogService, ConfirmService],
   templateUrl: './editor-tattiche.html',
   styleUrl: './editor-tattiche.scss',
@@ -56,6 +56,88 @@ export class EditorTattiche implements OnInit {
   readonly moduliOptions = [
     '4-3-3', '4-4-2', '4-2-3-1', '3-5-2', '5-3-2', '3-4-3'
   ];
+
+  // Coordinate standard per modulo (coordX, coordY, slotRuolo)
+  private readonly POSIZIONI_MODULO: Record<string, { coordX: number; coordY: number; slotRuolo: string; categoria: string }[]> = {
+    '4-3-3': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 20, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
+      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 80, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
+      { coordX: 25, coordY: 50, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 75, coordY: 50, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
+      { coordX: 18, coordY: 20, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
+      { coordX: 82, coordY: 20, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
+    ],
+    '4-4-2': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 15, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
+      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 85, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
+      { coordX: 15, coordY: 50, slotRuolo: 'LM', categoria: 'CENTROCAMPISTA' },
+      { coordX: 38, coordY: 52, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 62, coordY: 52, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 85, coordY: 50, slotRuolo: 'RM', categoria: 'CENTROCAMPISTA' },
+      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
+      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
+    ],
+    '4-2-3-1': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 15, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
+      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 85, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
+      { coordX: 35, coordY: 57, slotRuolo: 'DM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 65, coordY: 57, slotRuolo: 'DM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 18, coordY: 35, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 32, slotRuolo: 'AM', categoria: 'CENTROCAMPISTA' },
+      { coordX: 82, coordY: 35, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
+    ],
+    '3-5-2': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 25, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 75, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
+      { coordX: 10, coordY: 52, slotRuolo: 'LWB', categoria: 'CENTROCAMPISTA' },
+      { coordX: 30, coordY: 48, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 70, coordY: 48, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
+      { coordX: 90, coordY: 52, slotRuolo: 'RWB', categoria: 'CENTROCAMPISTA' },
+      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
+      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
+    ],
+    '5-3-2': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 10, coordY: 68, slotRuolo: 'LWB', categoria: 'DIFENSORE' },
+      { coordX: 28, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 72, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
+      { coordX: 90, coordY: 68, slotRuolo: 'RWB', categoria: 'DIFENSORE' },
+      { coordX: 25, coordY: 48, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 75, coordY: 48, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
+      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
+      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
+    ],
+    '3-4-3': [
+      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
+      { coordX: 25, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
+      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
+      { coordX: 75, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
+      { coordX: 15, coordY: 52, slotRuolo: 'LM', categoria: 'CENTROCAMPISTA' },
+      { coordX: 38, coordY: 50, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
+      { coordX: 62, coordY: 50, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
+      { coordX: 85, coordY: 52, slotRuolo: 'RM', categoria: 'CENTROCAMPISTA' },
+      { coordX: 18, coordY: 20, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
+      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
+      { coordX: 82, coordY: 20, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
+    ],
+  };
 
   readonly ruoliSlot = [
     { label: 'Portiere', value: 'PORTIERE' },
@@ -115,9 +197,72 @@ export class EditorTattiche implements OnInit {
 
   onModuloChange(modulo: string): void {
     const f = this.formazioneAttiva();
-    if (f) this.formazioneAttiva.set({ ...f, modulo });
+    if (!f) return;
+
+    if (f.posizioni.length === 0) {
+      this.formazioneAttiva.set({ ...f, modulo });
+      return;
+    }
+
+    const nuoveCoordinate = this.POSIZIONI_MODULO[modulo];
+    if (!nuoveCoordinate) {
+      this.formazioneAttiva.set({ ...f, modulo });
+      return;
+    }
+
+    // Raggruppa per categoria leggendo dalla rosa
+    const giocatoriPerCategoria: Record<string, PosizioneCampo[]> = {
+      PORTIERE: [], DIFENSORE: [], CENTROCAMPISTA: [], ATTACCANTE: [],
+    };
+
+    f.posizioni.forEach(p => {
+      const g = this.rosa().find(r => r.id === p.giocatoreId);
+      if (!g) return;
+
+      // Inferisci categoria dal ruolo
+      const categoria = this.inferisciCategoria(g.ruolo);
+      if (giocatoriPerCategoria[categoria]) {
+        giocatoriPerCategoria[categoria].push(p);
+      }
+    });
+
+    const contatori: Record<string, number> = {
+      PORTIERE: 0, DIFENSORE: 0, CENTROCAMPISTA: 0, ATTACCANTE: 0,
+    };
+
+    const nuovePosizioni: PosizioneCampo[] = nuoveCoordinate.map(slot => {
+      const giocatoriCategoria = giocatoriPerCategoria[slot.categoria] ?? [];
+      const indice = contatori[slot.categoria] ?? 0;
+      const giocatore = giocatoriCategoria[indice];
+      contatori[slot.categoria] = indice + 1;
+
+      if (!giocatore) return null;
+
+      return {
+        ...giocatore,
+        coordX: slot.coordX,
+        coordY: slot.coordY,
+        slotRuolo: slot.slotRuolo as string | null,
+      } as PosizioneCampo;
+    }).filter((p): p is PosizioneCampo => p !== null);
+
+    this.formazioneAttiva.set({ ...f, modulo, posizioni: nuovePosizioni });
+    this.moduloSuggerito.set(null);
   }
 
+  // Aggiungi questo metodo nel componente
+  private inferisciCategoria(ruolo: string): string {
+    const portieri = ['POR'];
+    const difensori = ['DC', 'TSD', 'TSS', 'LB'];
+    const centrocampisti = ['CDC', 'CC', 'MOC', 'ALD', 'ALS', 'W'];
+    const attaccanti = ['PC', 'SP', 'FW'];
+
+    if (portieri.includes(ruolo)) return 'PORTIERE';
+    if (difensori.includes(ruolo)) return 'DIFENSORE';
+    if (centrocampisti.includes(ruolo)) return 'CENTROCAMPISTA';
+    if (attaccanti.includes(ruolo)) return 'ATTACCANTE';
+    return 'CENTROCAMPISTA';
+  }
   onDragStart(event: DragEvent, g: GiocatoreDisponibile): void {
     event.dataTransfer?.setData('giocatore', JSON.stringify(g));
   }
