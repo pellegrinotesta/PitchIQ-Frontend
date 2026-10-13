@@ -20,7 +20,8 @@ export class Homepage {
     { label: 'Tattiche', icon: 'pi pi-map', route: '/tattiche', descrizione: 'Crea formazioni e schemi di gioco' },
     { label: 'Statistiche', icon: 'pi pi-chart-line', route: '/statistiche', descrizione: 'Analizza la crescita e il rendimento dei giocatori' },
     { label: 'Partite', icon: 'pi pi-circle-fill', route: '/partite', descrizione: 'Registra le partite, gli eventi e le statistiche' },
-    {label: 'Tracking', icon: 'pi pi-map-marker', route: '/tracking', descrizione: 'Monitora la posizione dei giocatori in tempo reale durante le partite'},
+    { label: 'Tracking', icon: 'pi pi-map-marker', route: '/tracking', descrizione: 'Analisi pressioni con dati SkillCorner' },
+    { label: 'StatsBomb', icon: 'pi pi-chart-bar', route: '/tracking/statsbomb', descrizione: 'Shot map, xG e analisi eventi su dati aperti StatsBomb' },
   ];
 
   logout(): void {
