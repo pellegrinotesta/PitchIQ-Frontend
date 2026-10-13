@@ -1,0 +1,10 @@
+{
+  "name": "pitchiq",
+  "version": "1.0.0",
+  "scripts": {
+    "start:all": "concurrently --names \"SHELL,SQUADRE,TATTICHE,STATISTICHE,ALLENAMENTI,PARTITE,TRACKING\" --prefix-colors \"bgBlue,bgGreen,bgYellow,bgCyan,bgMagenta,bgRed,bgWhite\" \"npm start --prefix shell-app\" \"npm start --prefix mfe-squadre\" \"npm start --prefix mfe-tattiche\" \"npm start --prefix mfe-statistiche\" \"npm start --prefix mfe-allenamenti\" \"npm start --prefix mfe-partite\" \"npm start --prefix mfe-tracking\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

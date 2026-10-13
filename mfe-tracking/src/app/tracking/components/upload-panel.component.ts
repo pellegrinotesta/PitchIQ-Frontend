@@ -5,7 +5,7 @@ import { Subscription, filter, switchMap, takeWhile, timer } from 'rxjs';
 import { TrackingApi } from '../data/tracking.api';
 import { ImportDto } from '../data/tracking.models';
 import { TRACKING_TOKENS } from '../tracking.tokens';
-import { GithubBrowserComponent, FilesCaricati } from './github-browser.component';
+import { GithubBrowserComponent } from './github-browser.component';
 
 type Slot = 'partita' | 'eventi' | 'tracking';
 
@@ -19,9 +19,9 @@ interface SlotDef {
 }
 
 const SLOTS: SlotDef[] = [
-  { key: 'partita', titolo: 'Partita', formato: '.json', esempio: '1874553_match.json', accept: '.json,application/json', obbligatorio: true },
-  { key: 'eventi', titolo: 'Dynamic events', formato: '.csv', esempio: '1874553_dynamic_events.csv', accept: '.csv,text/csv', obbligatorio: true },
-  { key: 'tracking', titolo: 'Tracking', formato: '.jsonl', esempio: '1874553_tracking_extrapolated.jsonl', accept: '.jsonl', obbligatorio: false },
+  { key: 'partita',  titolo: 'Partita',        formato: '.json',  esempio: '1874553_match.json',                  accept: '.json,application/json', obbligatorio: true },
+  { key: 'eventi',   titolo: 'Dynamic events', formato: '.csv',   esempio: '1874553_dynamic_events.csv',          accept: '.csv,text/csv',          obbligatorio: true },
+  { key: 'tracking', titolo: 'Tracking',       formato: '.jsonl', esempio: '1874553_tracking_extrapolated.jsonl', accept: '.jsonl',                 obbligatorio: false },
 ];
 
 @Component({
@@ -116,7 +116,7 @@ const SLOTS: SlotDef[] = [
 
       @if (mostraGithub()) {
         <tk-github-browser
-          (filesCaricati)="onFilesGithub($event)"
+          (importAvviato)="onImportAvviato($event)"
           (chiudi)="mostraGithub.set(false)"
         />
       }
@@ -132,200 +132,59 @@ const SLOTS: SlotDef[] = [
       display: grid;
       gap: 1.25rem;
     }
-
-    .upload-head h2 {
-      margin: 0 0 .35rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .upload-head p {
-      margin: 0;
-      font-size: .85rem;
-      color: #555;
-    }
-
-    /* Slots */
+    .upload-head h2 { margin: 0 0 .35rem; font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .upload-head p { margin: 0; font-size: .85rem; color: #555; }
     .slots {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
       gap: .75rem;
     }
-
     .slot {
-      position: relative;
-      display: grid;
-      gap: .3rem;
-      padding: 1rem;
-      background: #0a0a0a;
-      border: 1.5px dashed #2a2a2a;
-      border-radius: 10px;
-      cursor: pointer;
-      min-width: 0;
-      transition: border-color .15s, background .15s;
+      position: relative; display: grid; gap: .3rem; padding: 1rem;
+      background: #0a0a0a; border: 1.5px dashed #2a2a2a; border-radius: 10px;
+      cursor: pointer; min-width: 0; transition: border-color .15s, background .15s;
     }
-
     .slot:hover { border-color: #444; }
-    .slot.drag   { border-color: #00ff87; background: rgba(0,255,135,.04); }
-    .slot.filled {
-      border-style: solid;
-      border-color: rgba(0,255,135,.4);
-      background: rgba(0,255,135,.04);
-    }
-
-    .slot input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-
-    .slot input:focus-visible ~ .slot-label {
-      outline: 2px solid #00ff87;
-      outline-offset: 4px;
-    }
-
-    .slot-label {
-      font-size: .7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #555;
-    }
-
+    .slot.drag { border-color: #00ff87; background: rgba(0,255,135,.04); }
+    .slot.filled { border-style: solid; border-color: rgba(0,255,135,.4); background: rgba(0,255,135,.04); }
+    .slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .slot input:focus-visible ~ .slot-label { outline: 2px solid #00ff87; outline-offset: 4px; }
+    .slot-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #555; }
     .facoltativo { color: #444; }
-
-    .slot-nome {
-      font-size: .88rem;
-      font-weight: 600;
-      color: #00ff87;
-      overflow-wrap: anywhere;
-    }
-
-    .slot-hint {
-      font-size: .88rem;
-      font-weight: 500;
-      color: #888;
-    }
-
-    .slot-size {
-      font-size: .75rem;
-      color: #444;
-      overflow-wrap: anywhere;
-    }
-
-    /* Footer */
-    .upload-foot {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .upload-azioni {
-      display: flex;
-      gap: .5rem;
-      align-items: center;
-    }
-
+    .slot-nome { font-size: .88rem; font-weight: 600; color: #00ff87; overflow-wrap: anywhere; }
+    .slot-hint { font-size: .88rem; font-weight: 500; color: #888; }
+    .slot-size { font-size: .75rem; color: #444; overflow-wrap: anywhere; }
+    .upload-foot { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+    .upload-azioni { display: flex; gap: .5rem; align-items: center; }
     .btn-primary {
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      padding: .6rem 1.2rem;
-      background: #00ff87;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-size: .9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .15s;
-      font-family: inherit;
+      display: flex; align-items: center; gap: .4rem; padding: .6rem 1.2rem;
+      background: #00ff87; color: #000; border: none; border-radius: 8px;
+      font-size: .9rem; font-weight: 700; cursor: pointer; transition: background .15s; font-family: inherit;
     }
-
     .btn-primary:hover:not(:disabled) { background: #00cc6a; }
     .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
-
     .btn-ghost {
-      padding: .6rem 1rem;
-      background: transparent;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      color: #888;
-      font-size: .9rem;
-      cursor: pointer;
-      transition: border-color .15s, color .15s;
-      font-family: inherit;
+      padding: .6rem 1rem; background: transparent; border: 1px solid #2a2a2a;
+      border-radius: 8px; color: #888; font-size: .9rem; cursor: pointer;
+      transition: border-color .15s, color .15s; font-family: inherit;
     }
-
     .btn-ghost:hover { border-color: #555; color: #fff; }
-
-    /* Status */
-    .status {
-      flex: 1 1 240px;
-      min-width: 0;
-    }
-
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: .85rem;
-    }
-
+    .status { flex: 1 1 240px; min-width: 0; }
+    .status-row { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
     .status-testo { font-size: .85rem; color: #888; }
-
     .status-ok { color: #00ff87; font-size: .85rem; }
     .status-err { color: #ff6464; font-size: .85rem; }
-
-    .progress-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: .35rem;
-    }
-
-    .progress-bar {
-      width: 180px;
-      height: 4px;
-      background: #1e1e1e;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: #00ff87;
-      border-radius: 999px;
-      transition: width .2s;
-    }
-
-    /* Spinner */
+    .progress-wrap { display: flex; flex-direction: column; gap: .35rem; }
+    .progress-bar { width: 180px; height: 4px; background: #1e1e1e; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #00ff87; border-radius: 999px; transition: width .2s; }
     .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid #2a2a2a;
-      border-top-color: #00ff87;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      display: inline-block;
-      flex-shrink: 0;
+      width: 14px; height: 14px; border: 2px solid #2a2a2a; border-top-color: #00ff87;
+      border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; flex-shrink: 0;
     }
-
     .spinner-sm {
-      width: 12px;
-      height: 12px;
-      border: 2px solid #2a2a2a;
-      border-top-color: #00ff87;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      display: inline-block;
-      flex-shrink: 0;
+      width: 12px; height: 12px; border: 2px solid #2a2a2a; border-top-color: #00ff87;
+      border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; flex-shrink: 0;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .spinner, .spinner-sm { animation: none; } }
   `],
@@ -336,17 +195,17 @@ export class UploadPanelComponent {
 
   readonly concluso = output<ImportDto>();
 
-  protected readonly slots = SLOTS;
-  protected readonly files = signal<Record<Slot, File | null>>({ partita: null, eventi: null, tracking: null });
-  protected readonly dragOver = signal<Slot | null>(null);
-  protected readonly fase = signal<'idle' | 'upload' | 'elaborazione' | 'completato' | 'errore'>('idle');
-  protected readonly progresso = signal(0);
-  protected readonly corrente = signal<ImportDto | null>(null);
-  protected readonly errore = signal<string | null>(null);
+  protected readonly slots      = SLOTS;
+  protected readonly files      = signal<Record<Slot, File | null>>({ partita: null, eventi: null, tracking: null });
+  protected readonly dragOver   = signal<Slot | null>(null);
+  protected readonly fase       = signal<'idle' | 'upload' | 'elaborazione' | 'completato' | 'errore'>('idle');
+  protected readonly progresso  = signal(0);
+  protected readonly corrente   = signal<ImportDto | null>(null);
+  protected readonly errore     = signal<string | null>(null);
   protected readonly mostraGithub = signal(false);
 
   protected readonly pronto = computed(() => !!this.files().partita && !!this.files().eventi);
-  protected readonly busy = computed(() => this.fase() === 'upload' || this.fase() === 'elaborazione');
+  protected readonly busy   = computed(() => this.fase() === 'upload' || this.fase() === 'elaborazione');
 
   private sub?: Subscription;
 
@@ -360,17 +219,6 @@ export class UploadPanelComponent {
     if (this.busy()) return;
     ev.preventDefault();
     this.dragOver.set(slot);
-  }
-
-  protected onFilesGithub(f: FilesCaricati): void {
-    this.files.set({
-      partita: f.partita,
-      eventi: f.eventi,
-      tracking: f.tracking,
-    });
-    this.mostraGithub.set(false);
-    this.fase.set('idle');
-    this.errore.set(null);
   }
 
   protected onDrop(ev: DragEvent, slot: Slot): void {
@@ -394,6 +242,11 @@ export class UploadPanelComponent {
     this.files.set({ partita: null, eventi: null, tracking: null });
     this.fase.set('idle');
     this.errore.set(null);
+  }
+
+  protected onImportAvviato(imp: ImportDto): void {
+    this.mostraGithub.set(false);
+    this.concluso.emit(imp);
   }
 
   protected invia(): void {

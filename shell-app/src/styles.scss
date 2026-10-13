@@ -46,3 +46,12 @@ body {
   --p-overlay-modal-background: rgba(0, 0, 0, .7);
   backdrop-filter: blur(4px);
 }
+
+// Wrapper MFE tracking
+tk-tracking-home,
+tk-partita-dettaglio {
+  display: block;
+  padding: 2rem 2.5rem;
+  min-height: 100vh;
+  background: #0a0a0a;
+}

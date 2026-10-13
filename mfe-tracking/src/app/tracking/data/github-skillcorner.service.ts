@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map, switchMap } from 'rxjs';
+import { Observable, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { TRACKING_API_URL } from './tracking.api';
+import { ImportDto } from './tracking.models';
 
 const BASE = 'https://api.github.com/repos/SkillCorner/opendata/contents/data/matches';
 const RAW = 'https://raw.githubusercontent.com/SkillCorner/opendata/master/data/matches';
@@ -27,25 +29,16 @@ interface GhEntry {
 @Injectable({ providedIn: 'root' })
 export class GithubSkillcornerService {
     private readonly http = inject(HttpClient);
+    private readonly base = inject(TRACKING_API_URL);
 
-    /** Lista tutte le cartelle partita disponibili nel repo. */
-    listaPartite(): Observable<PartitaGitHub[]> {
-        return this.http.get<GhEntry[]>(BASE).pipe(
-            switchMap(cartelle => {
-                const dirs = cartelle.filter(e => e.type === 'dir');
-                // Per ogni cartella leggi i file dentro
-                return forkJoin(
-                    dirs.map(dir =>
-                        this.http.get<GhEntry[]>(`${BASE}/${dir.name}`).pipe(
-                            map(files => this.toPartita(dir.name, files))
-                        )
-                    )
-                );
-            }),
-            // Filtra solo quelle con almeno partita + eventi
-            map(list => list.filter(p => p.matchJson && p.eventiCsv))
-        );
+    listaPartite(): Observable<{ matchId: string }[]> {
+        return this.http.get<{ matchId: string }[]>(`${this.base}/github/partite`);
     }
+
+    importa(matchId: string): Observable<ImportDto> {
+        return this.http.post<ImportDto>(`${this.base}/github/importa/${matchId}`, {});
+    }
+
 
     /** Scarica i metadati (squadre, data) dal match.json. */
     metadati(matchUrl: string): Observable<{ squadraCasa: string; squadraTrasferta: string; data: string; competizione: string }> {
@@ -59,13 +52,46 @@ export class GithubSkillcornerService {
         );
     }
 
-    /** Scarica un file remoto come Blob e lo converte in File. */
     scaricaFile(url: string, nomeFile: string): Observable<File> {
         return this.http.get(url, { responseType: 'blob' }).pipe(
-            map(blob => new File([blob], nomeFile, { type: blob.type }))
+            switchMap(blob => {
+                // Leggi il blob come testo per verificare se è un puntatore LFS
+                return from(blob.text()).pipe(
+                    switchMap(testo => {
+                        if (testo.startsWith('version https://git-lfs.github.com')) {
+                            // Estrai oid e size dal puntatore
+                            const oid = testo.match(/oid sha256:([a-f0-9]+)/)?.[1];
+                            const size = testo.match(/size (\d+)/)?.[1];
+                            if (!oid) throw new Error('Puntatore LFS non valido');
+                            return this.scaricaLfs(oid, Number(size), nomeFile);
+                        }
+                        return of(new File([blob], nomeFile, { type: blob.type }));
+                    })
+                );
+            })
         );
     }
 
+    private scaricaLfs(oid: string, size: number, nomeFile: string): Observable<File> {
+        const body = {
+            operation: 'download',
+            transfers: ['basic'],
+            objects: [{ oid, size }],
+        };
+
+        return this.http.post<any>(
+            'https://github.com/SkillCorner/opendata.git/info/lfs/objects/batch',
+            body,
+            { headers: { Accept: 'application/vnd.git-lfs+json', 'Content-Type': 'application/vnd.git-lfs+json' } }
+        ).pipe(
+            switchMap(res => {
+                const downloadUrl = res.objects?.[0]?.actions?.download?.href;
+                if (!downloadUrl) throw new Error('URL LFS non disponibile');
+                return this.http.get(downloadUrl, { responseType: 'blob' });
+            }),
+            map(blob => new File([blob], nomeFile, { type: blob.type }))
+        );
+    }
     /** Scarica in parallelo i tre file di una partita. */
     scaricaTutto(p: PartitaGitHub): Observable<{ partita: File; eventi: File; tracking: File | null }> {
         const partita$ = this.scaricaFile(p.matchJson, `${p.id}_match.json`);
