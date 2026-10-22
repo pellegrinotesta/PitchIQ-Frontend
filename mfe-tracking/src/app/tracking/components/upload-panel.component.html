@@ -1,0 +1,93 @@
+<section class="upload-card" aria-labelledby="upload-title">
+
+      <div class="upload-head">
+        <h2 id="upload-title">Carica una partita</h2>
+        <p>File SkillCorner della stessa partita. Senza il tracking ottieni le statistiche ma non le animazioni.</p>
+      </div>
+
+      <div class="slots">
+        @for (s of slots; track s.key) {
+          <label class="slot"
+            [class.filled]="files()[s.key]"
+            [class.drag]="dragOver() === s.key"
+            (dragover)="onDragOver($event, s.key)"
+            (dragleave)="dragOver.set(null)"
+            (drop)="onDrop($event, s.key)">
+
+            <input type="file" [id]="'tk-file-' + s.key" [accept]="s.accept"
+              [disabled]="busy()" (change)="onPick($event, s.key)">
+
+            <span class="slot-label">
+              {{ s.titolo }} · {{ s.formato }}
+              @if (!s.obbligatorio) { <span class="facoltativo">· facoltativo</span> }
+            </span>
+
+            @if (files()[s.key]; as f) {
+              <span class="slot-nome">{{ f.name }}</span>
+              <span class="slot-size">{{ dimensione(f.size) }}</span>
+            } @else {
+              <span class="slot-hint">Trascina qui o tocca per scegliere</span>
+              <span class="slot-size">es. {{ s.esempio }}</span>
+            }
+          </label>
+        }
+      </div>
+
+      <div class="upload-foot">
+        <div class="upload-azioni">
+          <button type="button" class="btn-primary" [disabled]="!pronto() || busy()" (click)="invia()">
+            @if (busy()) {
+              <span class="spinner"></span> Elaborazione…
+            } @else {
+              <i class="pi pi-upload"></i> Carica ed elabora
+            }
+          </button>
+          <button type="button" class="btn-ghost" (click)="mostraGithub.set(!mostraGithub())">
+            <i class="pi pi-github"></i>
+            {{ mostraGithub() ? 'Chiudi' : 'Sfoglia GitHub' }}
+          </button>
+          @if (!busy() && (files().partita || files().eventi || files().tracking)) {
+            <button type="button" class="btn-ghost" (click)="reset()">Svuota</button>
+          }
+        </div>
+
+        <div class="status" aria-live="polite">
+          @switch (fase()) {
+            @case ('upload') {
+              <div class="progress-wrap">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="progresso()"></div>
+                </div>
+                <span class="status-testo">Invio file {{ progresso() }}%</span>
+              </div>
+            }
+            @case ('elaborazione') {
+              <div class="status-row">
+                <span class="spinner-sm"></span>
+                <span class="status-testo">{{ corrente()?.stato === 'IN_CODA' ? 'In coda' : 'Calcolo delle sequenze' }}…</span>
+              </div>
+            }
+            @case ('completato') {
+              <div class="status-row">
+                <i class="pi pi-check-circle status-ok"></i>
+                <span class="status-ok">{{ corrente()?.messaggio }}</span>
+              </div>
+            }
+            @case ('errore') {
+              <div class="status-row">
+                <i class="pi pi-times-circle status-err"></i>
+                <span class="status-err">{{ errore() }}</span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      @if (mostraGithub()) {
+        <tk-github-browser
+          (importAvviato)="onImportAvviato($event)"
+          (chiudi)="mostraGithub.set(false)"
+        />
+      }
+
+    </section>

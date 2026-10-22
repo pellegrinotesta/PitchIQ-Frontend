@@ -1,0 +1,117 @@
+@let v = vista();
+    <div class="lab">
+      <div class="screen">
+        <div class="top">
+          <span><b>{{ seq().squadra }}</b> · {{ nome(seq().portatoreId, seq().portatore) }} · {{ terzo() }}</span>
+          <span class="tk-num">{{ orologio() }}@if (inPressione()) { <b class="press"> · PRESSIONE</b> }</span>
+        </div>
+
+        <svg class="pitch" [attr.viewBox]="viewBox()" role="img"
+             [attr.aria-label]="'Sequenza al minuto ' + seq().minuto + ', pressione ' + esitoLabel[seq().esito].toLowerCase()">
+          <defs>
+            <radialGradient id="tk-glow">
+              <stop offset="0" stop-color="#e8892b" stop-opacity=".85"/>
+              <stop offset=".55" stop-color="#e8892b" stop-opacity=".28"/>
+              <stop offset="1" stop-color="#e8892b" stop-opacity="0"/>
+            </radialGradient>
+            <marker id="tk-ah-a" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto">
+              <path d="M0 0L6 3L0 6z" fill="#e8892b"/>
+            </marker>
+            <marker id="tk-ah-d" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto">
+              <path d="M0 0L6 3L0 6z" fill="#3d8fe0"/>
+            </marker>
+          </defs>
+
+          <g fill="none" stroke="#2b3a32" stroke-width=".35">
+            <rect [attr.x]="-L" [attr.y]="-W" width="105" height="68"/>
+            <line x1="0" [attr.y1]="-W" x2="0" [attr.y2]="W"/>
+            <circle cx="0" cy="0" r="9.15"/>
+            @for (s of [-1, 1]; track s) {
+              <rect [attr.x]="s < 0 ? -L : L - 16.5" y="-20.16" width="16.5" height="40.32"/>
+              <rect [attr.x]="s < 0 ? -L : L - 5.5" y="-9.16" width="5.5" height="18.32"/>
+              <rect [attr.x]="s < 0 ? -L - 2 : L" y="-3.66" width="2" height="7.32"/>
+              <path [attr.d]="arco(s)"/>
+            }
+          </g>
+
+          <g>
+            @for (g of v.glows; track g.id) {
+              <circle [attr.cx]="g.x" [attr.cy]="g.y" [attr.r]="g.r" fill="url(#tk-glow)"/>
+            }
+          </g>
+          <g>
+            @for (a of v.arrows; track a.id) {
+              <line [attr.x1]="a.x1" [attr.y1]="a.y1" [attr.x2]="a.x2" [attr.y2]="a.y2"
+                    [attr.stroke]="a.att ? '#e8892b' : '#3d8fe0'" stroke-width=".35" opacity=".85"
+                    [attr.marker-end]="a.att ? 'url(#tk-ah-a)' : 'url(#tk-ah-d)'"/>
+            }
+          </g>
+          <g>
+            @for (d of v.dots; track d.id) {
+              <circle [attr.cx]="d.x" [attr.cy]="d.y" r="1.05" [attr.fill]="d.att ? '#e8892b' : '#3d8fe0'"
+                      stroke="#0e1411" stroke-width=".25"><title>{{ d.nome }}</title></circle>
+              @if (d.portatore) {
+                <circle [attr.cx]="d.x" [attr.cy]="d.y" r="2" fill="none" stroke="#e8892b" stroke-width=".3" stroke-dasharray=".8 .5"/>
+              }
+              @if (d.pressore) {
+                <circle [attr.cx]="d.x" [attr.cy]="d.y" r="1.9" fill="none" stroke="#ffffff" stroke-width=".3"/>
+              }
+            }
+            @if (v.ball; as b) {
+              <circle [attr.cx]="b[0]" [attr.cy]="b[1]" r=".6" fill="#ffffff" stroke="#0e1411" stroke-width=".2"/>
+            }
+          </g>
+          <g>
+            @for (l of v.labels; track l.id) {
+              <rect [attr.x]="l.x - l.w / 2" [attr.y]="l.y - 5.6" [attr.width]="l.w" height="2.9" rx=".4" fill="#e6ece8"/>
+              <text [attr.x]="l.x" [attr.y]="l.y - 3.5" text-anchor="middle" font-size="2.1" font-weight="600"
+                    font-family="JetBrains Mono, ui-monospace, monospace" fill="#0e1411">{{ l.testo }}</text>
+            }
+          </g>
+        </svg>
+
+        <div class="controls">
+          <button type="button" class="ctl" (click)="togglePlay()" [attr.aria-label]="playing() ? 'Pausa' : 'Riproduci'">
+            {{ playing() ? '❚❚' : '▶' }}
+          </button>
+          <div class="scrub">
+            <input type="range" id="tk-scrub" min="0" [max]="frames().length - 1" [value]="indice()"
+                   (input)="seek($event)" aria-label="Posizione nella sequenza">
+            <span class="band" [style.left.%]="bandaPress().left" [style.width.%]="bandaPress().width"
+                  title="Finestra della pressione"></span>
+          </div>
+          <button type="button" class="ctl" (click)="cambiaVelocita()" aria-label="Velocità">{{ velocitaLabel() }}</button>
+        </div>
+        <div class="legend">
+          <span><i class="dot att"></i>Attacco (verso destra)</span>
+          <span><i class="dot def"></i>Difesa</span>
+          <span><i class="dot ring-att"></i>Portatore</span>
+          <span><i class="dot ring"></i>Pressore</span>
+          <span>% = minaccia attesa dell'opzione</span>
+        </div>
+      </div>
+
+      <aside class="panel" aria-live="polite">
+        <div class="tk-card stat">
+          <span class="tk-label">Esito pressione</span>
+          <span><span class="tk-pill {{ seq().esito }}">{{ esitoLabel[seq().esito].toUpperCase() }}</span></span>
+          <span class="s">{{ dati().pressori.length }} {{ dati().pressori.length === 1 ? 'pressore' : 'pressori' }}
+            · finisce con {{ finePossesso() }}{{ seq().portaAlTiro ? ' · porta al tiro' : '' }}</span>
+        </div>
+        <div class="tk-card stat">
+          <span class="tk-label">Valore portatore</span>
+          <span class="v tk-num">{{ pct(seq().valorePortatore) }}</span>
+          <span class="s">EPV del possesso all'inizio</span>
+        </div>
+        <div class="tk-card stat">
+          <span class="tk-label">Media opzioni</span>
+          <span class="v tk-num">{{ pct(v.media ?? seq().valoreMedio) }}</span>
+          <span class="s">{{ v.nOpzioni ? v.nOpzioni + (v.nOpzioni === 1 ? ' opzione attiva ora' : ' opzioni attive ora') : 'media del possesso' }}</span>
+        </div>
+        <div class="tk-card stat">
+          <span class="tk-label">Miglior opzione</span>
+          <span class="v tk-num best">{{ pct(v.migliore ?? seq().valoreMigliore) }}</span>
+          <span class="s">{{ v.migliore != null ? (v.miglioreNome || 'in questo fotogramma') : 'massimo del possesso' }}</span>
+        </div>
+      </aside>
+    </div>

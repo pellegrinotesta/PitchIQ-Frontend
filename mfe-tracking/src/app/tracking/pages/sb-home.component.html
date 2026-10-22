@@ -1,0 +1,51 @@
+<header class="page-header">
+      <div>
+        <p class="page-label">ANALISI EVENTI · STATSBOMB OPEN DATA</p>
+        <h1>Analisi partite</h1>
+        <p class="page-sub">
+          Dati aperti StatsBomb — shot map, xG, pass network e pressioni
+          su oltre 4.000 partite di serie A, Champions League, Mondiali e altro.
+        </p>
+      </div>
+      <a routerLink="/tracking" class="btn-back">
+        <i class="pi pi-arrow-left"></i> Laboratorio pressione
+      </a>
+    </header>
+
+    <!-- Selezione competizione -->
+    <div class="filtri-card">
+      <div class="field">
+        <label class="field-label">Competizione</label>
+        <select class="inp" (change)="onCompetizione($event)">
+          <option value="">Seleziona competizione…</option>
+          @for (c of competizioniUniche(); track c.competition_id + '_' + c.season_id) {
+            <option [value]="c.competition_id + '_' + c.season_id">
+              {{ c.competition_name }} · {{ c.season_name }} ({{ c.country_name }})
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Lista partite -->
+    @if (caricamentoPartite()) {
+      <div class="stato-box">
+        <span class="spinner"></span> Caricamento partite…
+      </div>
+    } @else if (partite().length) {
+      <div class="partite-grid">
+        @for (p of partite(); track p.match_id) {
+          <a [routerLink]="[p.match_id]" class="partita-card">
+            <div class="partita-score">
+              <span class="team">{{ p.home_team.home_team_name }}</span>
+              <span class="score">{{ p.home_score }} – {{ p.away_score }}</span>
+              <span class="team">{{ p.away_team.away_team_name }}</span>
+            </div>
+            <div class="partita-meta">
+              <span>{{ p.match_date | date: 'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="card-arrow"><i class="pi pi-arrow-right"></i></div>
+          </a>
+        }
+      </div>
+    }

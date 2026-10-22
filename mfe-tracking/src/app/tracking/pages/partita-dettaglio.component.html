@@ -1,0 +1,90 @@
+<div class="page">
+      <a routerLink="../.." class="back">← Partite caricate</a>
+
+      @if (dettaglio(); as d) {
+        <header>
+          <div>
+            <span class="tk-label">{{ d.partita.competizione ?? 'SkillCorner' }} · {{ d.partita.dataPartita | date: 'dd/MM/yyyy' }}</span>
+            <h1>{{ d.partita.squadraCasa }} <span class="tk-num score">{{ d.partita.golCasa }}–{{ d.partita.golTrasferta }}</span> {{ d.partita.squadraTrasferta }}</h1>
+            <p class="muted">{{ d.partita.possessiPressati }} possessi pressati, {{ d.partita.pressioniSuperate }} pressioni superate.</p>
+          </div>
+          <div class="actions">
+            @if (confermaElimina()) {
+              <button type="button" class="tk-btn danger" (click)="elimina(d.partita.matchId)">Conferma eliminazione</button>
+              <button type="button" class="tk-btn" (click)="confermaElimina.set(false)">Annulla</button>
+            } @else {
+              <button type="button" class="tk-btn" (click)="confermaElimina.set(true)">Elimina partita</button>
+            }
+          </div>
+        </header>
+
+        <tk-esito-bars [aggregati]="d.aggregati" />
+
+        <section class="seq" aria-labelledby="seq-title">
+          <div class="filters">
+            <h2 id="seq-title">Sequenze</h2>
+            <div class="chips" role="group" aria-label="Esito della pressione">
+              <button type="button" class="chip" [class.on]="!esito()" (click)="esito.set(null)">Tutte</button>
+              @for (e of esiti; track e) {
+                <button type="button" class="chip {{ e }}" [class.on]="esito() === e" (click)="esito.set(e)">
+                  <i></i>{{ esitoLabel[e] }}
+                </button>
+              }
+            </div>
+            <select id="tk-squadra" aria-label="Squadra in possesso" (change)="onSquadra($event)">
+              <option value="">Entrambe le squadre</option>
+              @for (s of d.squadre; track s.teamId) {
+                <option [value]="s.teamId" [selected]="teamId() === s.teamId">{{ s.nome }}</option>
+              }
+            </select>
+            <label class="check">
+              <input type="checkbox" id="tk-solo-animate" [checked]="soloAnimate()" (change)="soloAnimate.set($any($event.target).checked)">
+              Solo con animazione
+            </label>
+          </div>
+
+          @if (animazione(); as a) {
+            <tk-sequence-player [dati]="a" [giocatori]="d.giocatori" />
+          } @else if (erroreAnimazione()) {
+            <p class="tk-error">{{ erroreAnimazione() }}</p>
+          }
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Min</th><th>Esito</th><th>Squadra</th><th>Portatore</th>
+                  <th class="r">Opzioni</th><th class="r">Media</th><th class="r">Migliore</th><th>Tiro</th><th><span class="sr">Animazione</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of sequenze(); track s.id) {
+                  <tr [class.sel]="s.id === selezionata()" [class.cliccabile]="s.haFrame"
+                      (click)="s.haFrame && selezionata.set(s.id)">
+                    <td class="tk-num">{{ s.minuto }}'{{ pad(s.secondo) }}</td>
+                    <td><span class="tk-pill {{ s.esito }}">{{ esitoLabel[s.esito] }}</span></td>
+                    <td>{{ s.squadra }}</td>
+                    <td>{{ s.portatore }}</td>
+                    <td class="r tk-num">{{ s.nOpzioni }}</td>
+                    <td class="r tk-num">{{ pct(s.valoreMedio) }}</td>
+                    <td class="r tk-num best">{{ pct(s.valoreMigliore) }}</td>
+                    <td>{{ s.portaAlTiro ? 'Sì' : '' }}</td>
+                    <td>
+                      @if (s.haFrame) {
+                        <button type="button" class="play" (click)="selezionata.set(s.id); $event.stopPropagation()"
+                                [attr.aria-label]="'Guarda la sequenza del minuto ' + s.minuto">▶</button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="9" class="muted">Nessuna sequenza con questi filtri.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="muted note">Le animazioni vengono salvate per tutte le pressioni superate e per le 15 sequenze di maggior valore degli altri esiti.</p>
+        </section>
+      } @else if (erroreDettaglio()) {
+        <p class="tk-error">{{ erroreDettaglio() }}</p>
+      }
+    </div>

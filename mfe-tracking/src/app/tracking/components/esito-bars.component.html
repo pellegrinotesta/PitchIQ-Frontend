@@ -1,0 +1,27 @@
+@if (righe().length) {
+  <div class="grid">
+    <div class="tk-card">
+      <h3>Valore medio della miglior opzione</h3>
+      @for (r of righe(); track r.esito) {
+        <div class="bar">
+          <span>{{ label[r.esito] }} <span class="n">({{ r.possessi.toLocaleString('it-IT') }})</span></span>
+          <span class="track"><span class="fill {{ r.esito }}" [style.width.%]="r.migliorePct"></span></span>
+          <span class="tk-num">{{ pct(r.valoreMigliore) }}</span>
+        </div>
+      }
+    </div>
+    <div class="tk-card">
+      <h3>Possessi che arrivano al tiro</h3>
+      @for (r of righe(); track r.esito) {
+        <div class="bar">
+          <span>{{ label[r.esito] }} <span class="n">({{ r.possessi.toLocaleString('it-IT') }})</span></span>
+          <span class="track"><span class="fill {{ r.esito }}" [style.width.%]="r.tiroPct"></span></span>
+          <span class="tk-num">{{ pct(r.quotaTiro, 0) }}</span>
+        </div>
+      }
+    </div>
+  </div>
+  @if (sintesi(); as s) { <p class="sintesi">{{ s }}</p> }
+} @else {
+  <p class="sintesi">Nessun possesso pressato ancora. Carica una partita per vedere il confronto.</p>
+}

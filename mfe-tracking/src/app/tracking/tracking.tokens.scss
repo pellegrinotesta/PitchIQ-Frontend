@@ -1,8 +1,3 @@
-/**
- * Token di colore del modulo tracking — allineati al design system PitchIQ.
- * Sfondo nero, accento verde #00ff87, bordi #1e1e1e, font system-ui.
- */
-export const TRACKING_TOKENS = `
 :host {
   --tk-bg:              #0a0a0a;
   --tk-surface:         #111111;
@@ -23,14 +18,13 @@ export const TRACKING_TOKENS = `
   --tk-warning:         #ffb400;
   --tk-screen:          #0a0a0a;
   --tk-screen-line:     #1e1e1e;
-  --tk-mono:            "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --tk-mono:             "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   display: block;
   color: var(--tk-fg);
   font-family: system-ui, -apple-system, sans-serif;
   background: var(--tk-bg);
 }
 
-/* Card */
 .tk-card {
   background: var(--tk-surface);
   border: 1px solid var(--tk-line);
@@ -39,7 +33,6 @@ export const TRACKING_TOKENS = `
   min-width: 0;
 }
 
-/* Label uppercase */
 .tk-label {
   font-size: .72rem;
   font-weight: 700;
@@ -49,7 +42,6 @@ export const TRACKING_TOKENS = `
   font-family: var(--tk-mono);
 }
 
-/* Pill esito */
 .tk-pill {
   display: inline-flex;
   align-items: center;
@@ -65,7 +57,6 @@ export const TRACKING_TOKENS = `
 .tk-pill.NEUTRALIZZATA { background: var(--tk-neutralizzata); color: #fff; }
 .tk-pill.CONTENUTA     { background: var(--tk-contenuta);     color: #ccc; }
 
-/* Bottoni */
 .tk-btn {
   font-size: .88rem;
   font-weight: 600;
@@ -106,22 +97,15 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Numeri monospace */
 .tk-num {
   font-family: var(--tk-mono);
   font-variant-numeric: tabular-nums;
   font-size: .88rem;
 }
 
-/* Errore */
 .tk-error { color: var(--tk-neutralizzata); }
-
-/* Accento verde su testo */
 .tk-accent { color: var(--tk-accent); }
-
-/* Badge stato import */
 .tk-stato-IN_CODA          { color: var(--tk-muted); }
 .tk-stato-IN_ELABORAZIONE  { color: var(--tk-warning); }
 .tk-stato-COMPLETATO       { color: var(--tk-accent); }
 .tk-stato-ERRORE           { color: var(--tk-neutralizzata); }
-`;

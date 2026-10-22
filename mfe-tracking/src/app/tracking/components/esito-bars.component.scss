@@ -1,0 +1,13 @@
+@use '../tracking.tokens' as *;
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+.bar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 13px; padding-block: 5px; }
+.n { color: var(--tk-muted); }
+.track { height: 12px; background: var(--tk-line); border-radius: 3px; overflow: hidden; }
+.fill { display: block; height: 100%; border-radius: 3px; }
+.fill.SUPERATA { background: var(--tk-superata); }
+.fill.NEUTRALIZZATA { background: var(--tk-neutralizzata); }
+.fill.CONTENUTA { background: var(--tk-contenuta); }
+.tk-num { text-align: right; }
+.sintesi { margin: 12px 0 0; font-size: 13px; color: var(--tk-muted); max-width: 80ch; }

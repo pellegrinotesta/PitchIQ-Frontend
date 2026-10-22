@@ -1,0 +1,144 @@
+@use '../tracking.tokens' as *;
+
+.breadcrumb a {
+      color: #555; text-decoration: none; font-size: .88rem;
+      display: inline-flex; align-items: center; gap: .4rem;
+      margin-bottom: 1.5rem; display: block; transition: color .15s;
+    }
+    .breadcrumb a:hover { color: #00ff87; }
+
+    .page-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .page-label {
+      font-size: .72rem; font-weight: 700; color: #00ff87;
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: .4rem; display: block;
+    }
+
+    h1 { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+
+    .xg-totali { display: flex; gap: 1rem; }
+
+    .xg-box {
+      background: #111; border: 1px solid #1e1e1e;
+      border-radius: 10px; padding: .75rem 1rem;
+      display: flex; flex-direction: column; gap: .2rem;
+      min-width: 160px;
+    }
+
+    .xg-nome { font-size: .72rem; font-weight: 700; color: #555; text-transform: uppercase; }
+    .xg-valore { font-size: 1.3rem; font-weight: 800; color: #00ff87; }
+    .xg-gol { font-size: .75rem; color: #555; }
+
+    /* Filtri */
+    .filtri { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+    .chip {
+      padding: .4rem .9rem; background: transparent;
+      border: 1px solid #2a2a2a; border-radius: 999px;
+      color: #555; font-size: .82rem; cursor: pointer;
+      transition: border-color .15s, color .15s; font-family: inherit;
+    }
+    .chip:hover { border-color: #555; color: #888; }
+    .chip.on { border-color: #00ff87; color: #00ff87; background: rgba(0,255,135,.06); }
+
+    /* Campo */
+    .campo-wrap {
+      position: relative;
+      background: #111; border: 1px solid #1e1e1e;
+      border-radius: 12px; padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .campo { width: 100%; height: auto; display: block; cursor: crosshair; }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute; top: 1rem; right: 1rem;
+      background: #1a1a1a; border: 1px solid #2a2a2a;
+      border-radius: 10px; padding: .75rem 1rem;
+      display: flex; flex-direction: column; gap: .25rem;
+      font-size: .82rem; color: #ccc; min-width: 180px;
+      pointer-events: none;
+    }
+
+    .tooltip strong { color: #fff; font-size: .9rem; }
+
+    .xg-chip {
+      background: rgba(0,255,135,.1); color: #00ff87;
+      padding: .15rem .5rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 700; width: fit-content;
+    }
+
+    .tooltip .gol { color: #00ff87; font-weight: 700; }
+
+    /* Legenda */
+    .legenda {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      align-items: center; font-size: .82rem; color: #555;
+      margin-bottom: 1.5rem;
+    }
+
+    .legenda-item { display: flex; align-items: center; gap: .5rem; }
+
+    .legenda-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+
+    .gol-dot { background: #fff; border: 2px solid #00ff87; }
+    .legenda-note { font-size: .75rem; color: #444; }
+
+    /* Tabella */
+    .table-wrap {
+      background: #111; border: 1px solid #1e1e1e;
+      border-radius: 12px; overflow: hidden; overflow-x: auto;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+
+    th {
+      text-align: left; padding: .6rem 1rem;
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase;
+      color: #555; border-bottom: 1px solid #1e1e1e;
+    }
+
+    td {
+      padding: .75rem 1rem; border-bottom: 1px solid #141414;
+      color: #ddd; white-space: nowrap;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #161616; }
+    tbody tr.gol-row td { background: rgba(0,255,135,.04); }
+
+    .r { text-align: right; }
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .muted { color: #555; }
+    .xg-cell { color: #00ff87; font-weight: 700; }
+
+    .esito-badge {
+      padding: .2rem .5rem; border-radius: 999px;
+      font-size: .72rem; font-weight: 700;
+      background: rgba(255,255,255,.05); color: #555;
+    }
+    .esito-badge.gol {
+      background: rgba(0,255,135,.1); color: #00ff87;
+    }
+
+    /* Stato */
+    .stato-box {
+      display: flex; align-items: center; gap: .75rem;
+      padding: 4rem; justify-content: center;
+      color: #555; font-size: .88rem;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid #2a2a2a; border-top-color: #00ff87;
+      border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }

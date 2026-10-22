@@ -1,0 +1,39 @@
+@use '../tracking.tokens' as *;
+
+.page { display: grid; gap: 24px; max-width: 1200px; }
+    .back { color: var(--tk-muted); text-decoration: none; font-size: 13px; width: fit-content; }
+    .back:hover { color: var(--tk-fg); }
+    header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+    h1 { margin: 4px 0; font-size: clamp(24px, 4vw, 34px); line-height: 1.15; text-wrap: balance; }
+    h2 { margin: 0; font-size: 18px; }
+    .muted { color: var(--tk-muted); margin: 0; }
+    .score { white-space: nowrap; }
+    .actions { display: flex; gap: 8px; }
+    .seq { display: grid; gap: 16px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .filters h2 { margin-right: auto; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font: 500 13px inherit; font-family: inherit;
+      color: var(--tk-fg); background: transparent; border: 1px solid var(--tk-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+    .chip.on { border-color: var(--tk-fg); background: var(--tk-surface); }
+    .chip i { width: 8px; height: 8px; border-radius: 50%; }
+    .chip.SUPERATA i { background: var(--tk-superata); }
+    .chip.NEUTRALIZZATA i { background: var(--tk-neutralizzata); }
+    .chip.CONTENUTA i { background: var(--tk-contenuta); }
+    select { font: 13px inherit; font-family: inherit; color: var(--tk-fg); background: var(--tk-surface);
+      border: 1px solid var(--tk-line); border-radius: 6px; padding: 7px 10px; }
+    .check { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--tk-line); border-radius: 8px; max-height: 520px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--tk-line); white-space: nowrap; }
+    th { position: sticky; top: 0; background: var(--tk-bg); font: 600 11px var(--tk-mono); letter-spacing: .06em;
+      text-transform: uppercase; color: var(--tk-muted); }
+    tr.cliccabile { cursor: pointer; }
+    tr.cliccabile:hover { background: var(--tk-surface); }
+    tr.sel td { background: color-mix(in srgb, var(--tk-att) 14%, transparent); }
+    .r { text-align: right; }
+    .best { color: var(--tk-superata); }
+    .play { background: none; border: 1px solid var(--tk-line); color: var(--tk-att); border-radius: 4px;
+      width: 28px; height: 24px; cursor: pointer; font-size: 11px; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .note { font-size: 12px; }

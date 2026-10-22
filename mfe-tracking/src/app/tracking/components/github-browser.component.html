@@ -1,0 +1,67 @@
+<div class="gh-browser">
+
+      <div class="gh-header">
+        <div>
+          <p class="gh-label">SKILLCORNER OPEN DATA</p>
+          <h3>Sfoglia partite disponibili</h3>
+          <p class="gh-sub">Seleziona una partita per importarla direttamente senza scaricare nulla.</p>
+        </div>
+        <button class="btn-ghost" (click)="chiudi.emit()" title="Chiudi">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      @if (caricamento()) {
+        <div class="stato-box">
+          <span class="spinner"></span>
+          <span>Lettura repository GitHub…</span>
+        </div>
+      } @else if (errore()) {
+        <div class="errore-box">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ errore() }}
+        </div>
+      } @else {
+        <div class="partite-list">
+          @for (p of partite(); track p.matchId) {
+            <div class="partita-row" [class.downloading]="scaricando() === p.matchId">
+              <div class="partita-info">
+                <span class="partita-match">
+                  @if (p.squadraCasa) {
+                    <strong>{{ p.squadraCasa }}</strong>
+                    <span class="vs">vs</span>
+                    <strong>{{ p.squadraTrasferta }}</strong>
+                  } @else {
+                    <span class="id-partita">#{{ p.matchId }}</span>
+                  }
+                </span>
+                <div class="partita-meta">
+                  @if (p.data) { <span>{{ p.data | date: 'dd/MM/yyyy' }}</span> }
+                  @if (p.competizione) { <span>{{ p.competizione }}</span> }
+                  @if (p.conTracking) {
+                    <span class="badge-tracking">+ tracking</span>
+                  } @else {
+                    <span class="badge-no-tracking">solo statistiche</span>
+                  }
+                </div>
+              </div>
+
+              <button
+                class="btn-importa"
+                [disabled]="!!scaricando()"
+                (click)="importa(p.matchId)"
+              >
+                @if (scaricando() === p.matchId) {
+                  <span class="spinner-sm"></span>
+                  In corso…
+                } @else {
+                  <i class="pi pi-download"></i>
+                  Importa
+                }
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
