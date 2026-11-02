@@ -1,0 +1,35 @@
+<div class="shell" [class.collassata]="collassata()">
+
+    <aside class="menu">
+        <a class="logo" routerLink="/">
+            <span class="logo-mark">P</span>
+            <span class="logo-testo">PitchIQ</span>
+        </a>
+
+        <nav class="nav">
+            @for (v of voci; track v.route) {
+            <a class="voce" [routerLink]="v.route" [class.attiva]="attiva(v)" [title]="v.label">
+                <i [class]="v.icon"></i>
+                <span class="voce-label">{{ v.label }}</span>
+            </a>
+            }
+        </nav>
+    </aside>
+
+    <div class="colonna">
+        <header class="topbar">
+            <button class="btn-icona" (click)="collassata.set(!collassata())" title="Mostra o nascondi il menù">
+                <i class="pi pi-bars"></i>
+            </button>
+            <h1 class="titolo">{{ titolo() }}</h1>
+            <button class="btn-esci" (click)="logout()">
+                <i class="pi pi-sign-out"></i> Esci
+            </button>
+        </header>
+
+        <main class="contenuto">
+            <router-outlet />
+        </main>
+    </div>
+
+</div>

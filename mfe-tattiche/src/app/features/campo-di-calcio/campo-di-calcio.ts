@@ -128,9 +128,9 @@ export class CampoDiCalcio {
     const updated = [...this.posizioni, nuovaPosizione];
     this.posizioniChange.emit(updated);
 
-    const moduloRiconosciuto = this.riconosciModulo(updated);
-    if (moduloRiconosciuto !== this.modulo) {
-      this.moduloChange.emit(moduloRiconosciuto);
+    const riconosciuto = this.riconosciModulo(updated);
+    if (riconosciuto && riconosciuto !== this.modulo) {
+      this.moduloChange.emit(riconosciuto);
     }
   }
 
@@ -167,9 +167,9 @@ export class CampoDiCalcio {
     this.draggingPosizione = null;
     this.posizioniChange.emit(updated);
 
-    const moduloRiconosciuto = this.riconosciModulo(updated);
-    if (moduloRiconosciuto !== this.modulo) {
-      this.moduloChange.emit(moduloRiconosciuto);
+    const riconosciuto = this.riconosciModulo(updated);
+    if (riconosciuto && riconosciuto !== this.modulo) {
+      this.moduloChange.emit(riconosciuto);
     }
   }
 
@@ -184,75 +184,33 @@ export class CampoDiCalcio {
     );
   }
 
-  private riconosciModulo(posizioni: PosizioneCampo[]): string {
+  private riconosciModulo(posizioni: PosizioneCampo[]): string | null {
+    const titolari = posizioni.filter(p => p.titolare);
+    if (titolari.length !== 11) return null;
 
-    const titolari = posizioni.filter(p =>
-      p.titolare &&
-      p.giocatoreId != null &&
-      p.cognomeGiocatore &&
-      p.cognomeGiocatore.trim() !== ''
-    );
+    // il più basso nel campo è il portiere; il resto va da difesa ad attacco
+    const outfield = [...titolari].sort((a, b) => b.coordY - a.coordY).slice(1);
+    const ys = outfield.map(p => p.coordY);
+    const soglia = (Math.max(...ys) - Math.min(...ys)) * 0.25;
 
-    if (titolari.length < 10) return this.modulo;
-
-    // Ordina per Y decrescente (portiere in fondo = Y maggiore)
-    const ordinati = [...titolari].sort((a, b) => b.coordY - a.coordY);
-
-    // Il portiere è sempre il più in basso
-    const [, ...outfield] = ordinati;
-
-    if (outfield.length < 9) return this.modulo;
-
-    // Soglia adattiva: usa il 20% del range Y totale
-    const yMin = Math.min(...outfield.map(p => p.coordY));
-    const yMax = Math.max(...outfield.map(p => p.coordY));
-    const soglia = (yMax - yMin) * 0.25;
-
-    // Clustering gerarchico agglomerativo
-    const linee: PosizioneCampo[][] = [];
-    let lineaCorrente: PosizioneCampo[] = [outfield[0]];
-    const mediaY = (l: PosizioneCampo[]) =>
-      l.reduce((s, p) => s + p.coordY, 0) / l.length;
-
+    const linee: number[] = [];
+    let somma = outfield[0].coordY;
+    let n = 1;
     for (let i = 1; i < outfield.length; i++) {
-      const diffY = Math.abs(mediaY(lineaCorrente) - outfield[i].coordY);
-      if (diffY > soglia) {
-        linee.push([...lineaCorrente]);
-        lineaCorrente = [outfield[i]];
+      if (Math.abs(somma / n - outfield[i].coordY) > soglia) {
+        linee.push(n);
+        somma = outfield[i].coordY;
+        n = 1;
       } else {
-        lineaCorrente.push(outfield[i]);
+        somma += outfield[i].coordY;
+        n++;
       }
     }
-    linee.push(lineaCorrente);
+    linee.push(n);
 
-    // Se troppo frammentato (es 5+ linee per 10 giocatori), aumenta soglia
-    if (linee.length > 4) {
-      return this.riconosciConSogliaFissa(outfield, soglia * 1.5);
-    }
-
-    return linee.map(l => l.length).join('-');
+    return linee.length >= 3 && linee.length <= 4 ? linee.join('-') : null;
   }
 
-  private riconosciConSogliaFissa(
-    outfield: PosizioneCampo[],
-    soglia: number
-  ): string {
-    const linee: PosizioneCampo[][] = [];
-    let lineaCorrente: PosizioneCampo[] = [outfield[0]];
-    const mediaY = (l: PosizioneCampo[]) =>
-      l.reduce((s, p) => s + p.coordY, 0) / l.length;
-
-    for (let i = 1; i < outfield.length; i++) {
-      if (Math.abs(mediaY(lineaCorrente) - outfield[i].coordY) > soglia) {
-        linee.push([...lineaCorrente]);
-        lineaCorrente = [outfield[i]];
-      } else {
-        lineaCorrente.push(outfield[i]);
-      }
-    }
-    linee.push(lineaCorrente);
-    return linee.map(l => l.length).join('-');
-  }
 
   togglePin(p: PosizioneCampo, event: MouseEvent): void {
     event.stopPropagation();

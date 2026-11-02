@@ -2,10 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
-import { DynamicDialogModule, DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService } from 'primeng/api';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { ConfirmationService as CS } from 'primeng/api';
+import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
@@ -44,7 +41,6 @@ export class EditorTattiche implements OnInit {
   formazioni = signal<Formazione[]>([]);
   formazioneAttiva = signal<Formazione | null>(null);
   rosa = signal<GiocatoreDisponibile[]>([]);
-  moduloSuggerito = signal<string | null>(null);
 
   // Schemi
   schemi = signal<SchemaFormazione[]>([]);
@@ -146,6 +142,17 @@ export class EditorTattiche implements OnInit {
     { label: 'Attaccante', value: 'ATTACCANTE' },
   ];
 
+  /**
+   * Opzioni della select: i moduli standard più, se serve, il modulo corrente
+   * della formazione (es. un 4-5-1 o 4-3-1-2 riconosciuto dai pin).
+   */
+  get moduliDisponibili(): string[] {
+    const corrente = this.formazioneAttiva()?.modulo;
+    return corrente && !this.moduliOptions.includes(corrente)
+      ? [...this.moduliOptions, corrente]
+      : this.moduliOptions;
+  }
+
   ngOnInit(): void {
     this.caricaFormazioni();
     this.caricaRosa();
@@ -195,6 +202,7 @@ export class EditorTattiche implements OnInit {
     if (f) this.formazioneAttiva.set({ ...f, nome });
   }
 
+  /** Modulo scelto dalla select: riposiziona i giocatori sulle coordinate standard. */
   onModuloChange(modulo: string): void {
     const f = this.formazioneAttiva();
     if (!f) return;
@@ -219,7 +227,6 @@ export class EditorTattiche implements OnInit {
       const g = this.rosa().find(r => r.id === p.giocatoreId);
       if (!g) return;
 
-      // Inferisci categoria dal ruolo
       const categoria = this.inferisciCategoria(g.ruolo);
       if (giocatoriPerCategoria[categoria]) {
         giocatoriPerCategoria[categoria].push(p);
@@ -247,10 +254,19 @@ export class EditorTattiche implements OnInit {
     }).filter((p): p is PosizioneCampo => p !== null);
 
     this.formazioneAttiva.set({ ...f, modulo, posizioni: nuovePosizioni });
-    this.moduloSuggerito.set(null);
   }
 
-  // Aggiungi questo metodo nel componente
+  /**
+   * Modulo riconosciuto dalla disposizione dei pin: aggiorna solo il campo
+   * modulo (finisce nel DB con Salva) senza spostare i giocatori.
+   */
+  onModuloRiconosciuto(modulo: string): void {
+    const f = this.formazioneAttiva();
+    if (f && f.modulo !== modulo) {
+      this.formazioneAttiva.set({ ...f, modulo });
+    }
+  }
+
   private inferisciCategoria(ruolo: string): string {
     const portieri = ['POR'];
     const difensori = ['DC', 'TSD', 'TSS', 'LB'];
@@ -263,6 +279,7 @@ export class EditorTattiche implements OnInit {
     if (attaccanti.includes(ruolo)) return 'ATTACCANTE';
     return 'CENTROCAMPISTA';
   }
+
   onDragStart(event: DragEvent, g: GiocatoreDisponibile): void {
     event.dataTransfer?.setData('giocatore', JSON.stringify(g));
   }
@@ -311,18 +328,6 @@ export class EditorTattiche implements OnInit {
         },
       });
     });
-  }
-
-  onModuloSuggerito(modulo: string): void {
-    this.moduloSuggerito.set(modulo);
-  }
-
-  accettaModuloSuggerito(): void {
-    const m = this.moduloSuggerito();
-    if (m) {
-      this.onModuloChange(m);
-      this.moduloSuggerito.set(null);
-    }
   }
 
   // ===== SCHEMI =====
@@ -401,13 +406,13 @@ export class EditorTattiche implements OnInit {
   eliminaSchema(s: SchemaFormazione): void {
     this.confirmService.conferma({
       messaggio: `Eliminare "${s.nome}"? L'operazione non può essere annullata.`,
-      header: 'Conferma',
+      header: 'Elimina schema',
       labelConferma: 'Elimina',
       labelAnnulla: 'Annulla',
       pericoloso: true,
     }).subscribe(confermato => {
       if (!confermato) return;
-      this.service.delete(s.id).subscribe({
+      this.service.deleteSchema(s.id).subscribe({
         next: () => {
           if (this.schemaAttivo()?.id === s.id) this.schemaAttivo.set(null);
           this.caricaSchemi();

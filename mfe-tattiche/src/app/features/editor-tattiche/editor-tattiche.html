@@ -95,16 +95,10 @@
                     placeholder="Nome formazione" />
                 <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"
                     (ngModelChange)="onModuloChange($event)">
-                    @for (m of moduliOptions; track m) {
+                    @for (m of moduliDisponibili; track m) {
                     <option [value]="m">{{ m }}</option>
                     }
                 </select>
-                @if (moduloSuggerito() && moduloSuggerito() !== formazioneAttiva()!.modulo) {
-                <div class="modulo-suggerito" (click)="accettaModuloSuggerito()">
-                    <i class="pi pi-lightbulb"></i>
-                    Riconosciuto: {{ moduloSuggerito() }}
-                </div>
-                }
             </div>
             <div class="toolbar-right">
                 <button class="btn-salva" (click)="salvaFormazione()" [disabled]="salvando()">
@@ -117,7 +111,7 @@
         <div class="campo-wrapper">
             <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
                 [rosa]="rosa()" (posizioniChange)="onPosizioniChange($event)"
-                (moduloChange)="onModuloSuggerito($event)" />
+                (moduloChange)="onModuloRiconosciuto($event)" />
         </div>
         }
         }
@@ -182,7 +176,7 @@
                 </div>
                 <i class="pi pi-arrows-alt drag-icon"></i>
             </div>
-            } 
+            }
         </div>
     </aside>
     }
