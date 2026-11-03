@@ -1,4 +1,4 @@
-@use '../tracking.tokens' as *;
+@use '../../tracking.tokens' as *;
 
 .lab { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 16px; align-items: start; }
     @media (max-width: 900px) { .lab { grid-template-columns: minmax(0, 1fr); } }

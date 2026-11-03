@@ -22,6 +22,7 @@ export class SbPartitaComponent implements OnInit {
     protected readonly caricamento = signal(true);
     protected readonly squadraFiltro = signal<string | null>(null);
     protected readonly tooltipTiro = signal<TiroSb | null>(null);
+    protected readonly vistaCampo = signal<'intero' | 'attacco'>('intero');
 
     private readonly colori = new Map<string, string>();
     private readonly palette = ['#00ff87', '#60a5fa', '#f59e0b', '#ef4444'];

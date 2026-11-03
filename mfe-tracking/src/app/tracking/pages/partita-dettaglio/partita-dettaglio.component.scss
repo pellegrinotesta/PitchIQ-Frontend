@@ -1,4 +1,4 @@
-@use '../tracking.tokens' as *;
+@use '../../tracking.tokens' as *;
 
 .page { display: grid; gap: 24px; max-width: 1200px; }
     .back { color: var(--tk-muted); text-decoration: none; font-size: 13px; width: fit-content; }
