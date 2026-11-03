@@ -79,7 +79,7 @@
             @for (i of importRecenti(); track i.id) {
               <div class="storico-item">
                 <span class="stato-badge stato-{{ i.stato }}">{{ statoLabel[i.stato] }}</span>
-                <span class="mono muted">{{ i.creatoIl | date: 'dd/MM HH:mm' }}</span>
+                <span class="mono muted">{{ (i.creatoIl + 'Z') | date: 'dd/MM HH:mm' }}</span>
                 <span class="storico-file">{{ i.nomeFileEventi }}{{ i.conTracking ? '' : ' · senza tracking' }}</span>
                 @if (i.messaggio) {
                   <span class="storico-msg" [class.errore-testo]="i.stato === 'ERRORE'">{{ i.messaggio }}</span>

@@ -23,19 +23,36 @@ La shell è il punto di ingresso dell'interfaccia. I remote sono configurati in 
 
 ## Avvio completo
 
-Dalla radice del repository, configura il file `.env` richiesto da Docker Compose e avvia lo stack:
+Dalla radice del repository, configura il file `.env` del backend. Per la prima installazione o dopo modifiche alle immagini:
 
 ```bash
-docker compose up --build
+docker compose --env-file ./PitchIQ-Backend/.env --profile tracking up -d --build
 ```
 
-Apri `http://localhost:4200`. Per includere il microfrontend tracking:
+Negli avvii successivi riusa immagini, dipendenze e cache:
 
 ```bash
-docker compose --profile tracking up --build
+docker compose --env-file ./PitchIQ-Backend/.env --profile tracking up -d
 ```
+
+Apri `http://127.0.0.1:4200`. Il manifest usa IPv4 esplicito anche per i remoti, evitando problemi di risoluzione IPv6 di `localhost` su Docker Desktop.
+Ometti `--profile tracking` se non ti serve il modulo tracking.
 
 Il BFF deve essere raggiungibile sulla porta `8080` e MySQL sull'host sulla porta `3307`. Per fermare lo stack, dalla radice esegui `docker compose down`.
+
+## Riavvii rapidi
+
+Le modifiche TypeScript, HTML e CSS sono montate nei container e vengono ricompilate automaticamente: non ricostruire le immagini per queste modifiche.
+Per riavviare tutto il frontend dopo una modifica alla configurazione Angular:
+
+```bash
+docker compose --env-file ./PitchIQ-Backend/.env --profile tracking restart shell-app mfe-squadre mfe-allenamenti mfe-tattiche mfe-statistiche mfe-partite mfe-tracking
+```
+
+Ogni frontend ha una cache `.angular` su un volume Docker nominato, separato dal filesystem Windows. La cache sopravvive alla ricreazione dei container e a `down`, ma viene eliminata da `down -v`. Il primo avvio deve comunque generarla.
+
+Non usare abitualmente `--renew-anon-volumes`: ricrea i volumi `node_modules`. Usalo solo sui servizi con dipendenze cambiate, insieme a `--build`.
+Con i container fermi ma ancora presenti, `docker compose --env-file ./PitchIQ-Backend/.env --profile tracking start` li riavvia senza ricrearli.
 
 ## Sviluppo locale
 

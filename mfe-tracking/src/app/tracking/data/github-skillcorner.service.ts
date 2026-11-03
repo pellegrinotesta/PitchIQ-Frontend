@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { TRACKING_API_URL } from './tracking.api';
 import { ImportDto } from './tracking.models';
 
@@ -31,8 +31,23 @@ export class GithubSkillcornerService {
     private readonly http = inject(HttpClient);
     private readonly base = inject(TRACKING_API_URL);
 
-    listaPartite(): Observable<{ matchId: string }[]> {
-        return this.http.get<{ matchId: string }[]>(`${this.base}/github/partite`);
+    listaPartite(): Observable<{
+        matchId: string;
+        squadraCasa?: string;
+        squadraTrasferta?: string;
+        data?: string;
+        competizione?: string;
+    }[]> {
+        return this.http.get<{ matchId: string }[]>(`${this.base}/github/partite`).pipe(
+            switchMap(partite => partite.length === 0 ? of([]) : forkJoin(
+                partite.map(partita => this.metadati(
+                    `${RAW}/${encodeURIComponent(partita.matchId)}/${encodeURIComponent(partita.matchId)}_match.json`
+                ).pipe(
+                    map(metadati => ({ ...partita, ...metadati })),
+                    catchError(() => of(partita))
+                ))
+            ))
+        );
     }
 
     importa(matchId: string): Observable<ImportDto> {

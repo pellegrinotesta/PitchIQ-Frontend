@@ -1,9 +1,9 @@
 {
-  "mfe-squadre": "http://localhost:4201/remoteEntry.json",
-  "mfe-allenamenti": "http://localhost:4202/remoteEntry.json",
-  "mfe-tattiche": "http://localhost:4203/remoteEntry.json",
-  "mfe-statistiche": "http://localhost:4204/remoteEntry.json",
-  "mfe-partite": "http://localhost:4205/remoteEntry.json",
-  "mfe-giocatori": "http://localhost:4206/remoteEntry.json"
+  "mfe-squadre": "http://127.0.0.1:4201/remoteEntry.json",
+  "mfe-allenamenti": "http://127.0.0.1:4202/remoteEntry.json",
+  "mfe-tattiche": "http://127.0.0.1:4203/remoteEntry.json",
+  "mfe-statistiche": "http://127.0.0.1:4204/remoteEntry.json",
+  "mfe-partite": "http://127.0.0.1:4205/remoteEntry.json",
+  "mfe-giocatori": "http://127.0.0.1:4206/remoteEntry.json"
 
 }
