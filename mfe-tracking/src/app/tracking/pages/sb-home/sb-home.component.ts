@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SbApiService, Competizione, PartitaSb } from '../data/sb-api.service';
+import { SbApiService, Competizione, PartitaSb } from '../../data/sb-api.service';
 import { DatePipe } from '@angular/common';
 
 @Component({

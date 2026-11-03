@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import {
   AnimazioneDto, ESITO_LABEL, FINE_POSSESSO_LABEL, GiocatoreInfo, TERZO_LABEL, pct,
-} from '../data/tracking.models';
+} from '../../data/tracking.models';
 
 const L = 52.5;  // mezza lunghezza (105 m)
 const W = 34;    // mezza larghezza (68 m)

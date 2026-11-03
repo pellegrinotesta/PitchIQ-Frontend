@@ -8,7 +8,8 @@
     h2 { margin: 0; font-size: 18px; }
     .muted { color: var(--tk-muted); margin: 0; }
     .score { white-space: nowrap; }
-    .actions { display: flex; gap: 8px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .share-status { margin: -12px 0 0; color: var(--tk-muted); font-size: 12px; text-align: right; }
     .analisi { display: grid; gap: 14px; }
     .analisi-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
     .analisi-head h2 { margin: 0 0 4px; }

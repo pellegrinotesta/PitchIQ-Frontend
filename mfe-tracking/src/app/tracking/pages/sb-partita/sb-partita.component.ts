@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { SbApiService, TiroSb } from '../data/sb-api.service';
+import { SbApiService, TiroSb } from '../../data/sb-api.service';
 
 @Component({
     selector: 'sb-partita',

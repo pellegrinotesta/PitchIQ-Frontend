@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, output, signal } from '@angular/core';
-import { GithubSkillcornerService } from '../data/github-skillcorner.service';
-import { ImportDto } from '../data/tracking.models';
+import { GithubSkillcornerService } from '../../data/github-skillcorner.service';
+import { ImportDto } from '../../data/tracking.models';
 import { DatePipe } from '@angular/common';
 
 interface PartitaGH {

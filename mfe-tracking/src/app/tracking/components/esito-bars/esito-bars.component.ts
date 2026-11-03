@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { AggregatoEsitoDto, ESITI, ESITO_LABEL, pct } from '../data/tracking.models';
+import { AggregatoEsitoDto, ESITI, ESITO_LABEL, pct } from '../../data/tracking.models';
 
 /** Confronto per esito: valore della miglior opzione e quota di possessi che arrivano al tiro. */
 @Component({

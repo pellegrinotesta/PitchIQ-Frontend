@@ -9,6 +9,12 @@
             <p class="muted">{{ d.partita.possessiPressati }} possessi pressati, {{ d.partita.pressioniSuperate }} pressioni superate.</p>
           </div>
           <div class="actions">
+            <button type="button" class="tk-btn" [disabled]="!sequenze().length" (click)="esportaCsv()">
+              <i class="pi pi-download"></i> CSV
+            </button>
+            <button type="button" class="tk-btn" (click)="condividiAnalisi()">
+              <i class="pi pi-share-alt"></i> Condividi
+            </button>
             @if (confermaElimina()) {
               <button type="button" class="tk-btn danger" (click)="elimina(d.partita.matchId)">Conferma eliminazione</button>
               <button type="button" class="tk-btn" (click)="confermaElimina.set(false)">Annulla</button>
@@ -17,6 +23,9 @@
             }
           </div>
         </header>
+        @if (statoCondivisione()) {
+          <output class="share-status">{{ statoCondivisione() }}</output>
+        }
 
         <tk-esito-bars [aggregati]="d.aggregati" />
 

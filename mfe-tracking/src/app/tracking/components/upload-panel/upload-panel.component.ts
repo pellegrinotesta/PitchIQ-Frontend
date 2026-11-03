@@ -2,9 +2,9 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription, filter, switchMap, takeWhile, timer } from 'rxjs';
-import { TrackingApi } from '../data/tracking.api';
-import { ImportDto } from '../data/tracking.models';
-import { GithubBrowserComponent } from './github-browser.component';
+import { TrackingApi } from '../../data/tracking.api';
+import { ImportDto } from '../../data/tracking.models';
+import { GithubBrowserComponent } from '../git-hub/github-browser.component';
 
 type Slot = 'partita' | 'eventi' | 'tracking';
 

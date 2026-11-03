@@ -7,22 +7,22 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./tracking/pages/tracking-home.component').then(m => m.TrackingHomeComponent),
+    loadComponent: () => import('./tracking/pages/tracking-home/tracking-home.component').then(m => m.TrackingHomeComponent),
     title: 'Laboratorio pressione · PitchIQ',
   },
   {
     path: 'partita/:matchId',
-    loadComponent: () => import('./tracking/pages/partita-dettaglio.component').then(m => m.PartitaDettaglioComponent),
+    loadComponent: () => import('./tracking/pages/partita-dettaglio/partita-dettaglio.component').then(m => m.PartitaDettaglioComponent),
     title: 'Partita · Laboratorio pressione',
   },
   {
     path: 'statsbomb',
-    loadComponent: () => import('./tracking/pages/sb-home.component').then(m => m.SbHomeComponent),
+    loadComponent: () => import('./tracking/pages/sb-home/sb-home.component').then(m => m.SbHomeComponent),
     title: 'StatsBomb · PitchIQ',
   },
   {
     path: 'statsbomb/:matchId',
-    loadComponent: () => import('./tracking/pages/sb-partita.component').then(m => m.SbPartitaComponent),
+    loadComponent: () => import('./tracking/pages/sb-partita/sb-partita.component').then(m => m.SbPartitaComponent),
     title: 'Analisi partita · StatsBomb',
   },
 ];

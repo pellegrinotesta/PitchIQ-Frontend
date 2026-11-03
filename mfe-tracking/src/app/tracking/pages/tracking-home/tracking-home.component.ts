@@ -3,11 +3,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { forkJoin, switchMap, takeWhile, timer } from 'rxjs';
-import { EsitoBarsComponent } from '../components/esito-bars.component';
-import { UploadPanelComponent } from '../components/upload-panel.component';
-import { TrackingApi } from '../data/tracking.api';
-import { AggregatoEsitoDto, ImportDto, PartitaDto } from '../data/tracking.models';
+import { catchError, forkJoin, of, switchMap, takeWhile, timer } from 'rxjs';
+import { EsitoBarsComponent } from '../../components/esito-bars/esito-bars.component';
+import { UploadPanelComponent } from '../../components/upload-panel/upload-panel.component';
+import { TrackingApi } from '../../data/tracking.api';
+import { AggregatoEsitoDto, ImportDto, PartitaDto } from '../../data/tracking.models';
 
 interface RigaConfronto {
   partita: PartitaDto;
@@ -153,10 +153,22 @@ export class TrackingHomeComponent {
   }
 
   private ricarica(): void {
+    const problemi: string[] = [];
     forkJoin({
-      partite: this.api.partite(),
-      aggregati: this.api.aggregati(),
-      recenti: this.api.importRecenti(this.filtroImport()),
+      partite: this.api.partite().pipe(catchError(() => {
+        problemi.push('partite');
+        return of([] as PartitaDto[]);
+      })),
+      aggregati: this.api.aggregati().pipe(catchError(() => {
+        problemi.push('aggregati');
+        return of([] as AggregatoEsitoDto[]);
+      })),
+      recenti: this.api.importRecenti(this.filtroImport()).pipe(catchError(() => {
+        problemi.push('cronologia');
+        this.erroreStorico.set('Non riesco a leggere la cronologia degli import.');
+        this.storicoCaricato.set(true);
+        return of([] as ImportDto[]);
+      })),
     })
       .subscribe({
         next: r => {
@@ -164,7 +176,9 @@ export class TrackingHomeComponent {
           this.aggregati.set(r.aggregati);
           this.importRecenti.set(r.recenti);
           this.storicoCaricato.set(true);
-          this.errore.set(null);
+          this.errore.set(problemi.length
+            ? `Partite caricate, ma non riesco a leggere ${problemi.join(', ')}.`
+            : null);
           this.caricamento.set(false);
         },
         error: () => {
