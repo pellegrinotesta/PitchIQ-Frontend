@@ -149,14 +149,22 @@
             <!-- Possesso -->
             <div class="stat-card-big">
                 <p class="stat-titolo">Possesso palla</p>
+                @if (stats.possessoPct === null) {
+                <p class="dato-non-disponibile">Dato non disponibile per questa importazione</p>
+                <label class="visually-hidden" for="possesso-input">Inserisci possesso percentuale</label>
+                <input id="possesso-input" class="inp inp-sm" type="number" min="0" max="100" placeholder="Inserisci % possesso"
+                    [(ngModel)]="stats.possessoPct" />
+                } @else {
                 <div class="possesso-bar">
-                    <span class="possesso-pct">{{ stats.possessoPct ?? 0 }}%</span>
+                    <span class="possesso-pct">{{ stats.possessoPct }}%</span>
                     <div class="bar">
-                        <div class="bar-fill" [style.width.%]="stats.possessoPct ?? 0"></div>
+                        <div class="bar-fill" [style.width.%]="stats.possessoPct"></div>
                     </div>
-                    <span class="possesso-avv">{{ 100 - (stats.possessoPct ?? 0) }}%</span>
+                    <span class="possesso-avv">{{ 100 - stats.possessoPct }}%</span>
                 </div>
-                <input class="inp-stat" type="range" min="0" max="100" [(ngModel)]="stats.possessoPct" />
+                <label class="visually-hidden" for="possesso-range">Possesso palla percentuale</label>
+                <input id="possesso-range" class="inp-stat" type="range" min="0" max="100" [(ngModel)]="stats.possessoPct" />
+                }
             </div>
 
             <!-- Tiri -->

@@ -10,6 +10,7 @@
     }
     .upload-head h2 { margin: 0 0 .35rem; font-size: 1.1rem; font-weight: 700; color: #fff; }
     .upload-head p { margin: 0; font-size: .85rem; color: #555; }
+    .upload-mode { display: flex; justify-content: flex-start; }
     .slots {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));

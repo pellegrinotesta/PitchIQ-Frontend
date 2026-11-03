@@ -43,7 +43,7 @@ export class UploadPanelComponent {
   protected readonly progresso  = signal(0);
   protected readonly corrente   = signal<ImportDto | null>(null);
   protected readonly errore     = signal<string | null>(null);
-  protected readonly mostraGithub = signal(false);
+  protected readonly mostraGithub = signal(true);
 
   protected readonly erroreAbbinamento = computed(() => {
     const ids = Object.values(this.files())
@@ -97,6 +97,7 @@ export class UploadPanelComponent {
   protected onImportAvviato(imp: ImportDto): void {
     this.mostraGithub.set(false);
     this.concluso.emit(imp);
+    this.monitoraImport(imp);
   }
 
   protected invia(): void {
@@ -114,27 +115,39 @@ export class UploadPanelComponent {
         }
         return e.type === HttpEventType.Response;
       }),
-      switchMap(e => {
-        const imp = (e as { body: ImportDto }).body;
-        this.corrente.set(imp);
-        this.fase.set('elaborazione');
-        return timer(0, 1500).pipe(
-          switchMap(() => this.api.statoImport(imp.id)),
-          takeWhile(s => s.stato !== 'COMPLETATO' && s.stato !== 'ERRORE', true),
-        );
-      }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: s => {
-        this.corrente.set(s);
-        if (s.stato === 'COMPLETATO') {
+      next: event => {
+        const imp = (event as { body: ImportDto }).body;
+        if (imp) this.monitoraImport(imp);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.errore.set(this.messaggioErrore(err));
+        this.fase.set('errore');
+      },
+    });
+  }
+
+  private monitoraImport(imp: ImportDto): void {
+    this.sub?.unsubscribe();
+    this.corrente.set(imp);
+    this.errore.set(null);
+    this.fase.set('elaborazione');
+    this.sub = timer(0, 1500).pipe(
+      switchMap(() => this.api.statoImport(imp.id)),
+      takeWhile(s => s.stato !== 'COMPLETATO' && s.stato !== 'ERRORE', true),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: stato => {
+        this.corrente.set(stato);
+        if (stato.stato === 'COMPLETATO') {
           this.fase.set('completato');
           this.files.set({ partita: null, eventi: null, tracking: null });
-          this.concluso.emit(s);
-        } else if (s.stato === 'ERRORE') {
-          this.errore.set(s.messaggio ?? 'Elaborazione non riuscita.');
+          this.concluso.emit(stato);
+        } else if (stato.stato === 'ERRORE') {
+          this.errore.set(stato.messaggio ?? 'Elaborazione non riuscita.');
           this.fase.set('errore');
-          this.concluso.emit(s);
+          this.concluso.emit(stato);
         }
       },
       error: (err: HttpErrorResponse) => {

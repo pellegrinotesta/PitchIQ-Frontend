@@ -12,6 +12,18 @@ const BFF = 'http://localhost:8080/api';
 export class PartitaService {
     private http = inject(HttpClient);
 
+    getStatsBombCompetitions(): Observable<StatsBombCompetition[]> {
+        return this.http.get<StatsBombCompetition[]>(`${BFF}/tracking/statsbomb/competizioni`);
+    }
+
+    getStatsBombMatches(competitionId: number, seasonId: number): Observable<StatsBombMatch[]> {
+        return this.http.get<StatsBombMatch[]>(`${BFF}/tracking/statsbomb/partite/${competitionId}/${seasonId}`);
+    }
+
+    importStatsBomb(req: StatsBombImportRequest): Observable<Partita> {
+        return this.http.post<Partita>(`${BFF}/partite/import-statsbomb`, req);
+    }
+
     // Partite
     getAll(): Observable<Partita[]> {
         return this.http.get<Partita[]>(`${BFF}/partite`);
@@ -84,4 +96,27 @@ export class PartitaService {
             { params: new HttpParams().set('x', x).set('y', y) }
         );
     }
+}
+
+export interface StatsBombCompetition {
+    competition_id: number;
+    competition_name: string;
+    season_id: number;
+    season_name: string;
+}
+
+export interface StatsBombMatch {
+    match_id: number;
+    match_date: string;
+    home_score: number;
+    away_score: number;
+    home_team: { home_team_name: string };
+    away_team: { away_team_name: string };
+}
+
+export interface StatsBombImportRequest {
+    competitionId: number;
+    seasonId: number;
+    matchId: number;
+    lato: 'CASA' | 'TRASFERTA';
 }

@@ -5,6 +5,7 @@ import { DynamicDialogModule, DialogService, DynamicDialogRef } from 'primeng/dy
 import { Partita } from '../../core/models/partita.model';
 import { PartitaService } from '../../core/services/partita.service';
 import { FormPartita } from '../form-partita/form-partita';
+import { ImportStatsBomb } from '../import-statsbomb/import-statsbomb';
 
 @Component({
   selector: 'par-registro',
@@ -45,6 +46,16 @@ export class RegistroPartite implements OnInit {
       width: '540px',
       modal: true,
       data: { partita: null },
+    });
+    this.ref?.onClose.subscribe((ok) => { if (ok) this.carica(); });
+  }
+
+  apriImportStatsBomb(): void {
+    this.ref = this.dialogService.open(ImportStatsBomb, {
+      header: 'Importa partita StatsBomb',
+      width: '620px',
+      modal: true,
+      data: {},
     });
     this.ref?.onClose.subscribe((ok) => { if (ok) this.carica(); });
   }

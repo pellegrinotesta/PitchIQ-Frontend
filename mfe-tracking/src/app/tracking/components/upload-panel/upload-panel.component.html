@@ -1,10 +1,18 @@
 <section class="upload-card" aria-labelledby="upload-title">
 
       <div class="upload-head">
-        <h2 id="upload-title">Carica una partita</h2>
-        <p>File SkillCorner della stessa partita. Senza il tracking ottieni le statistiche ma non le animazioni.</p>
+        <h2 id="upload-title">Analizza una partita</h2>
+        <p>Scegli una partita dal dataset SkillCorner: file, eventi e tracking vengono scaricati e analizzati automaticamente.</p>
       </div>
 
+      <div class="upload-mode">
+        <button type="button" class="btn-ghost" [disabled]="busy()" (click)="mostraGithub.set(!mostraGithub())">
+          @if (mostraGithub()) { <i class="pi pi-upload"></i> Caricamento manuale }
+          @else { <i class="pi pi-github"></i> Torna al dataset SkillCorner }
+        </button>
+      </div>
+
+      @if (!mostraGithub()) {
       <div class="slots">
         @for (s of slots; track s.key) {
           <label class="slot"
@@ -46,10 +54,6 @@
               <i class="pi pi-upload"></i> Carica ed elabora
             }
           </button>
-          <button type="button" class="btn-ghost" (click)="mostraGithub.set(!mostraGithub())">
-            <i class="pi pi-github"></i>
-            {{ mostraGithub() ? 'Chiudi' : 'Sfoglia GitHub' }}
-          </button>
           @if (!busy() && (files().partita || files().eventi || files().tracking)) {
             <button type="button" class="btn-ghost" (click)="reset()">Svuota</button>
           }
@@ -86,6 +90,7 @@
           }
         </div>
       </div>
+      }
 
       @if (mostraGithub()) {
         <tk-github-browser

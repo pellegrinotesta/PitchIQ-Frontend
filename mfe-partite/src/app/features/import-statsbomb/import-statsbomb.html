@@ -1,0 +1,55 @@
+<div class="import-wrapper">
+    <p class="intro">Seleziona una gara Open Data e il lato da analizzare come squadra di riferimento.</p>
+
+    @if (errore()) {
+    <div class="errore-box" role="alert">{{ errore() }}</div>
+    }
+
+    <div class="field">
+        <label for="competizione">Competizione</label>
+        <select id="competizione" class="inp" [(ngModel)]="competizioneId" (ngModelChange)="selezionaCompetizione()" [disabled]="loadingCompetizioni()">
+            <option [ngValue]="null">{{ loadingCompetizioni() ? 'Caricamento…' : 'Seleziona competizione' }}</option>
+            @for (item of competizioniDisponibili; track item.competition_id) {
+            <option [ngValue]="item.competition_id">{{ item.competition_name }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="field">
+        <label for="stagione">Stagione</label>
+        <select id="stagione" class="inp" [(ngModel)]="stagioneId" (ngModelChange)="selezionaStagione()" [disabled]="competizioneId === null">
+            <option [ngValue]="null">Seleziona stagione</option>
+            @for (item of stagioniDisponibili; track item.season_id) {
+            <option [ngValue]="item.season_id">{{ item.season_name }}</option>
+            }
+        </select>
+    </div>
+
+    <div class="field">
+        <label for="partita">Partita</label>
+        <select id="partita" class="inp" [(ngModel)]="partitaId" [disabled]="!partite().length || loadingPartite()">
+            <option [ngValue]="null">{{ loadingPartite() ? 'Caricamento…' : 'Seleziona partita' }}</option>
+            @for (partita of partite(); track partita.match_id) {
+            <option [ngValue]="partita.match_id">
+                {{ partita.match_date }} · {{ partita.home_team.home_team_name }} {{ partita.home_score }}–{{ partita.away_score }} {{ partita.away_team.away_team_name }}
+            </option>
+            }
+        </select>
+    </div>
+
+    <fieldset class="side-picker">
+        <legend>Squadra analizzata</legend>
+        <label><input type="radio" name="lato" [(ngModel)]="lato" value="CASA"> Casa</label>
+        <label><input type="radio" name="lato" [(ngModel)]="lato" value="TRASFERTA"> Trasferta</label>
+    </fieldset>
+
+    <p class="source-note">Punteggio, tiri, passaggi, duelli, falli, corner, fuorigioco e xG provengono dagli eventi. Possesso e heatmap richiedono dati ulteriori.</p>
+
+    <div class="form-actions">
+        <button class="btn-annulla" type="button" (click)="annulla()">Annulla</button>
+        <button class="btn-importa" type="button" (click)="importa()" [disabled]="partitaId === null || importing()">
+            @if (importing()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-download"></i> }
+            Importa partita
+        </button>
+    </div>
+</div>
