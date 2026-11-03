@@ -20,6 +20,87 @@
 
         <tk-esito-bars [aggregati]="d.aggregati" />
 
+        @if (sequenze().length) {
+          <section class="analisi" aria-labelledby="analisi-title">
+            <div class="analisi-head">
+              <div>
+                <h2 id="analisi-title">Dove e su chi si concentra la pressione</h2>
+                <p class="muted">Riepiloghi aggiornati con i filtri attivi sulle sequenze.</p>
+              </div>
+              <span class="analisi-campione">{{ sequenze().length }} possessi</span>
+            </div>
+            <p class="analisi-nota">N è il numero di possessi nel gruppo; le percentuali sono conteggi divisi per N. “Superata” indica che il portatore ha superato la pressione, non che la pressione ha avuto successo. Campioni piccoli e differenze tra gruppi non dimostrano causalità.</p>
+
+            <div class="analisi-griglia">
+              <article class="analisi-panel">
+                <h3>Terzo iniziale del possesso</h3>
+                <div class="zone-list">
+                  @for (z of statisticheTerzi(); track z.chiave) {
+                    <div class="zona-riga">
+                      <span class="zona-nome">{{ z.etichetta }}</span>
+                      <strong class="tk-num">{{ z.possessi }}</strong>
+                      <span class="zona-dettaglio">Superate {{ pct(z.tassoSuperate) }} · tiro {{ pct(z.tassoTiri) }}</span>
+                    </div>
+                  }
+                </div>
+                <p class="analisi-nota">Il terzo è quello riportato da SkillCorner all’inizio del possesso pressato, non la posizione esatta della pressione.</p>
+              </article>
+
+              <article class="analisi-panel">
+                <h3>Per periodo</h3>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Periodo</th><th class="r">Possessi</th><th class="r">Superate</th><th class="r">Portano al tiro</th></tr></thead>
+                    <tbody>
+                      @for (p of statistichePeriodi(); track p.chiave) {
+                        <tr>
+                          <td>{{ p.etichetta }}</td><td class="r tk-num">{{ p.possessi }}</td>
+                          <td class="r tk-num">{{ pct(p.tassoSuperate) }}</td><td class="r tk-num">{{ pct(p.tassoTiri) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="analisi-panel analisi-wide">
+                <h3>Portatori coinvolti</h3>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Giocatore</th><th>Squadra</th><th class="r">Possessi</th><th class="r">Pressione superata</th><th class="r">Possesso porta al tiro</th></tr></thead>
+                    <tbody>
+                      @for (g of statistichePortatori(); track g.chiave) {
+                        <tr>
+                          <td>{{ g.etichetta }}</td><td class="muted">{{ g.dettaglio }}</td>
+                          <td class="r tk-num">{{ g.possessi }}</td><td class="r tk-num">{{ pct(g.tassoSuperate) }}</td>
+                          <td class="r tk-num">{{ pct(g.tassoTiri) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="analisi-panel analisi-wide">
+                <h3>Conclusione del possesso per esito della pressione</h3>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Pressione</th><th>Conclusione</th><th class="r">Possessi</th><th class="r">Portano al tiro</th></tr></thead>
+                    <tbody>
+                      @for (c of conclusioniPossesso(); track c.chiave) {
+                        <tr>
+                          <td>{{ c.dettaglio }}</td><td>{{ c.etichetta }}</td>
+                          <td class="r tk-num">{{ c.possessi }}</td><td class="r tk-num">{{ pct(c.tassoTiri) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </section>
+        }
+
         <section class="seq" aria-labelledby="seq-title">
           <div class="filters">
             <h2 id="seq-title">Sequenze</h2>

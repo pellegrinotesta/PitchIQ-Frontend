@@ -2,6 +2,7 @@
 
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
 h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+.unita { margin-left: 6px; color: var(--tk-muted); font: 10px var(--tk-mono); text-transform: uppercase; }
 .bar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 56px; gap: 10px; align-items: center; font-size: 13px; padding-block: 5px; }
 .n { color: var(--tk-muted); }
 .track { height: 12px; background: var(--tk-line); border-radius: 3px; overflow: hidden; }
@@ -11,3 +12,14 @@ h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
 .fill.CONTENUTA { background: var(--tk-contenuta); }
 .tk-num { text-align: right; }
 .sintesi { margin: 12px 0 0; font-size: 13px; color: var(--tk-muted); max-width: 80ch; }
+.metodo { margin-top: 12px; border-top: 1px solid var(--tk-line); color: var(--tk-muted); }
+.metodo summary { width: fit-content; padding: 10px 0; color: var(--tk-fg); font-size: 12px; cursor: pointer; }
+.metodo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; }
+.metodo-grid p { margin: 0; font-size: 12px; line-height: 1.55; }
+.metodo-grid strong { color: var(--tk-fg); }
+.metodo-grid code { color: var(--tk-att); font-family: var(--tk-mono); }
+
+@media (max-width: 640px) {
+	.bar { grid-template-columns: 105px minmax(0, 1fr) 48px; gap: 7px; font-size: 12px; }
+	.metodo-grid { grid-template-columns: minmax(0, 1fr); }
+}

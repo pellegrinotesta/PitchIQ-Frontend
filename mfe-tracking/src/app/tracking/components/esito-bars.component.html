@@ -1,20 +1,20 @@
 @if (righe().length) {
   <div class="grid">
     <div class="tk-card">
-      <h3>Valore medio della miglior opzione</h3>
+      <h3>Indice medio dell’opzione migliore <span class="unita">% indice</span></h3>
       @for (r of righe(); track r.esito) {
         <div class="bar">
-          <span>{{ label[r.esito] }} <span class="n">({{ r.possessi.toLocaleString('it-IT') }})</span></span>
+          <span>{{ label[r.esito] }} <span class="n">(N={{ r.possessi.toLocaleString('it-IT') }})</span></span>
           <span class="track"><span class="fill {{ r.esito }}" [style.width.%]="r.migliorePct"></span></span>
           <span class="tk-num">{{ pct(r.valoreMigliore) }}</span>
         </div>
       }
     </div>
     <div class="tk-card">
-      <h3>Possessi che arrivano al tiro</h3>
+      <h3>Possessi che portano al tiro <span class="unita">% possessi</span></h3>
       @for (r of righe(); track r.esito) {
         <div class="bar">
-          <span>{{ label[r.esito] }} <span class="n">({{ r.possessi.toLocaleString('it-IT') }})</span></span>
+          <span>{{ label[r.esito] }} <span class="n">(N={{ r.possessi.toLocaleString('it-IT') }})</span></span>
           <span class="track"><span class="fill {{ r.esito }}" [style.width.%]="r.tiroPct"></span></span>
           <span class="tk-num">{{ pct(r.quotaTiro, 0) }}</span>
         </div>
@@ -25,3 +25,13 @@
 } @else {
   <p class="sintesi">Nessun possesso pressato ancora. Carica una partita per vedere il confronto.</p>
 }
+
+<details class="metodo">
+  <summary>Definizioni, formule e limiti</summary>
+  <div class="metodo-grid">
+    <p><strong>Superata</strong> — la pressione è superata dal portatore tramite possesso o movimento. <strong>Neutralizzata</strong> — l’azione termina, ferma il pericolo o forza all’indietro. <strong>Contenuta</strong> — nessuno dei casi precedenti.</p>
+    <p><strong>Indice opzione</strong> — per ogni opzione di passaggio: <code>xThreat × xPassCompletion</code>. Si prende il massimo per possesso, poi si fa la media dei possessi del gruppo. È un indice del modello, non una probabilità osservata di segnare.</p>
+    <p><strong>Quota tiro</strong> — possessi marcati da SkillCorner come conducenti a un tiro, divisi per il numero di possessi del gruppo. <strong>N</strong> indica quel numero di possessi; ogni riga usa il proprio campione.</p>
+    <p><strong>Limiti</strong> — statistiche descrittive sui dati importati: campioni piccoli possono oscillare molto e le differenze non dimostrano un rapporto causale. Il benchmark include solo le partite presenti nella vista.</p>
+  </div>
+</details>

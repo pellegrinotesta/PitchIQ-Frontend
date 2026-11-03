@@ -14,16 +14,32 @@
 
     <!-- Selezione competizione -->
     <div class="filtri-card">
-      <div class="field">
-        <label class="field-label">Competizione</label>
-        <select class="inp" (change)="onCompetizione($event)">
-          <option value="">Seleziona competizione…</option>
-          @for (c of competizioniUniche(); track c.competition_id + '_' + c.season_id) {
-            <option [value]="c.competition_id + '_' + c.season_id">
-              {{ c.competition_name }} · {{ c.season_name }} ({{ c.country_name }})
-            </option>
+      <div class="field" (focusout)="onRicercaFocusOut($event)">
+        <label class="field-label" id="competizione-label" for="competizione-cerca">Competizione</label>
+        <input
+          class="inp"
+          id="competizione-cerca"
+          type="search"
+          [value]="ricercaCompetizione()"
+          placeholder="Cerca competizione, stagione o paese…"
+          (focus)="onRicercaFocus()"
+          (input)="onRicercaInput($event)"
+        >
+        @if (menuCompetizioniAperto()) {
+          @if (competizioniFiltrate().length) {
+            <label class="field-label risultati-label" for="competizione-risultati">Risultati della ricerca</label>
+            <select class="opzioni-competizione" id="competizione-risultati" size="6" (change)="selezionaCompetizione($event)">
+              @for (c of competizioniFiltrate(); track c.competition_id + '_' + c.season_id) {
+                <option [value]="c.competition_id + '_' + c.season_id"
+                        [selected]="chiaveCompetizioneSelezionata() === c.competition_id + '_' + c.season_id">
+                  {{ c.competition_name }} · {{ c.season_name }} ({{ c.country_name }})
+                </option>
+              }
+            </select>
+          } @else {
+            <p class="nessun-risultato">Nessuna competizione trovata.</p>
           }
-        </select>
+        }
       </div>
     </div>
 

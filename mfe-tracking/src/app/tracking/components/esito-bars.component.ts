@@ -30,7 +30,8 @@ export class EsitoBarsComponent {
     const cont = a.find(x => x.esito === 'CONTENUTA');
     if (!sup || !cont || !cont.valoreMigliore) return null;
     const volte = (sup.valoreMigliore / cont.valoreMigliore).toLocaleString('it-IT', { maximumFractionDigits: 1 });
-    return `Quando la pressione viene superata la miglior opzione vale ${volte} volte di più che quando viene solo contenuta, `
-      + `e il possesso arriva al tiro ${Math.round(sup.quotaTiro * 100)} volte su 100 contro ${Math.round(cont.quotaTiro * 100)}.`;
+    return `Nel campione osservato, l’indice medio dell’opzione migliore è ${volte} volte quello dei possessi con pressione contenuta `
+      + `(N=${sup.possessi} vs N=${cont.possessi}); la quota che porta al tiro è ${Math.round(sup.quotaTiro * 100)}% `
+      + `contro ${Math.round(cont.quotaTiro * 100)}%.`;
   });
 }

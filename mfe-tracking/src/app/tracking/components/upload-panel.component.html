@@ -33,6 +33,10 @@
         }
       </div>
 
+      @if (erroreAbbinamento(); as erroreFile) {
+        <p class="errore-file" role="alert">{{ erroreFile }}</p>
+      }
+
       <div class="upload-foot">
         <div class="upload-azioni">
           <button type="button" class="btn-primary" [disabled]="!pronto() || busy()" (click)="invia()">

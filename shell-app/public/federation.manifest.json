@@ -4,6 +4,6 @@
   "mfe-tattiche": "http://127.0.0.1:4203/remoteEntry.json",
   "mfe-statistiche": "http://127.0.0.1:4204/remoteEntry.json",
   "mfe-partite": "http://127.0.0.1:4205/remoteEntry.json",
-  "mfe-giocatori": "http://127.0.0.1:4206/remoteEntry.json"
+  "mfe-tracking": "http://127.0.0.1:4206/remoteEntry.json"
 
 }

@@ -19,11 +19,63 @@
         </div>
       }
 
-      <!-- Partite caricate -->
       <section class="sezione" aria-labelledby="partite-title">
-        <h2 id="partite-title" class="sezione-titolo">Partite caricate</h2>
+        <div class="sezione-head">
+          <div>
+            <h2 id="partite-title" class="sezione-titolo">Confronto tra partite</h2>
+            <p class="sezione-sub">Tasso di possessi con pressione superata rispetto al benchmark selezionato.</p>
+          </div>
+          <button type="button" class="btn-reset" (click)="azzeraFiltri()">Azzera filtri</button>
+        </div>
 
-        @if (partite().length) {
+        <div class="filtri-confronto">
+          <label class="filtro">
+            <span>Stagione · luglio–giugno</span>
+            <select [value]="filtroStagione()" (change)="filtroStagione.set($any($event.target).value)">
+              <option value="">Tutte</option>
+              @for (stagione of stagioni(); track stagione) {
+                <option [value]="stagione">{{ stagione }}</option>
+              }
+            </select>
+          </label>
+          <label class="filtro">
+            <span>Competizione</span>
+            <select [value]="filtroCompetizione()" (change)="filtroCompetizione.set($any($event.target).value)">
+              <option value="">Tutte</option>
+              @for (competizione of competizioni(); track competizione) {
+                <option [value]="competizione">
+                  {{ competizione === '__senza_competizione__' ? 'Senza competizione' : competizione }}
+                </option>
+              }
+            </select>
+          </label>
+          <label class="filtro">
+            <span>Squadra</span>
+            <select [value]="filtroSquadra()" (change)="filtroSquadra.set($any($event.target).value)">
+              <option value="">Tutte</option>
+              @for (squadra of squadre(); track squadra) {
+                <option [value]="squadra">{{ squadra }}</option>
+              }
+            </select>
+          </label>
+          <label class="filtro">
+            <span>Dal</span>
+            <input type="date" [value]="filtroDal()" (change)="filtroDal.set($any($event.target).value)">
+          </label>
+          <label class="filtro">
+            <span>Al</span>
+            <input type="date" [value]="filtroAl()" (change)="filtroAl.set($any($event.target).value)">
+          </label>
+        </div>
+
+        @if (partiteFiltrate().length) {
+          <div class="confronto-metriche" aria-live="polite">
+            <div><span>Partite</span><strong>{{ partiteFiltrate().length }}</strong></div>
+            <div><span>Possessi pressati</span><strong>{{ totalePossessi() }}</strong></div>
+            <div><span>Benchmark · pressioni superate</span>
+              <strong>{{ benchmark() === null ? '—' : benchmark()!.toFixed(1) + '%' }}</strong>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -32,11 +84,13 @@
                   <th>Partita</th>
                   <th>Competizione</th>
                   <th class="r">Possessi pressati</th>
-                  <th class="r">Superate</th>
+                  <th>Tasso superamento</th>
+                  <th class="r">Scostamento</th>
                 </tr>
               </thead>
               <tbody>
-                @for (p of partite(); track p.matchId) {
+                @for (riga of confronto(); track riga.partita.matchId) {
+                  @let p = riga.partita;
                   <tr [class.nuova]="p.matchId === ultimaCaricata()">
                     <td class="mono muted">{{ p.dataPartita | date: 'dd/MM/yyyy' }}</td>
                     <td>
@@ -46,45 +100,71 @@
                     </td>
                     <td class="muted">{{ p.competizione ?? '—' }}</td>
                     <td class="r mono">{{ p.possessiPressati }}</td>
-                    <td class="r mono">{{ p.pressioniSuperate }}</td>
+                    <td>
+                      @if (riga.percentualeSuperate !== null) {
+                        <div class="tasso-cella">
+                          <span class="mono">{{ riga.percentualeSuperate.toFixed(1) }}%</span>
+                          <span class="tasso-barra" aria-hidden="true">
+                            <span [style.width.%]="riga.percentualeSuperate"></span>
+                          </span>
+                        </div>
+                      } @else {
+                        <span class="muted">—</span>
+                      }
+                    </td>
+                    <td class="r mono">
+                      {{ riga.scostamentoBenchmark === null ? '—' : (riga.scostamentoBenchmark > 0 ? '+' : '') + riga.scostamentoBenchmark.toFixed(1) + ' pp' }}
+                    </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
         } @else if (!caricamento()) {
-          <p class="vuoto">
-            Nessuna partita ancora. I dati aperti di SkillCorner sono su
-            <a href="https://github.com/SkillCorner/opendata" target="_blank" rel="noopener">
-              github.com/SkillCorner/opendata
-            </a>
-            (cartella data/matches).
-          </p>
+          <p class="vuoto">Nessuna partita corrisponde ai filtri selezionati.</p>
         }
       </section>
 
       <!-- Aggregati globali -->
       @if (partite().length) {
         <section class="sezione" aria-labelledby="agg-title">
-          <h2 id="agg-title" class="sezione-titolo">Tutte le partite</h2>
+          <h2 id="agg-title" class="sezione-titolo">Distribuzione per esito · tutte le partite</h2>
           <tk-esito-bars [aggregati]="aggregati()" />
         </section>
       }
 
       <!-- Storico import -->
-      @if (importRecenti().length) {
+      @if (storicoCaricato()) {
         <section class="sezione" aria-labelledby="storico-title">
-          <h2 id="storico-title" class="sezione-titolo">Ultimi caricamenti</h2>
+          <h2 id="storico-title" class="sezione-titolo">Cronologia import</h2>
+          <label class="storico-filtro">
+            <span>Cerca nella cronologia</span>
+            <input type="search" [value]="filtroImport()" placeholder="File, stato, messaggio o ID partita"
+                   (input)="onFiltroImport($event)">
+          </label>
+          @if (erroreStorico()) {
+            <p class="storico-errore" role="alert">{{ erroreStorico() }}</p>
+          }
           <div class="storico-list">
             @for (i of importRecenti(); track i.id) {
               <div class="storico-item">
                 <span class="stato-badge stato-{{ i.stato }}">{{ statoLabel[i.stato] }}</span>
                 <span class="mono muted">{{ (i.creatoIl + 'Z') | date: 'dd/MM HH:mm' }}</span>
                 <span class="storico-file">{{ i.nomeFileEventi }}{{ i.conTracking ? '' : ' · senza tracking' }}</span>
+                @if (i.matchId) { <span class="mono muted">Match #{{ i.matchId }}</span> }
                 @if (i.messaggio) {
                   <span class="storico-msg" [class.errore-testo]="i.stato === 'ERRORE'">{{ i.messaggio }}</span>
                 }
+                @if (i.ritentabile) {
+                  <button type="button" class="btn-retry" [disabled]="ritentandoId() !== null"
+                          (click)="ritentaImport(i.id)">
+                    @if (ritentandoId() === i.id) { <span class="spinner-sm"></span> Riprovo… }
+                    @else { <i class="pi pi-refresh"></i> Riprova }
+                  </button>
+                }
               </div>
+            } @empty {
+              <p class="vuoto">Nessun import corrisponde alla ricerca.</p>
             }
           </div>
         </section>

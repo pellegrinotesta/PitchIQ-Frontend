@@ -10,6 +10,7 @@ export interface ImportDto {
   nomeFileEventi: string;
   creatoIl: string;
   aggiornatoIl: string;
+  ritentabile: boolean;
 }
 
 export interface PartitaDto {

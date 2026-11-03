@@ -36,8 +36,13 @@ export class TrackingApi {
     return this.http.get<ImportDto>(`${this.base}/import/${id}`);
   }
 
-  importRecenti(): Observable<ImportDto[]> {
-    return this.http.get<ImportDto[]>(`${this.base}/import`);
+  importRecenti(query = ''): Observable<ImportDto[]> {
+    const params = new HttpParams().set('q', query.trim());
+    return this.http.get<ImportDto[]>(`${this.base}/import`, { params });
+  }
+
+  ritentaImport(id: number): Observable<ImportDto> {
+    return this.http.post<ImportDto>(`${this.base}/import/${id}/retry`, {});
   }
 
   partite(): Observable<PartitaDto[]> {

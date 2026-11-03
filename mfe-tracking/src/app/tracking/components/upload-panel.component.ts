@@ -45,7 +45,16 @@ export class UploadPanelComponent {
   protected readonly errore     = signal<string | null>(null);
   protected readonly mostraGithub = signal(false);
 
-  protected readonly pronto = computed(() => !!this.files().partita && !!this.files().eventi);
+  protected readonly erroreAbbinamento = computed(() => {
+    const ids = Object.values(this.files())
+      .filter((file): file is File => file !== null)
+      .map(file => file.name.match(/^(\d+)_/)?.[1])
+      .filter((id): id is string => !!id);
+    return new Set(ids).size > 1
+      ? 'I file selezionati sembrano appartenere a partite diverse: controlla gli ID nei nomi.'
+      : null;
+  });
+  protected readonly pronto = computed(() => !!this.files().partita && !!this.files().eventi && !this.erroreAbbinamento());
   protected readonly busy   = computed(() => this.fase() === 'upload' || this.fase() === 'elaborazione');
 
   private sub?: Subscription;

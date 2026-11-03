@@ -7,8 +7,49 @@ import { EsitoBarsComponent } from '../components/esito-bars.component';
 import { SequencePlayerComponent } from '../components/sequence-player.component';
 import { TrackingApi } from '../data/tracking.api';
 import {
-  AnimazioneDto, ESITI, ESITO_LABEL, EsitoPressione, PartitaDettaglioDto, SequenzaDto, pct,
+  AnimazioneDto, ESITI, ESITO_LABEL, EsitoPressione, FINE_POSSESSO_LABEL, PartitaDettaglioDto,
+  SequenzaDto, TERZO_LABEL, pct,
 } from '../data/tracking.models';
+
+interface StatisticaSequenze {
+  chiave: string;
+  etichetta: string;
+  dettaglio: string | null;
+  possessi: number;
+  superate: number;
+  tiri: number;
+  tassoSuperate: number;
+  tassoTiri: number;
+}
+
+function aggregaSequenze(
+  sequenze: SequenzaDto[],
+  selettore: (sequenza: SequenzaDto) => { chiave: string; etichetta: string; dettaglio?: string },
+): StatisticaSequenze[] {
+  const gruppi = new Map<string, StatisticaSequenze>();
+  for (const sequenza of sequenze) {
+    const selezione = selettore(sequenza);
+    const gruppo = gruppi.get(selezione.chiave) ?? {
+      chiave: selezione.chiave,
+      etichetta: selezione.etichetta,
+      dettaglio: selezione.dettaglio ?? null,
+      possessi: 0,
+      superate: 0,
+      tiri: 0,
+      tassoSuperate: 0,
+      tassoTiri: 0,
+    };
+    gruppo.possessi++;
+    if (sequenza.esito === 'SUPERATA') gruppo.superate++;
+    if (sequenza.portaAlTiro) gruppo.tiri++;
+    gruppi.set(selezione.chiave, gruppo);
+  }
+  return [...gruppi.values()].map(gruppo => ({
+    ...gruppo,
+    tassoSuperate: gruppo.superate / gruppo.possessi,
+    tassoTiri: gruppo.tiri / gruppo.possessi,
+  }));
+}
 
 @Component({
   selector: 'tk-partita-dettaglio',
@@ -25,6 +66,31 @@ export class PartitaDettaglioComponent {
   protected readonly esiti = ESITI;
   protected readonly esitoLabel = ESITO_LABEL;
   protected readonly pct = pct;
+
+  protected readonly statistichePortatori = computed(() => aggregaSequenze(this.sequenze(), s => ({
+    chiave: `${s.teamId}:${s.portatoreId}`,
+    etichetta: s.portatore,
+    dettaglio: s.squadra,
+  })).sort((a, b) => b.possessi - a.possessi || a.etichetta.localeCompare(b.etichetta)));
+
+  protected readonly statisticheTerzi = computed(() => aggregaSequenze(this.sequenze(), s => ({
+    chiave: s.terzo ?? 'non_disponibile',
+    etichetta: s.terzo ? (TERZO_LABEL[s.terzo] ?? s.terzo) : 'Dato non disponibile',
+  })).sort((a, b) => a.etichetta.localeCompare(b.etichetta)));
+
+  protected readonly statistichePeriodi = computed(() => aggregaSequenze(this.sequenze(), s => ({
+    chiave: String(s.periodo),
+    etichetta: s.periodo === 1 ? '1° tempo' : s.periodo === 2 ? '2° tempo' : `Periodo ${s.periodo}`,
+  })).sort((a, b) => a.chiave.localeCompare(b.chiave, undefined, { numeric: true })));
+
+  protected readonly conclusioniPossesso = computed(() => aggregaSequenze(this.sequenze(), s => ({
+    chiave: `${s.esito}:${s.esitoPossesso ?? ''}`,
+    etichetta: s.esitoPossesso
+      ? (FINE_POSSESSO_LABEL[s.esitoPossesso] ?? s.esitoPossesso)
+      : 'Dato non disponibile',
+    dettaglio: ESITO_LABEL[s.esito],
+  })).sort((a, b) => (a.dettaglio ?? '').localeCompare(b.dettaglio ?? '')
+    || a.etichetta.localeCompare(b.etichetta)));
 
   protected readonly esito = signal<EsitoPressione | null>(null);
   protected readonly teamId = signal<number | null>(null);
