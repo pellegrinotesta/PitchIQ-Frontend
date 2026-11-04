@@ -1,87 +1,255 @@
 <div class="form-wrapper">
-
-    @if (errore()) {
+  @if (errore()) {
     <p-message severity="error" styleClass="mb-3">{{ errore() }}</p-message>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <div class="form-section">
+      <h2 class="section-title">Anagrafica</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-nome">Nome *</label>
+          <input
+            id="giocatore-nome"
+            pInputText
+            formControlName="nome"
+            maxlength="100"
+            placeholder="Es. Marco"
+          />
+          @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+            <small class="hint-errore">Campo obbligatorio</small>
+          }
+        </div>
+        <div class="field">
+          <label for="giocatore-cognome">Cognome *</label>
+          <input
+            id="giocatore-cognome"
+            pInputText
+            formControlName="cognome"
+            maxlength="100"
+            placeholder="Es. Rossi"
+          />
+          @if (form.get('cognome')?.invalid && form.get('cognome')?.touched) {
+            <small class="hint-errore">Campo obbligatorio</small>
+          }
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-nascita">Data di nascita</label>
+          <input
+            id="giocatore-nascita"
+            type="date"
+            formControlName="dataNascita"
+            [max]="oggi"
+            class="input-date"
+          />
+        </div>
+        <div class="field">
+          <label for="giocatore-piede">Piede preferito</label>
+          <p-select
+            inputId="giocatore-piede"
+            [showClear]="true"
+            [options]="piedeOptions"
+            formControlName="piedePreferito"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleziona…"
+            appendTo="body"
+          />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-nazione">Nazionalità</label
+          ><input id="giocatore-nazione" pInputText formControlName="nazionalita" maxlength="50" />
+        </div>
+        <div class="field">
+          <label for="giocatore-luogo">Luogo di nascita</label
+          ><input id="giocatore-luogo" pInputText formControlName="luogoNascita" maxlength="100" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-altezza">Altezza (cm)</label
+          ><input
+            id="giocatore-altezza"
+            pInputText
+            type="number"
+            formControlName="altezzaCm"
+            min="100"
+            max="250"
+            step="1"
+          />
+        </div>
+        <div class="field">
+          <label for="giocatore-peso">Peso (kg)</label
+          ><input
+            id="giocatore-peso"
+            pInputText
+            type="number"
+            formControlName="pesoKg"
+            min="30"
+            max="250"
+            step="1"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Ruolo & Maglia</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-ruolo">Ruolo primario *</label>
+          <p-select
+            inputId="giocatore-ruolo"
+            [options]="ruoliOptions"
+            formControlName="ruolo"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleziona…"
+            appendTo="body"
+          />
+          @if (form.get('ruolo')?.invalid && form.get('ruolo')?.touched) {
+            <small class="hint-errore">Campo obbligatorio</small>
+          }
+        </div>
+        <div class="field">
+          <label for="giocatore-maglia">Numero maglia *</label>
+          <input
+            id="giocatore-maglia"
+            pInputText
+            type="number"
+            formControlName="numeroMaglia"
+            min="1"
+            max="99"
+            step="1"
+            placeholder="Es. 10"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="giocatore-secondari">Ruoli secondari</label>
+        <p-multiselect
+          inputId="giocatore-secondari"
+          [options]="ruoliOptions"
+          formControlName="ruoliSecondari"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Nessuno"
+          appendTo="body"
+        />
+      </div>
+      <div class="field">
+        <label for="giocatore-stato">Stato *</label>
+        <p-select
+          inputId="giocatore-stato"
+          [options]="statiOptions"
+          formControlName="stato"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+        />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Contratto</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-inizio">Inizio</label>
+          <input
+            id="giocatore-inizio"
+            type="date"
+            formControlName="contrattoInizio"
+            class="input-date"
+          />
+        </div>
+        <div class="field">
+          <label for="giocatore-fine">Fine</label>
+          <input
+            id="giocatore-fine"
+            type="date"
+            formControlName="contrattoFine"
+            class="input-date"
+          />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-valore">Valore di mercato (EUR)</label
+          ><input
+            id="giocatore-valore"
+            pInputText
+            type="number"
+            formControlName="valoreMercato"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div class="field">
+          <label for="giocatore-stipendio">Stipendio annuo (EUR)</label
+          ><input
+            id="giocatore-stipendio"
+            pInputText
+            type="number"
+            formControlName="stipendioAnnuo"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-clausola">Clausola (EUR)</label
+          ><input
+            id="giocatore-clausola"
+            pInputText
+            type="number"
+            formControlName="clausola"
+            min="0"
+            step="0.01"
+          />
+        </div>
+        <div class="field">
+          <label for="giocatore-agente">Agente</label
+          ><input id="giocatore-agente" pInputText formControlName="agente" maxlength="100" />
+        </div>
+      </div>
+    </div>
+
+    @if (form.hasError('ordineContratto')) {
+      <p class="hint-errore" role="alert">La fine del contratto non può precedere l'inizio.</p>
     }
-
-    <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-
-        <div class="form-section">
-            <h2 class="section-title">Anagrafica</h2>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Nome *</label>
-                    <input pInputText formControlName="nome" placeholder="Es. Marco" />
-                    @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
-                    <small class="hint-errore">Campo obbligatorio</small>
-                    }
-                </div>
-                <div class="field">
-                    <label>Cognome *</label>
-                    <input pInputText formControlName="cognome" placeholder="Es. Rossi" />
-                    @if (form.get('cognome')?.invalid && form.get('cognome')?.touched) {
-                    <small class="hint-errore">Campo obbligatorio</small>
-                    }
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Data di nascita</label>
-                    <input type="date" formControlName="dataNascita" class="input-date" />
-                </div>
-                <div class="field">
-                    <label>Piede preferito</label>
-                    <p-select [options]="piedeOptions" formControlName="piedePreferito" optionLabel="label"
-                        optionValue="value" placeholder="Seleziona…" appendTo="body" />
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h2 class="section-title">Ruolo & Maglia</h2>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Ruolo *</label>
-                    <p-select [options]="ruoliOptions" formControlName="ruolo" optionLabel="label" optionValue="value"
-                        placeholder="Seleziona…" appendTo="body" />
-                    @if (form.get('ruolo')?.invalid && form.get('ruolo')?.touched) {
-                    <small class="hint-errore">Campo obbligatorio</small>
-                    }
-                </div>
-                <div class="field">
-                    <label>Numero maglia</label>
-                    <input pInputText type="number" formControlName="numeroMaglia" placeholder="Es. 10" />
-                </div>
-            </div>
-
-            <div class="field">
-                <label>Stato</label>
-                <p-selectbutton [options]="statiOptions" formControlName="stato" optionLabel="label"
-                    optionValue="value" />
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h2 class="section-title">Contratto</h2>
-            <div class="field-row">
-                <div class="field">
-                    <label>Inizio</label>
-                    <input type="date" formControlName="contrattoInizio" class="input-date" />
-                </div>
-                <div class="field">
-                    <label>Fine</label>
-                    <input type="date" formControlName="contrattoFine" class="input-date" />
-                </div>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <p-button label="Annulla" severity="secondary" [outlined]="true" type="button" (onClick)="annulla()" />
-            <p-button type="submit" label="Salva" icon="pi pi-check" [loading]="saving()" [disabled]="form.invalid" />
-        </div>
-
-    </form>
+    @if (form.hasError('nascitaFutura')) {
+      <p class="hint-errore" role="alert">La data di nascita non può essere futura.</p>
+    }
+    @if (form.invalid && form.touched) {
+      <p class="hint-errore" role="alert">
+        Verifica i campi obbligatori, i limiti numerici e le date.
+      </p>
+    }
+    <div class="form-actions">
+      <p-button
+        label="Annulla"
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        [disabled]="saving()"
+        (onClick)="annulla()"
+      />
+      <p-button
+        type="submit"
+        label="Salva"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="form.invalid || saving()"
+      />
+    </div>
+  </form>
 </div>

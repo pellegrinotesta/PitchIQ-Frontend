@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/native-federation';
 import { authGuard } from './core/guards/auth.guard';
+import federationManifest from '../../public/federation.manifest.json';
+
+function loadRemoteRoutes(remoteName: keyof typeof federationManifest) {
+    const remoteEntry = federationManifest[remoteName];
+    return loadRemoteModule({ remoteName, remoteEntry, exposedModule: './Routes' });
+}
 
 export const routes: Routes = [
     {
@@ -27,32 +33,32 @@ export const routes: Routes = [
             {
                 path: 'squadre',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-squadre', './Routes').then((m) => m.SQUADRE_ROUTES),
+                    loadRemoteRoutes('mfe-squadre').then((m) => m.SQUADRE_ROUTES),
             },
             {
                 path: 'allenamenti',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-allenamenti', './Routes').then((m) => m.ALLENAMENTI_ROUTES),
+                    loadRemoteRoutes('mfe-allenamenti').then((m) => m.ALLENAMENTI_ROUTES),
             },
             {
                 path: 'tattiche',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-tattiche', './Routes').then((m) => m.TATTICHE_ROUTES),
+                    loadRemoteRoutes('mfe-tattiche').then((m) => m.TATTICHE_ROUTES),
             },
             {
                 path: 'statistiche',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-statistiche', './Routes').then((m) => m.STATISTICHE_ROUTES),
+                    loadRemoteRoutes('mfe-statistiche').then((m) => m.STATISTICHE_ROUTES),
             },
             {
                 path: 'partite',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-partite', './Routes').then((m) => m.PARTITE_ROUTES),
+                    loadRemoteRoutes('mfe-partite').then((m) => m.PARTITE_ROUTES),
             },
             {
                 path: 'tracking',
                 loadChildren: () =>
-                    loadRemoteModule('mfe-tracking', './Routes').then((m) => m.routes),
+                    loadRemoteRoutes('mfe-tracking').then((m) => m.routes),
             },
         ],
     },

@@ -1,81 +1,530 @@
 <p-confirmdialog />
-
-<div class="page">
-
-    <header class="page-header">
-        <div class="header-left">
-            <a (click)="history.back()" class="btn-back">
-                <i class="pi pi-arrow-left"></i>
-            </a>
-            <div>
-                <p class="page-label">GESTIONE ROSA</p>
-                <h1>Giocatori</h1>
-            </div>
-        </div>
-        <p-button label="Aggiungi" icon="pi pi-plus" (onClick)="apriNuovo()" />
-    </header>
-
-    <div class="filtri">
-        <p-iconfield class="search-field">
-            <p-inputicon styleClass="pi pi-search" />
-            <input pInputText type="text" placeholder="Cerca per cognome…" [(ngModel)]="filtroCognome"
-                (input)="carica()" />
-        </p-iconfield>
-
-        <p-select [options]="ruoliOptions" [(ngModel)]="filtroRuolo" optionLabel="label" optionValue="value"
-            (onChange)="carica()" styleClass="select-filtro" />
-
-        <p-select [options]="statiOptions" [(ngModel)]="filtroStato" optionLabel="label" optionValue="value"
-            (onChange)="carica()" styleClass="select-filtro" />
+<main class="workspace" [attr.aria-busy]="loading()">
+  <header class="workspace-header">
+    <div>
+      <p class="eyebrow">PITCHIQ / SQUADRE</p>
+      <h1>Centro rosa</h1>
+      <p class="subtitle">Organico, copertura tecnica e pianificazione contrattuale</p>
     </div>
-
-    @if (loading()) {
-    <div class="stato-box">
-        <p-progressspinner strokeWidth="3" styleClass="spinner-sm" />
+    <div class="header-actions">
+      <button
+        class="icon-button"
+        type="button"
+        aria-label="Aggiorna rosa"
+        pTooltip="Aggiorna rosa"
+        [disabled]="loading() || eliminando() !== null"
+        (click)="carica()"
+      >
+        <i class="pi pi-refresh" [class.pi-spin]="loading()" aria-hidden="true"></i>
+      </button>
+      <button
+        class="button secondary"
+        type="button"
+        [disabled]="loading() || !!errore() || !filtrati().length"
+        (click)="esporta()"
+      >
+        <i class="pi pi-download" aria-hidden="true"></i> Esporta CSV
+      </button>
+      <button class="button primary" type="button" (click)="apriNuovo()">
+        <i class="pi pi-plus" aria-hidden="true"></i> Nuovo giocatore
+      </button>
     </div>
-    } @else if (errore()) {
-    <p-message severity="error">{{ errore() }}</p-message>
+  </header>
+  @if (loading()) {
+    <section class="state" aria-live="polite">
+      <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      <h2>Caricamento rosa</h2>
+    </section>
+  } @else if (errore()) {
+    <section class="state error" role="alert">
+      <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+      <h2>Dati non disponibili</h2>
+      <p>{{ errore() }}</p>
+      <button class="button secondary" (click)="carica()">Riprova</button>
+    </section>
+  } @else {
+    <div class="data-line">
+      <span><span class="live-dot"></span> Fonte: anagrafica PitchIQ</span
+      ><span>Ultimo aggiornamento {{ aggiornato() | date: 'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+    <section class="metrics" aria-label="Riepilogo intera rosa">
+      <div class="metric">
+        <span>Organico</span><strong>{{ riepilogo().totale }} <small>giocatori</small></strong
+        ><span>Intera rosa</span>
+      </div>
+      <div class="metric">
+        <span>Stato attivo</span
+        ><strong class="accent"
+          >{{ riepilogo().attivi }} <small>/ {{ riepilogo().totale }}</small></strong
+        ><span
+          >{{ riepilogo().infortunati }} infortunati ·
+          {{ riepilogo().squalificati }} squalificati</span
+        >
+      </div>
+      <div class="metric">
+        <span>Età media</span
+        ><strong
+          >{{ riepilogo().etaMedia === null ? 'N/D' : (riepilogo().etaMedia | number: '1.1-1') }}
+          <small>anni</small></strong
+        ><span>{{ riepilogo().etaNote }}/{{ riepilogo().totale }} età disponibili</span>
+      </div>
+      <div class="metric">
+        <span>Valore rosa dichiarato</span><strong>{{ valuta(riepilogo().valoreTotale) }}</strong
+        ><span>{{ riepilogo().valoriNoti }}/{{ riepilogo().totale }} valori disponibili</span>
+      </div>
+      <div class="metric">
+        <span>Scadenze entro 180 giorni</span
+        ><strong class="warning">{{ riepilogo().inScadenza }}</strong
+        ><span
+          >{{ riepilogo().scaduti }} scaduti · {{ riepilogo().contrattiMancanti }} non
+          disponibili</span
+        >
+      </div>
+    </section>
+    <nav class="view-tabs" aria-label="Viste rosa">
+      <button
+        type="button"
+        [class.active]="vista() === 'rosa'"
+        [attr.aria-pressed]="vista() === 'rosa'"
+        (click)="cambiaVista('rosa')"
+      >
+        <i class="pi pi-users" aria-hidden="true"></i> Rosa
+      </button>
+      <button
+        type="button"
+        [class.active]="vista() === 'copertura'"
+        [attr.aria-pressed]="vista() === 'copertura'"
+        (click)="cambiaVista('copertura')"
+      >
+        <i class="pi pi-sitemap" aria-hidden="true"></i> Copertura ruoli
+      </button>
+      <button
+        type="button"
+        [class.active]="vista() === 'contratti'"
+        [attr.aria-pressed]="vista() === 'contratti'"
+        (click)="cambiaVista('contratti')"
+      >
+        <i class="pi pi-calendar" aria-hidden="true"></i> Contratti
+      </button>
+    </nav>
+    <section class="filters" aria-label="Filtri rosa">
+      <label class="search"
+        ><span>Ricerca</span>
+        <div>
+          <i class="pi pi-search" aria-hidden="true"></i
+          ><input
+            type="search"
+            placeholder="Nome, cognome, numero, nazionalità"
+            [ngModel]="filtri().ricerca"
+            (ngModelChange)="filtra({ ricerca: $event })"
+          /></div
+      ></label>
+      <label
+        ><span>Ruolo primario o secondario</span
+        ><select [ngModel]="filtri().ruolo" (ngModelChange)="filtra({ ruolo: $event })">
+          <option [ngValue]="null">Tutti i ruoli</option>
+          @for (ruolo of ruoliOptions; track ruolo.value) {
+            <option [ngValue]="ruolo.value">{{ ruolo.value }} · {{ ruolo.label }}</option>
+          }
+        </select></label
+      >
+      <label
+        ><span>Stato</span
+        ><select [ngModel]="filtri().stato" (ngModelChange)="filtra({ stato: $event })">
+          <option [ngValue]="null">Tutti gli stati</option>
+          <option value="ATTIVO">Attivo</option>
+          <option value="INFORTUNATO">Infortunato</option>
+          <option value="SQUALIFICATO">Squalificato</option>
+        </select></label
+      >
+      <label
+        ><span>Piede</span
+        ><select [ngModel]="filtri().piede" (ngModelChange)="filtra({ piede: $event })">
+          <option value="">Tutti</option>
+          <option value="DESTRO">Destro</option>
+          <option value="SINISTRO">Sinistro</option>
+          <option value="AMBIDESTRO">Ambidestro</option>
+        </select></label
+      >
+      <label
+        ><span>Contratto</span
+        ><select [ngModel]="filtri().contratto" (ngModelChange)="filtra({ contratto: $event })">
+          <option value="TUTTI">Tutti</option>
+          <option value="180">Entro 180 giorni</option>
+          <option value="SCADUTI">Scaduti</option>
+          <option value="MANCANTI">Non disponibile</option>
+        </select></label
+      >
+    </section>
+    <div class="results-line">
+      <span
+        ><strong>{{ filtrati().length }}</strong> di {{ riepilogo().totale }} giocatori</span
+      >
+      @if (filtriAttivi()) {
+        <button class="text-button" type="button" (click)="resetFiltri()">
+          <i class="pi pi-filter-slash" aria-hidden="true"></i> Azzera filtri
+        </button>
+      }
+    </div>
+    @if (!giocatori().length) {
+      <section class="state">
+        <i class="pi pi-users" aria-hidden="true"></i>
+        <h2>La rosa è ancora vuota</h2>
+        <button class="button primary" (click)="apriNuovo()">
+          <i class="pi pi-plus" aria-hidden="true"></i> Nuovo giocatore
+        </button>
+      </section>
+    } @else if (!filtrati().length) {
+      <section class="state">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <h2>Nessun giocatore corrisponde ai filtri</h2>
+        <button class="button secondary" (click)="resetFiltri()">Azzera filtri</button>
+      </section>
+    } @else if (vista() === 'rosa') {
+      <p-table
+        [value]="filtrati()"
+        dataKey="id"
+        [rowHover]="true"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[15, 30, 50]"
+        [(first)]="primaRiga"
+        [tableStyle]="{ 'min-width': '1100px' }"
+        sortField="cognome"
+        [sortOrder]="1"
+      >
+        <ng-template #header
+          ><tr>
+            <th scope="col"><span class="sr-only">Selezione confronto</span></th>
+            <th scope="col" pSortableColumn="numeroMaglia">
+              # <p-sort-icon field="numeroMaglia" />
+            </th>
+            <th scope="col" pSortableColumn="cognome">Giocatore <p-sort-icon field="cognome" /></th>
+            <th scope="col" pSortableColumn="ruolo">Ruolo <p-sort-icon field="ruolo" /></th>
+            <th scope="col" pSortableColumn="eta">Età <p-sort-icon field="eta" /></th>
+            <th scope="col">Piede</th>
+            <th scope="col" pSortableColumn="stato">Stato <p-sort-icon field="stato" /></th>
+            <th scope="col" pSortableColumn="contrattoFine">
+              Fine contratto <p-sort-icon field="contrattoFine" />
+            </th>
+            <th scope="col" pSortableColumn="valoreMercato">
+              Valore <p-sort-icon field="valoreMercato" />
+            </th>
+            <th scope="col"><span class="sr-only">Azioni</span></th>
+          </tr></ng-template
+        >
+        <ng-template #body let-giocatore
+          ><tr [class.selected-row]="selezionati().includes(giocatore.id)">
+            <td>
+              <input
+                type="checkbox"
+                [checked]="selezionati().includes(giocatore.id)"
+                [attr.aria-label]="'Confronta ' + giocatore.cognome + ' ' + giocatore.nome"
+                (change)="seleziona(giocatore)"
+              />
+            </td>
+            <td class="shirt">{{ giocatore.numeroMaglia ?? 'N/D' }}</td>
+            <td>
+              <a class="player-link" [routerLink]="[giocatore.id]"
+                >{{ giocatore.cognome }} {{ giocatore.nome }}</a
+              ><small class="cell-sub">{{ giocatore.nazionalita || 'Nazionalità N/D' }}</small>
+            </td>
+            <td>
+              <span class="role-code" [pTooltip]="descrizioneRuolo(giocatore)">{{
+                giocatore.ruolo
+              }}</span
+              ><small class="cell-sub">{{ giocatore.ruoliSecondari || 'Nessun secondario' }}</small>
+            </td>
+            <td>{{ giocatore.eta ?? 'N/D' }}</td>
+            <td>{{ piede(giocatore.piedePreferito) }}</td>
+            <td>
+              <span class="status" [attr.data-status]="giocatore.stato">{{
+                descrizioneStato(giocatore)
+              }}</span>
+            </td>
+            <td>
+              <span
+                [class.warning]="
+                  giorni(giocatore.contrattoFine) !== null &&
+                  giorni(giocatore.contrattoFine)! <= 180
+                "
+                >{{
+                  giocatore.contrattoFine ? (giocatore.contrattoFine | date: 'dd/MM/yyyy') : 'N/D'
+                }}</span
+              >
+            </td>
+            <td class="numeric">{{ valuta(giocatore.valoreMercato) }}</td>
+            <td>
+              <div class="row-actions">
+                <button
+                  class="icon-button"
+                  [attr.aria-label]="'Modifica ' + giocatore.cognome"
+                  pTooltip="Modifica giocatore"
+                  (click)="apriModifica(giocatore)"
+                >
+                  <i class="pi pi-pencil" aria-hidden="true"></i></button
+                ><button
+                  class="icon-button danger"
+                  [disabled]="eliminando() !== null"
+                  [attr.aria-label]="'Elimina ' + giocatore.cognome"
+                  pTooltip="Elimina giocatore"
+                  (click)="elimina(giocatore)"
+                >
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </td></tr
+        ></ng-template>
+      </p-table>
+    } @else if (vista() === 'copertura') {
+      <div class="section-heading">
+        <h2>Profondità per ruolo</h2>
+        <span>Primari attivi / alternative attive</span>
+      </div>
+      <div class="depth-grid">
+        @for (ruolo of copertura(); track ruolo.ruolo) {
+          <article class="depth-item" [class.uncovered]="ruolo.attivi === 0">
+            <header>
+              <span class="role-code">{{ ruolo.ruolo }}</span>
+              <h3>{{ ruolo.label }}</h3>
+              <span class="depth-count">{{ ruolo.attivi }} / {{ ruolo.alternativeAttive }}</span>
+            </header>
+            <p class="depth-health" [class.warning]="ruolo.attivi === 0">
+              {{
+                ruolo.attivi === 0
+                  ? 'Nessun primario attivo'
+                  : ruolo.attivi === 1
+                    ? 'Un solo primario attivo'
+                    : 'Più primari attivi'
+              }}
+            </p>
+            @for (giocatore of ruolo.primari; track giocatore.id) {
+              <a class="depth-player" [routerLink]="[giocatore.id]"
+                ><span>{{ giocatore.cognome }} {{ giocatore.nome }}</span
+                ><span class="status" [attr.data-status]="giocatore.stato">{{
+                  statiLabel[giocatore.stato]
+                }}</span></a
+              >
+            }
+            @if (!ruolo.primari.length) {
+              <p class="muted">Nessun ruolo primario assegnato</p>
+            }
+            @if (ruolo.secondari.length) {
+              <h4>Ruolo secondario</h4>
+              @for (giocatore of ruolo.secondari; track giocatore.id) {
+                <a class="depth-player" [routerLink]="[giocatore.id]"
+                  ><span>{{ giocatore.cognome }} {{ giocatore.nome }}</span
+                  ><span class="status" [attr.data-status]="giocatore.stato">{{
+                    statiLabel[giocatore.stato]
+                  }}</span></a
+                >
+              }
+            }
+          </article>
+        }
+      </div>
     } @else {
-    <p-table [value]="giocatori()" [tableStyle]="{ 'min-width': '60rem' }" rowHover="true" styleClass="p-datatable-sm">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>#</th>
-                <th>Giocatore</th>
-                <th>Ruolo</th>
-                <th>Stato</th>
-                <th>Scadenza contratto</th>
-                <th></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-g>
-            <tr>
-                <td class="maglia">{{ g.numeroMaglia ?? '–' }}</td>
-                <td>
-                    <a [routerLink]="[g.id]" class="link-nome">
-                        {{ g.cognome }} {{ g.nome }}
-                    </a>
-                </td>
-                <td class="secondario">{{ g.ruolo }}</td>
-                <td>
-                    <p-tag [value]="g.stato" [severity]="getSeverity(g.stato)" />
-                </td>
-                <td class="secondario">{{ g.contrattoFine ?? '–' }}</td>
-                <td>
-                    <div class="azioni">
-                        <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary"
-                            (onClick)="apriModifica(g)" />
-                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                            (onClick)="elimina(g)" />
-                    </div>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="6" class="empty">Nessun giocatore trovato.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+      <div class="section-heading">
+        <h2>Orizzonte contrattuale</h2>
+        <span>Scadenza più vicina per prima</span>
+      </div>
+      <p-table
+        [value]="contratti()"
+        [paginator]="true"
+        [rows]="15"
+        [(first)]="primaRiga"
+        [tableStyle]="{ 'min-width': '850px' }"
+      >
+        <ng-template #header
+          ><tr>
+            <th scope="col">Giocatore</th>
+            <th scope="col">Ruolo</th>
+            <th scope="col">Scadenza</th>
+            <th scope="col">Orizzonte</th>
+            <th scope="col">Stipendio annuo dichiarato</th>
+            <th scope="col">Agente</th>
+            <th scope="col"><span class="sr-only">Azioni</span></th>
+          </tr></ng-template
+        >
+        <ng-template #body let-giocatore
+          ><tr>
+            <td>
+              <a class="player-link" [routerLink]="[giocatore.id]"
+                >{{ giocatore.cognome }} {{ giocatore.nome }}</a
+              >
+            </td>
+            <td>{{ giocatore.ruolo }}</td>
+            <td>
+              {{ giocatore.contrattoFine ? (giocatore.contrattoFine | date: 'dd/MM/yyyy') : 'N/D' }}
+            </td>
+            <td
+              [class.warning]="
+                giorni(giocatore.contrattoFine) !== null && giorni(giocatore.contrattoFine)! <= 180
+              "
+            >
+              {{ statoContratto(giocatore.contrattoFine) }}
+            </td>
+            <td>{{ valuta(giocatore.stipendioAnnuo) }}</td>
+            <td>{{ giocatore.agente || 'N/D' }}</td>
+            <td>
+              <button
+                class="icon-button"
+                [attr.aria-label]="'Modifica contratto di ' + giocatore.cognome"
+                pTooltip="Modifica giocatore"
+                (click)="apriModifica(giocatore)"
+              >
+                <i class="pi pi-pencil" aria-hidden="true"></i>
+              </button>
+            </td></tr
+        ></ng-template>
+      </p-table>
     }
-
-</div>
+    @if (confronto().length) {
+      <section class="compare-tray" aria-label="Selezione confronto">
+        <div>
+          <strong>{{ confronto().length }}/4 selezionati</strong
+          ><span>{{
+            confronto().length < 2
+              ? 'Confronto non disponibile: almeno 2 giocatori'
+              : 'Confronto tecnico e anagrafico'
+          }}</span>
+        </div>
+        <div class="selected-players">
+          @for (giocatore of confronto(); track giocatore.id) {
+            <button
+              type="button"
+              class="selected-player"
+              (click)="seleziona(giocatore)"
+              [attr.aria-label]="'Rimuovi ' + giocatore.cognome + ' dal confronto'"
+            >
+              {{ giocatore.cognome }} <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+        <div class="tray-actions">
+          <button
+            class="icon-button"
+            aria-label="Svuota selezione"
+            pTooltip="Svuota selezione"
+            (click)="svuotaConfronto()"
+          >
+            <i class="pi pi-times" aria-hidden="true"></i></button
+          ><button
+            class="button primary"
+            [disabled]="confronto().length < 2"
+            (click)="confrontoAperto.set(!confrontoAperto())"
+            [attr.aria-expanded]="confrontoAperto()"
+          >
+            <i class="pi pi-chart-bar" aria-hidden="true"></i>
+            {{ confrontoAperto() ? 'Chiudi confronto' : 'Confronta' }}
+          </button>
+        </div>
+      </section>
+    }
+    @if (confrontoAperto() && confronto().length >= 2) {
+      <section class="comparison" aria-label="Confronto giocatori">
+        <div class="section-heading">
+          <h2>Confronto giocatori</h2>
+          <button class="button secondary" (click)="esporta(true)">
+            <i class="pi pi-download" aria-hidden="true"></i> Esporta confronto
+          </button>
+        </div>
+        <section class="table-scroll" aria-label="Tabella confronto scorrevole">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th scope="col">Parametro</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <th scope="col">
+                    <a class="player-link" [routerLink]="[giocatore.id]"
+                      >{{ giocatore.cognome }} {{ giocatore.nome }}</a
+                    >
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Ruolo primario</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ ruoloLabel[giocatore.ruolo] }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Ruoli secondari</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ giocatore.ruoliSecondari || 'N/D' }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Stato</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>
+                    <span class="status" [attr.data-status]="giocatore.stato">{{
+                      statiLabel[giocatore.stato]
+                    }}</span>
+                  </td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Età</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ giocatore.eta ?? 'N/D' }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Piede</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ piede(giocatore.piedePreferito) }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Nazionalità</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ giocatore.nazionalita || 'N/D' }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Altezza (cm)</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ giocatore.altezzaCm ?? 'N/D' }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Peso (kg)</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ giocatore.pesoKg ?? 'N/D' }}</td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Fine contratto</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>
+                    {{
+                      giocatore.contrattoFine
+                        ? (giocatore.contrattoFine | date: 'dd/MM/yyyy')
+                        : 'N/D'
+                    }}
+                  </td>
+                }
+              </tr>
+              <tr>
+                <th scope="row">Valore dichiarato</th>
+                @for (giocatore of confronto(); track giocatore.id) {
+                  <td>{{ valuta(giocatore.valoreMercato) }}</td>
+                }
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </section>
+    }
+    <footer class="workspace-footer">
+      <span>N/D = dato non disponibile</span
+      ><span
+        >Valori dichiarati in EUR · Stato da anagrafica, non valutazione di idoneità clinica</span
+      >
+    </footer>
+  }
+  <output class="notice" aria-live="polite">{{ avviso() }}</output>
+</main>

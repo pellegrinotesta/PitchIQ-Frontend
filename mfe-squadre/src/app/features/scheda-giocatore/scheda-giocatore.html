@@ -1,264 +1,496 @@
 <div class="page">
+  <nav class="breadcrumb" aria-label="Navigazione rosa">
+    <a routerLink=".."><i class="pi pi-arrow-left"></i> Rosa</a>
+  </nav>
 
-    <nav class="breadcrumb">
-        <a routerLink=".."><i class="pi pi-arrow-left"></i> Rosa</a>
-    </nav>
-
-    @if (loading()) {
-    <div class="stato-box">Caricamento…</div>
-    } @else if (errore()) {
-    <div class="errore-box">{{ errore() }}</div>
-    } @else if (giocatore(); as g) {
-
+  @if (loading()) {
+    <div class="stato-box" aria-live="polite">Caricamento dossier…</div>
+  } @else if (errore()) {
+    <div class="errore-box" role="alert">
+      {{ errore() }} <button class="tab-btn" (click)="ricarica()">Riprova</button>
+    </div>
+  } @else if (giocatore(); as g) {
     <!-- Hero card -->
     <div class="hero-card">
-        <!-- Avatar placeholder -->
-        <div class="avatar" [style.background]="getRuoloColore(g.ruolo) + '22'"
-            [style.border-color]="getRuoloColore(g.ruolo) + '44'">
-            <span class="avatar-iniziali" [style.color]="getRuoloColore(g.ruolo)">
-                {{ getIniziali(g) }}
-            </span>
-            @if (g.numeroMaglia) {
-            <span class="avatar-maglia">#{{ g.numeroMaglia }}</span>
-            }
+      <!-- Avatar placeholder -->
+      <div
+        class="avatar"
+        [style.background]="getRuoloColore(g.ruolo) + '22'"
+        [style.border-color]="getRuoloColore(g.ruolo) + '44'"
+      >
+        <span class="avatar-iniziali" [style.color]="getRuoloColore(g.ruolo)">
+          {{ getIniziali(g) }}
+        </span>
+        @if (g.numeroMaglia) {
+          <span class="avatar-maglia">#{{ g.numeroMaglia }}</span>
+        }
+      </div>
+
+      <!-- Info principale -->
+      <div class="hero-info">
+        <div class="hero-top">
+          <div>
+            <p class="dossier-label">DOSSIER GIOCATORE / #{{ g.id }}</p>
+            <h1>{{ g.cognome }} {{ g.nome }}</h1>
+            <div class="hero-sub">
+              <span
+                class="ruolo-badge"
+                [style.background]="getRuoloColore(g.ruolo) + '22'"
+                [style.color]="getRuoloColore(g.ruolo)"
+              >
+                {{ g.ruolo }} · {{ ruoloLabel[g.ruolo] }}
+              </span>
+              @if (g.ruoliSecondari) {
+                @for (r of secondari(); track r) {
+                  <span class="ruolo-badge secondario">{{ ruoloLabel[r] }}</span>
+                }
+              }
+              <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
+            </div>
+          </div>
+          <div class="dossier-actions">
+            <button
+              class="tab-btn"
+              (click)="ricarica()"
+              aria-label="Aggiorna dossier"
+              title="Aggiorna dossier"
+            >
+              <i class="pi pi-refresh" aria-hidden="true"></i></button
+            ><button class="tab-btn" (click)="esportaDossier()" [disabled]="intervalloInvalido()">
+              <i class="pi pi-download" aria-hidden="true"></i> Esporta JSON</button
+            ><button class="btn-primary" (click)="apriModifica()">
+              <i class="pi pi-pencil"></i> Modifica
+            </button>
+          </div>
         </div>
 
-        <!-- Info principale -->
-        <div class="hero-info">
-            <div class="hero-top">
-                <div>
-                    <h1>{{ g.cognome }} {{ g.nome }}</h1>
-                    <div class="hero-sub">
-                        <span class="ruolo-badge" [style.background]="getRuoloColore(g.ruolo) + '22'"
-                            [style.color]="getRuoloColore(g.ruolo)">
-                            {{ g.ruolo }}
-                        </span>
-                        @if (g.ruoliSecondari) {
-                        @for (r of g.ruoliSecondari.split(','); track r) {
-                        <span class="ruolo-badge secondario">{{ r.trim() }}</span>
-                        }
-                        }
-                        <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
-                    </div>
-                </div>
-                <button class="btn-primary" (click)="apriModifica()">
-                    <i class="pi pi-pencil"></i> Modifica
-                </button>
+        <!-- Stat rapide -->
+        <div class="quick-stats">
+          @if (g.eta !== null) {
+            <div class="quick-stat">
+              <span class="qs-valore">{{ g.eta }}</span>
+              <span class="qs-label">anni</span>
             </div>
-
-            <!-- Stat rapide -->
-            <div class="quick-stats">
-                @if (g.eta) {
-                <div class="quick-stat">
-                    <span class="qs-valore">{{ g.eta }}</span>
-                    <span class="qs-label">anni</span>
-                </div>
-                }
-                @if (g.altezzaCm) {
-                <div class="quick-stat">
-                    <span class="qs-valore">{{ g.altezzaCm }}</span>
-                    <span class="qs-label">cm</span>
-                </div>
-                }
-                @if (g.pesoKg) {
-                <div class="quick-stat">
-                    <span class="qs-valore">{{ g.pesoKg }}</span>
-                    <span class="qs-label">kg</span>
-                </div>
-                }
-                @if (g.piedePreferito) {
-                <div class="quick-stat">
-                    <span class="qs-valore">{{ g.piedePreferito[0] }}</span>
-                    <span class="qs-label">piede</span>
-                </div>
-                }
-                @if (g.nazionalita) {
-                <div class="quick-stat">
-                    <span class="qs-valore">{{ g.nazionalita }}</span>
-                    <span class="qs-label">naz.</span>
-                </div>
-                }
-                @if (g.valoreMercato) {
-                <div class="quick-stat highlight">
-                    <span class="qs-valore">{{ formatValuta(g.valoreMercato) }}</span>
-                    <span class="qs-label">valore</span>
-                </div>
-                }
+          }
+          @if (g.altezzaCm) {
+            <div class="quick-stat">
+              <span class="qs-valore">{{ g.altezzaCm }}</span>
+              <span class="qs-label">cm</span>
             </div>
+          }
+          @if (g.pesoKg) {
+            <div class="quick-stat">
+              <span class="qs-valore">{{ g.pesoKg }}</span>
+              <span class="qs-label">kg</span>
+            </div>
+          }
+          @if (g.piedePreferito) {
+            <div class="quick-stat">
+              <span class="qs-valore">{{ g.piedePreferito }}</span>
+              <span class="qs-label">piede</span>
+            </div>
+          }
+          @if (g.nazionalita) {
+            <div class="quick-stat">
+              <span class="qs-valore">{{ g.nazionalita }}</span>
+              <span class="qs-label">naz.</span>
+            </div>
+          }
+          @if (g.valoreMercato !== null) {
+            <div class="quick-stat highlight">
+              <span class="qs-valore">{{ formatValuta(g.valoreMercato) }}</span>
+              <span class="qs-label">valore</span>
+            </div>
+          }
         </div>
+      </div>
     </div>
 
     <!-- Tab bar -->
-    <div class="tab-bar">
-        <button class="tab-btn" [class.active]="tabAttivo === 'anagrafica'" (click)="tabAttivo = 'anagrafica'">
-            <i class="pi pi-user"></i> Anagrafica
-        </button>
-        <button class="tab-btn" [class.active]="tabAttivo === 'contratto'" (click)="tabAttivo = 'contratto'">
-            <i class="pi pi-file"></i> Contratto & Finanza
-        </button>
-        <button class="tab-btn" [class.active]="tabAttivo === 'medico'" (click)="tabAttivo = 'medico'">
-            <i class="pi pi-heart"></i> Medico
-        </button>
+    <div class="dossier-provenance">
+      <span>Fonte: PitchIQ · {{ statistiche().length }} registrazioni periodiche</span
+      ><span>Ultima lettura {{ aggiornato() | date: 'dd/MM/yyyy HH:mm' }}</span>
     </div>
+    <nav class="tab-bar" aria-label="Sezioni dossier">
+      <button
+        class="tab-btn"
+        [class.active]="tabAttivo() === 'rendimento'"
+        [attr.aria-pressed]="tabAttivo() === 'rendimento'"
+        (click)="tabAttivo.set('rendimento')"
+      >
+        <i class="pi pi-chart-bar" aria-hidden="true"></i> Rendimento
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="tabAttivo() === 'anagrafica'"
+        [attr.aria-pressed]="tabAttivo() === 'anagrafica'"
+        (click)="tabAttivo.set('anagrafica')"
+      >
+        <i class="pi pi-user"></i> Anagrafica
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="tabAttivo() === 'contratto'"
+        [attr.aria-pressed]="tabAttivo() === 'contratto'"
+        (click)="tabAttivo.set('contratto')"
+      >
+        <i class="pi pi-file"></i> Contratto & Finanza
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="tabAttivo() === 'medico'"
+        [attr.aria-pressed]="tabAttivo() === 'medico'"
+        (click)="tabAttivo.set('medico')"
+      >
+        <i class="pi pi-heart"></i> Medico
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="tabAttivo() === 'qualita'"
+        [attr.aria-pressed]="tabAttivo() === 'qualita'"
+        (click)="tabAttivo.set('qualita')"
+      >
+        <i class="pi pi-database" aria-hidden="true"></i> Qualità dati
+      </button>
+    </nav>
+
+    @if (tabAttivo() === 'rendimento') {
+      <section class="tab-content performance" aria-label="Rendimento osservato">
+        <div class="performance-heading">
+          <h2>Storico osservato</h2>
+          <span>Dati mensili registrati · Nessuna proiezione</span>
+        </div>
+        @if (erroreStatistiche()) {
+          <div class="errore-box" role="alert">
+            {{ erroreStatistiche() }} <button class="tab-btn" (click)="ricarica()">Riprova</button>
+          </div>
+        } @else if (!categorieDisponibili().length) {
+          <div class="dossier-empty">
+            <i class="pi pi-chart-bar" aria-hidden="true"></i>
+            <h3>Nessuno storico utilizzabile</h3>
+            <p>Non risultano misure valide associate a questo giocatore.</p>
+          </div>
+        } @else {
+          <div class="performance-filters">
+            <label
+              >Metrica<select [ngModel]="categoria()" (ngModelChange)="categoria.set($event)">
+                @for (metrica of categorieDisponibili(); track metrica.value) {
+                  <option [value]="metrica.value">{{ metrica.label }}</option>
+                }
+              </select></label
+            >
+            <label
+              >Dal mese<input type="month" [ngModel]="dal()" (ngModelChange)="dal.set($event)"
+            /></label>
+            <label
+              >Al mese<input type="month" [ngModel]="al()" (ngModelChange)="al.set($event)"
+            /></label>
+            <button
+              class="tab-btn"
+              (click)="azzeraPeriodo()"
+              title="Azzera periodo"
+              aria-label="Azzera periodo"
+            >
+              <i class="pi pi-filter-slash" aria-hidden="true"></i>
+            </button>
+          </div>
+          @if (intervalloInvalido()) {
+            <p class="errore-box" role="alert">Il mese iniziale non può seguire il mese finale.</p>
+          }
+          @if (serie().length) {
+            <div class="performance-summary">
+              <div>
+                <span>Ultimo valore · {{ ultimoDato()!.periodo }}</span
+                ><strong>{{ ultimoDato()!.valore | number: '1.0-2' }}</strong
+                ><small>{{ titoloMetrica() }}</small>
+              </div>
+              <div>
+                <span>Osservazioni nel periodo</span><strong>{{ serie().length }}</strong
+                ><small>{{ serie()[0].periodo }} / {{ ultimoDato()!.periodo }}</small>
+              </div>
+              <div>
+                <span>Differenza primo / ultimo</span
+                ><strong>{{
+                  variazione() === null ? 'N/D' : (variazione() | number: '1.0-2')
+                }}</strong
+                ><small>Variazione assoluta, non valutazione di merito</small>
+              </div>
+            </div>
+            <div class="performance-body">
+              <section class="chart-area" [attr.aria-label]="'Grafico di ' + titoloMetrica()">
+                <p-chart type="bar" [data]="grafico()" [options]="opzioniGrafico" height="280px" />
+              </section>
+              <section class="observations" aria-label="Valori osservati">
+                <h3>Registro osservazioni</h3>
+                <p-table [value]="serie()" [paginator]="serie().length > 12" [rows]="12"
+                  ><ng-template #header
+                    ><tr>
+                      <th scope="col">Periodo</th>
+                      <th scope="col">Valore registrato</th>
+                    </tr></ng-template
+                  ><ng-template #body let-dato
+                    ><tr>
+                      <td>{{ dato.periodo }}</td>
+                      <td>{{ dato.valore | number: '1.0-2' }}</td>
+                    </tr></ng-template
+                  ></p-table
+                >
+              </section>
+            </div>
+          } @else if (!intervalloInvalido()) {
+            <div class="dossier-empty"><h3>Nessun dato nel periodo selezionato</h3></div>
+          }
+          <p class="data-caveat">
+            Le registrazioni non includono competizione, minuti di esposizione o metodologia di
+            rilevazione. Nessun confronto per 90 minuti o benchmark di campionato.
+          </p>
+        }
+      </section>
+    }
+
+    @if (tabAttivo() === 'qualita') {
+      <section class="tab-content" aria-label="Qualità dati">
+        <div class="performance-heading">
+          <h2>Completezza del profilo</h2>
+          <span>{{ campiPresenti() }}/{{ campiQualita().length }} campi disponibili</span>
+        </div>
+        <dl class="quality-list">
+          @for (campo of campiQualita(); track campo.label) {
+            <div>
+              <dt>{{ campo.label }}</dt>
+              <dd [class.scadenza-warning]="!campo.presente">
+                {{ campo.presente ? 'Disponibile' : 'Non disponibile' }}
+              </dd>
+            </div>
+          }
+        </dl>
+        <div class="quality-notes">
+          <p>Fonte anagrafica: PitchIQ. La completezza non certifica l'accuratezza dei dati.</p>
+          <p>
+            Record statistici esclusi per periodo, categoria o valore non validi:
+            {{ statistiche().length - datiValidi().length }}.
+          </p>
+          <p>
+            Data di lettura: {{ aggiornato() | date: 'dd/MM/yyyy HH:mm' }}. Il sistema non espone la
+            data di acquisizione delle singole misure.
+          </p>
+        </div>
+      </section>
+    }
 
     <!-- TAB ANAGRAFICA -->
-    @if (tabAttivo === 'anagrafica') {
-    <div class="tab-content">
+    @if (tabAttivo() === 'anagrafica') {
+      <div class="tab-content">
         <div class="dettagli-grid">
-            <div class="dettaglio-card">
-                <p class="card-titolo">Dati personali</p>
-                <div class="campi">
-                    <div class="campo"><span class="campo-label">Nome completo</span><span class="campo-val">{{ g.nome
-                            }} {{ g.cognome }}</span></div>
-                    <div class="campo"><span class="campo-label">Data di nascita</span><span class="campo-val">{{
-                            g.dataNascita ?? '–' }} @if(g.eta){<em>({{ g.eta }} anni)</em>}</span></div>
-                    <div class="campo"><span class="campo-label">Luogo di nascita</span><span class="campo-val">{{
-                            g.luogoNascita ?? '–' }}</span></div>
-                    <div class="campo"><span class="campo-label">Nazionalità</span><span class="campo-val">{{
-                            g.nazionalita ?? '–' }}</span></div>
-                </div>
+          <div class="dettaglio-card">
+            <p class="card-titolo">Dati personali</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Nome completo</span
+                ><span class="campo-val">{{ g.nome }} {{ g.cognome }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Data di nascita</span
+                ><span class="campo-val"
+                  >{{ g.dataNascita ? (g.dataNascita | date: 'dd/MM/yyyy') : 'N/D' }}
+                  @if (g.eta !== null) {
+                    <em>({{ g.eta }} anni)</em>
+                  }
+                </span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Luogo di nascita</span
+                ><span class="campo-val">{{ g.luogoNascita ?? '–' }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Nazionalità</span
+                ><span class="campo-val">{{ g.nazionalita ?? '–' }}</span>
+              </div>
             </div>
+          </div>
 
-            <div class="dettaglio-card">
-                <p class="card-titolo">Dati fisici</p>
-                <div class="campi">
-                    <div class="campo"><span class="campo-label">Altezza</span><span class="campo-val">{{ g.altezzaCm ?
-                            g.altezzaCm + ' cm' : '–' }}</span></div>
-                    <div class="campo"><span class="campo-label">Peso</span><span class="campo-val">{{ g.pesoKg ?
-                            g.pesoKg + ' kg' : '–' }}</span></div>
-                    <div class="campo"><span class="campo-label">Piede preferito</span><span class="campo-val">{{
-                            g.piedePreferito ?? '–' }}</span></div>
-                </div>
+          <div class="dettaglio-card">
+            <p class="card-titolo">Dati fisici</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Altezza</span
+                ><span class="campo-val">{{ g.altezzaCm ? g.altezzaCm + ' cm' : '–' }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Peso</span
+                ><span class="campo-val">{{ g.pesoKg ? g.pesoKg + ' kg' : '–' }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Piede preferito</span
+                ><span class="campo-val">{{ g.piedePreferito ?? '–' }}</span>
+              </div>
             </div>
+          </div>
 
-            <div class="dettaglio-card">
-                <p class="card-titolo">Ruolo</p>
-                <div class="campi">
-                    <div class="campo"><span class="campo-label">Ruolo principale</span>
-                        <span class="campo-val">
-                            <span class="ruolo-badge" [style.background]="getRuoloColore(g.ruolo) + '22'"
-                                [style.color]="getRuoloColore(g.ruolo)">{{ g.ruolo }}</span>
-                        </span>
-                    </div>
-                    @if (g.ruoliSecondari) {
-                    <div class="campo"><span class="campo-label">Ruoli secondari</span>
-                        <span class="campo-val ruoli-sec">
-                            @for (r of g.ruoliSecondari.split(','); track r) {
-                            <span class="ruolo-badge secondario">{{ r.trim() }}</span>
-                            }
-                        </span>
-                    </div>
+          <div class="dettaglio-card">
+            <p class="card-titolo">Ruolo</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Ruolo principale</span>
+                <span class="campo-val">
+                  <span
+                    class="ruolo-badge"
+                    [style.background]="getRuoloColore(g.ruolo) + '22'"
+                    [style.color]="getRuoloColore(g.ruolo)"
+                    >{{ ruoloLabel[g.ruolo] }}</span
+                  >
+                </span>
+              </div>
+              @if (g.ruoliSecondari) {
+                <div class="campo">
+                  <span class="campo-label">Ruoli secondari</span>
+                  <span class="campo-val ruoli-sec">
+                    @for (r of secondari(); track r) {
+                      <span class="ruolo-badge secondario">{{ ruoloLabel[r] }}</span>
                     }
-                    <div class="campo"><span class="campo-label">Numero maglia</span><span class="campo-val">#{{
-                            g.numeroMaglia ?? '–' }}</span></div>
+                  </span>
                 </div>
+              }
+              <div class="campo">
+                <span class="campo-label">Numero maglia</span
+                ><span class="campo-val">#{{ g.numeroMaglia ?? '–' }}</span>
+              </div>
             </div>
+          </div>
 
-            <div class="dettaglio-card">
-                <p class="card-titolo">Management</p>
-                <div class="campi">
-                    <div class="campo"><span class="campo-label">Agente</span><span class="campo-val">{{ g.agente ?? '–'
-                            }}</span></div>
-                    <div class="campo"><span class="campo-label">Stato</span>
-                        <span class="campo-val">
-                            <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
-                        </span>
-                    </div>
-                </div>
+          <div class="dettaglio-card">
+            <p class="card-titolo">Management</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Agente</span
+                ><span class="campo-val">{{ g.agente ?? '–' }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Stato</span>
+                <span class="campo-val">
+                  <span class="badge badge-{{ getSeverityClass(g.stato) }}">{{ g.stato }}</span>
+                </span>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
+      </div>
     }
 
     <!-- TAB CONTRATTO & FINANZA -->
-    @if (tabAttivo === 'contratto') {
-    <div class="tab-content">
+    @if (tabAttivo() === 'contratto') {
+      <div class="tab-content">
         <div class="dettagli-grid">
+          <div class="dettaglio-card">
+            <p class="card-titolo">Contratto</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Inizio</span
+                ><span class="campo-val">{{
+                  g.contrattoInizio ? (g.contrattoInizio | date: 'dd/MM/yyyy') : 'N/D'
+                }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Scadenza</span>
+                <span
+                  class="campo-val"
+                  [class]="getScadenzaClass(giorniAllaScadenza(g.contrattoFine))"
+                >
+                  {{ g.contrattoFine ? (g.contrattoFine | date: 'dd/MM/yyyy') : 'N/D' }}
+                  @if (giorniAllaScadenza(g.contrattoFine) !== null) {
+                    <em>({{ giorniAllaScadenza(g.contrattoFine) }} giorni residui)</em>
+                  }
+                </span>
+              </div>
+            </div>
 
-            <div class="dettaglio-card">
-                <p class="card-titolo">Contratto</p>
-                <div class="campi">
-                    <div class="campo"><span class="campo-label">Inizio</span><span class="campo-val">{{
-                            g.contrattoInizio ?? '–' }}</span></div>
-                    <div class="campo"><span class="campo-label">Scadenza</span>
-                        <span class="campo-val" [class]="getScadenzaClass(giorniAllaScadenza(g.contrattoFine))">
-                            {{ g.contrattoFine ?? '–' }}
-                            @if (giorniAllaScadenza(g.contrattoFine); as giorni) {
-                            <em>({{ giorni }} giorni)</em>
-                            }
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Barra scadenza -->
-                @if (g.contrattoInizio && g.contrattoFine) {
-                @if (giorniAllaScadenza(g.contrattoFine); as giorni) {
+            <!-- Barra scadenza -->
+            @if (g.contrattoInizio && g.contrattoFine) {
+              @let giorni = giorniAllaScadenza(g.contrattoFine);
+              @if (giorni !== null) {
                 <div class="scadenza-bar-wrapper">
-                    <div class="scadenza-bar">
-                        <div class="scadenza-fill" [class]="getScadenzaClass(giorni)"
-                            [style.width.%]="calcolaLarghezzaScadenza(giorni)">
-                        </div>
-                    </div>
-                    <span class="scadenza-testo" [class]="getScadenzaClass(giorni)">
-                        @if (giorni < 90) { ⚠️ Rinnovo urgente } @else if (giorni < 180) { Rinnovo consigliato } @else {
-                            Contratto regolare } </span>
+                  <div class="scadenza-bar">
+                    <div
+                      class="scadenza-fill"
+                      [class]="getScadenzaClass(giorni)"
+                      [style.width.%]="calcolaLarghezzaScadenza(giorni)"
+                    ></div>
+                  </div>
+                  <span class="scadenza-testo" [class]="getScadenzaClass(giorni)">
+                    @if (giorni < 0) {
+                      Contratto scaduto
+                    } @else if (giorni === 0) {
+                      Scadenza oggi
+                    } @else if (giorni <= 90) {
+                      Scadenza entro 90 giorni
+                    } @else if (giorni <= 180) {
+                      Scadenza entro 180 giorni
+                    } @else {
+                      Oltre 180 giorni
+                    }
+                  </span>
                 </div>
-                }
-                }
-            </div>
+              }
+            }
+          </div>
 
-            <div class="dettaglio-card">
-                <p class="card-titolo">Valori finanziari</p>
-                <div class="campi">
-                    <div class="campo">
-                        <span class="campo-label">Valore di mercato</span>
-                        <span class="campo-val valore-grande">{{ formatValuta(g.valoreMercato) }}</span>
-                    </div>
-                    <div class="campo">
-                        <span class="campo-label">Stipendio annuo</span>
-                        <span class="campo-val">{{ formatValuta(g.stipendioAnnuo) }}</span>
-                    </div>
-                    <div class="campo">
-                        <span class="campo-label">Clausola rescissoria</span>
-                        <span class="campo-val">{{ formatValuta(g.clausola) }}</span>
-                    </div>
-                </div>
+          <div class="dettaglio-card">
+            <p class="card-titolo">Valori finanziari</p>
+            <div class="campi">
+              <div class="campo">
+                <span class="campo-label">Valore di mercato</span>
+                <span class="campo-val valore-grande">{{ formatValuta(g.valoreMercato) }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Stipendio annuo</span>
+                <span class="campo-val">{{ formatValuta(g.stipendioAnnuo) }}</span>
+              </div>
+              <div class="campo">
+                <span class="campo-label">Clausola rescissoria</span>
+                <span class="campo-val">{{ formatValuta(g.clausola) }}</span>
+              </div>
             </div>
-
+          </div>
         </div>
-    </div>
+      </div>
     }
 
     <!-- TAB MEDICO -->
-    @if (tabAttivo === 'medico') {
-    <div class="tab-content">
+    @if (tabAttivo() === 'medico') {
+      <div class="tab-content">
         <div class="dettaglio-card">
-            <p class="card-titolo">Note mediche</p>
-            @if (g.noteMediche) {
+          <p class="card-titolo">Note mediche</p>
+          @if (g.noteMediche) {
             <p class="note-testo">{{ g.noteMediche }}</p>
-            } @else {
+          } @else {
             <p class="note-vuote">Nessuna nota medica registrata.</p>
-            }
+          }
         </div>
 
-        <div class="dettaglio-card" style="margin-top: 1rem;">
-            <p class="card-titolo">Stato attuale</p>
-            <div class="stato-medico">
-                <div class="stato-icon" [class]="getSeverityClass(g.stato)">
-                    @if (g.stato === 'ATTIVO') { <i class="pi pi-check-circle"></i> }
-                    @else if (g.stato === 'INFORTUNATO') { <i class="pi pi-times-circle"></i> }
-                    @else { <i class="pi pi-exclamation-circle"></i> }
-                </div>
-                <div>
-                    <p class="stato-nome" [class]="getSeverityClass(g.stato)">{{ g.stato }}</p>
-                    @if (g.stato === 'INFORTUNATO') {
-                    <p class="stato-sub">Il giocatore non è disponibile per la selezione</p>
-                    }
-                </div>
+        <div class="dettaglio-card" style="margin-top: 1rem">
+          <p class="card-titolo">Stato attuale</p>
+          <div class="stato-medico">
+            <div class="stato-icon" [class]="getSeverityClass(g.stato)">
+              @if (g.stato === 'ATTIVO') {
+                <i class="pi pi-check-circle"></i>
+              } @else if (g.stato === 'INFORTUNATO') {
+                <i class="pi pi-times-circle"></i>
+              } @else {
+                <i class="pi pi-exclamation-circle"></i>
+              }
             </div>
+            <div>
+              <p class="stato-nome" [class]="getSeverityClass(g.stato)">{{ g.stato }}</p>
+              @if (g.stato === 'INFORTUNATO') {
+                <p class="stato-sub">
+                  Stato registrato in anagrafica; non costituisce una valutazione clinica di
+                  idoneità.
+                </p>
+              }
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
     }
-
-    }
+  }
 </div>
