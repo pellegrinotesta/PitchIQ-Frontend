@@ -120,6 +120,7 @@
       >
         <i class="pi pi-chart-bar" aria-hidden="true"></i> Rendimento
       </button>
+      <button class="tab-btn" [class.active]="tabAttivo() === 'tattica'" [attr.aria-pressed]="tabAttivo() === 'tattica'" (click)="tabAttivo.set('tattica')"><i class="pi pi-map" aria-hidden="true"></i> Posizione e movimenti</button>
       <button
         class="tab-btn"
         [class.active]="tabAttivo() === 'anagrafica'"
@@ -153,6 +154,10 @@
         <i class="pi pi-database" aria-hidden="true"></i> Qualità dati
       </button>
     </nav>
+
+    @if (tabAttivo() === 'tattica') {
+      <app-profilo-tattico [giocatore]="g" (modifica)="apriModifica()" />
+    }
 
     @if (tabAttivo() === 'rendimento') {
       <section class="tab-content performance" aria-label="Rendimento osservato">

@@ -4,7 +4,8 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { ChartModule } from 'primeng/chart';
-import { Giocatore } from '../../core/models/giocatore.model';
+import { Giocatore, MovimentoTattico, MOVIMENTI_LABEL, RuoloGiocatore } from '../../core/models/giocatore.model';
+import { ProfiloTattico, POSIZIONI_RUOLO, traiettoriaMovimento } from './profilo-tattico/profilo-tattico';
 import { GiocatoreService, StatisticaOsservata } from '../../core/services/giocatore.service';
 import { SchedaGiocatore } from './scheda-giocatore';
 
@@ -155,5 +156,57 @@ describe('SchedaGiocatore', () => {
     expect(component.loading()).toBe(false);
     component.ricarica();
     expect(component.giocatore()?.id).toBe(1);
+  });
+
+  it('mostra il campo nella sezione tattica ed esporta i movimenti assegnati', async () => {
+    service.getById.mockReturnValueOnce(of({ ...PROFILO, movimentiConsentiti: ['COPERTURA'] }));
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/giocatori/1', SchedaGiocatore);
+    component.tabAttivo.set('tattica'); harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('svg.pitch')).not.toBeNull();
+    expect(harness.routeNativeElement?.querySelector('.movement-path')).not.toBeNull();
+    expect(component.contenutoDossier()?.profilo.movimentiConsentiti).toEqual(['COPERTURA']);
+  });
+});
+
+describe('Campo tattico', () => {
+  it('renderizza posizioni e permette di cambiare ruolo e movimento', () => {
+    const fixture = TestBed.createComponent(ProfiloTattico);
+    fixture.componentRef.setInput('giocatore', { ...PROFILO, movimentiConsentiti: ['COPERTURA', 'RIPIEGAMENTO'] });
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    expect(fixture.nativeElement.querySelectorAll('.position-marker')).toHaveLength(3);
+    expect(component.ruoloAttivo()).toBe('DC');
+    fixture.nativeElement.querySelectorAll('.role-options input')[1].dispatchEvent(new Event('change'));
+    fixture.nativeElement.querySelectorAll('.movement-options input')[1].dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    expect(component.ruoloAttivo()).toBe('TSD');
+    expect(component.movimentoAttivo()).toBe('RIPIEGAMENTO');
+    expect(fixture.nativeElement.querySelector('.movement-path').getAttribute('d')).toContain('M 555 740');
+  });
+
+  it('non inventa movimenti per un profilo senza assegnazioni', () => {
+    const fixture = TestBed.createComponent(ProfiloTattico);
+    fixture.componentRef.setInput('giocatore', { ...PROFILO, movimentiConsentiti: null });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.pitch')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.movement-path')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Nessun movimento assegnato');
+    const modifica = vi.fn(); fixture.componentInstance.modifica.subscribe(modifica);
+    fixture.nativeElement.querySelector('.edit-button').click();
+    expect(modifica).toHaveBeenCalledOnce();
+  });
+
+  it('mantiene tutte le traiettorie entro il terreno di gioco', () => {
+    for (const ruolo of Object.keys(POSIZIONI_RUOLO) as RuoloGiocatore[]) {
+      for (const movimento of Object.keys(MOVIMENTI_LABEL) as MovimentoTattico[]) {
+        const percorso = traiettoriaMovimento(ruolo, movimento);
+        expect(percorso.destinazione.x).toBeGreaterThanOrEqual(70);
+        expect(percorso.destinazione.x).toBeLessThanOrEqual(610);
+        expect(percorso.destinazione.y).toBeGreaterThanOrEqual(90);
+        expect(percorso.destinazione.y).toBeLessThanOrEqual(960);
+        expect(percorso.percorso).not.toContain('NaN');
+      }
+    }
   });
 });

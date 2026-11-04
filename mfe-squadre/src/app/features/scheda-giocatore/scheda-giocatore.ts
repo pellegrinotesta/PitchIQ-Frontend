@@ -17,8 +17,9 @@ import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FormGiocatore } from '../form-giocatore/form-giocatore';
+import { ProfiloTattico } from './profilo-tattico/profilo-tattico';
 
-type Tab = 'rendimento' | 'anagrafica' | 'contratto' | 'medico' | 'qualita';
+type Tab = 'rendimento' | 'tattica' | 'anagrafica' | 'contratto' | 'medico' | 'qualita';
 const METRICHE: Record<string, string> = {
   VALUTAZIONE_MEDIA: 'Valutazione media',
   PRESENZE_PCT: 'Presenze (%)',
@@ -41,6 +42,7 @@ const METRICHE: Record<string, string> = {
     ChartModule,
     TableModule,
     DynamicDialogModule,
+    ProfiloTattico,
   ],
   templateUrl: './scheda-giocatore.html',
   providers: [DialogService],
@@ -266,6 +268,7 @@ export class SchedaGiocatore implements OnInit {
         piedePreferito: giocatore.piedePreferito,
         altezzaCm: giocatore.altezzaCm,
         pesoKg: giocatore.pesoKg,
+        movimentiConsentiti: giocatore.movimentiConsentiti ?? null,
       },
       filtro: { categoria: this.categoria(), dal: this.dal() || null, al: this.al() || null },
       statoStorico: this.erroreStatistiche() ? 'NON_DISPONIBILE' : 'DISPONIBILE',

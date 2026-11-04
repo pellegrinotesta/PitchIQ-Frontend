@@ -103,6 +103,25 @@ describe('FormGiocatore', () => {
     component.submit();
     expect(service.create).toHaveBeenCalledTimes(2);
   });
+
+  it('salva i movimenti scelti, li ricarica e consente di svuotarli', () => {
+    config.data.giocatore = { id: 8, nome: 'Marco', cognome: 'Rossi', numeroMaglia: 5,
+      ruolo: 'DC', stato: 'ATTIVO', movimentiConsentiti: ['COPERTURA', 'RIPIEGAMENTO'] } as Giocatore;
+    component.ngOnInit();
+    expect(component.form.controls.movimentiConsentiti.value).toEqual(['COPERTURA', 'RIPIEGAMENTO']);
+    component.form.controls.movimentiConsentiti.setValue([]);
+    component.submit();
+    expect(service.update).toHaveBeenCalledWith(8, expect.objectContaining({ movimentiConsentiti: [] }));
+  });
+
+  it('non modifica assegnazioni assenti e rifiuta piu di sei movimenti', () => {
+    config.data.giocatore = { id: 8, nome: 'Marco', cognome: 'Rossi', numeroMaglia: 5,
+      ruolo: 'DC', stato: 'ATTIVO', movimentiConsentiti: null } as Giocatore;
+    component.ngOnInit(); component.submit();
+    expect(service.update.mock.calls[0][1]).not.toHaveProperty('movimentiConsentiti');
+    component.form.controls.movimentiConsentiti.setValue(['COPERTURA', 'RIPIEGAMENTO', 'INSERIMENTO', 'AMPIEZZA', 'SOVRAPPOSIZIONE', 'SOTTOPOSIZIONE', 'USCITA_PALLA']);
+    expect(component.form.controls.movimentiConsentiti.invalid).toBe(true);
+  });
 });
 
 describe('Contratto HTTP giocatori', () => {

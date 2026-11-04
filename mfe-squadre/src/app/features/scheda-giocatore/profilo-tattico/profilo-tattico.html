@@ -1,0 +1,36 @@
+<section class="tactical-profile" aria-label="Posizione e movimenti del giocatore">
+  <header class="tactical-heading"><div><h2>Posizione e movimenti</h2><p>{{ ruoloLabel[giocatore().ruolo] }} · Ruolo principale</p></div><button type="button" class="edit-button" (click)="modifica.emit()"><i class="pi pi-pencil" aria-hidden="true"></i> Configura</button></header>
+  <div class="tactical-layout">
+    <figure class="pitch-figure">
+      <div class="direction"><i class="pi pi-arrow-up" aria-hidden="true"></i> Direzione d'attacco</div>
+      <svg class="pitch" viewBox="0 0 680 1050" role="img" [attr.aria-label]="'Posizione nominale: ' + ruoloLabel[ruoloAttivo()] + (movimentoAttivo() ? '. Movimento: ' + movimentiLabel[movimentoAttivo()!] : '. Nessun movimento assegnato')">
+        <rect width="680" height="1050" rx="8" fill="#123a2c" />
+        <g fill="#194632"><rect x="20" y="30" width="640" height="99" /><rect x="20" y="228" width="640" height="99" /><rect x="20" y="426" width="640" height="99" /><rect x="20" y="624" width="640" height="99" /><rect x="20" y="822" width="640" height="99" /></g>
+        <g fill="none" stroke="#b0c9b8" stroke-width="2" opacity=".7">
+          <rect x="20" y="30" width="640" height="990" /><path d="M20 525H660" /><circle cx="340" cy="525" r="91.5" />
+          <path d="M139 30V195H541V30 M248.5 30V85H431.5V30 M139 1020V855H541V1020 M248.5 1020V965H431.5V1020" />
+          <path d="M267 195A91.5 91.5 0 0 0 413 195 M267 855A91.5 91.5 0 0 1 413 855" />
+          <rect x="303" y="8" width="74" height="22" /><rect x="303" y="1020" width="74" height="22" />
+        </g>
+        <g fill="#b0c9b8"><circle cx="340" cy="525" r="3" /><circle cx="340" cy="140" r="3" /><circle cx="340" cy="910" r="3" /></g>
+        <defs><marker [attr.id]="idFreccia" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#ffd479" /></marker></defs>
+        @if (traiettoria(); as percorso) {<path class="movement-path" [attr.d]="percorso.percorso" fill="none" stroke="#ffd479" stroke-width="6" stroke-dasharray="12 7" [attr.marker-end]="'url(#' + idFreccia + ')'" />}
+        @for (ruolo of ruoli(); track ruolo) {
+          <g class="position-marker" [class.active-marker]="ruoloAttivo() === ruolo" [attr.transform]="'translate(' + posizioni[ruolo].x + ' ' + posizioni[ruolo].y + ')'">
+            <circle r="31" [attr.fill]="ruoloAttivo() === ruolo ? '#61efa4' : '#182f42'" [attr.stroke]="ruoloAttivo() === ruolo ? '#d2ffe3' : '#9ed5f6'" stroke-width="3" />
+            <text text-anchor="middle" dominant-baseline="central" [attr.fill]="ruoloAttivo() === ruolo ? '#082014' : '#d8edff'" font-size="21" font-family="sans-serif" font-weight="700">{{ ruolo }}</text>
+          </g>
+        }
+      </svg>
+      <figcaption>Posizioni nominali e traiettorie schematiche, non tracking reale.</figcaption>
+    </figure>
+    <div class="tactical-details">
+      <fieldset class="role-options"><legend>Posizione sul campo</legend>@for (ruolo of ruoli(); track ruolo) {<label><input type="radio" [name]="idFreccia + '-ruolo'" [checked]="ruoloAttivo() === ruolo" (change)="ruoloScelto.set(ruolo)" /><span>{{ ruoloLabel[ruolo] }} <small>{{ ruolo === giocatore().ruolo ? 'Principale' : 'Alternativo' }}</small></span></label>}</fieldset>
+      <fieldset class="movement-options"><legend>Movimenti assegnati dallo staff <span>{{ movimenti().length }}/6</span></legend>
+        @for (movimento of movimenti(); track movimento) {<label [class.chosen]="movimentoAttivo() === movimento"><input type="radio" [name]="idFreccia + '-movimento'" [checked]="movimentoAttivo() === movimento" (change)="movimentoScelto.set(movimento)" /><span>{{ movimentiLabel[movimento] }}</span></label>}
+        @if (!movimenti().length) {<p class="empty-movements">Nessun movimento assegnato.</p>}
+      </fieldset>
+      @if (movimentoAttivo()) {<div class="movement-summary"><span class="phase">{{ fase() }}</span><strong>{{ movimentiLabel[movimentoAttivo()!] }}</strong><span>Origine: {{ ruoloLabel[ruoloAttivo()] }}</span></div>}
+    </div>
+  </div>
+</section>

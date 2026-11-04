@@ -12,6 +12,8 @@ import {
   GiocatoreRequest,
   Giocatore,
   RUOLO_LABEL,
+  MOVIMENTI_LABEL,
+  MovimentoTattico,
 } from '../../core/models/giocatore.model';
 import { ruoliSecondari } from '../../core/models/rosa-insights';
 import { GiocatoreService } from '../../core/services/giocatore.service';
@@ -57,6 +59,8 @@ export class FormGiocatore implements OnInit {
     .toISOString()
     .slice(0, 10);
 
+  readonly movimentiOptions = Object.entries(MOVIMENTI_LABEL).map(([value, label]) => ({ value, label }));
+
   readonly statiOptions = [
     { label: 'Attivo', value: 'ATTIVO' },
     { label: 'Infortunato', value: 'INFORTUNATO' },
@@ -76,6 +80,7 @@ export class FormGiocatore implements OnInit {
       dataNascita: [null as string | null],
       ruolo: [null as RuoloGiocatore | null, Validators.required],
       ruoliSecondari: [[] as RuoloGiocatore[]],
+      movimentiConsentiti: [[] as MovimentoTattico[], Validators.maxLength(6)],
       numeroMaglia: [
         null as number | null,
         [Validators.required, Validators.min(1), Validators.max(99), Validators.pattern(/^\d+$/)],
@@ -134,7 +139,7 @@ export class FormGiocatore implements OnInit {
   ngOnInit(): void {
     this.giocatore = this.config.data?.giocatore ?? null;
     if (this.giocatore) {
-      this.form.patchValue({ ...this.giocatore, ruoliSecondari: ruoliSecondari(this.giocatore) });
+      this.form.patchValue({ ...this.giocatore, ruoliSecondari: ruoliSecondari(this.giocatore), movimentiConsentiti: this.giocatore.movimentiConsentiti ?? [] });
     }
   }
 
@@ -150,6 +155,7 @@ export class FormGiocatore implements OnInit {
       cognome: valori.cognome!.trim(),
       ruolo: valori.ruolo!,
       stato: valori.stato!,
+      movimentiConsentiti: valori.movimentiConsentiti ?? [],
       ruoliSecondari:
         (valori.ruoliSecondari ?? []).filter((ruolo) => ruolo !== valori.ruolo).join(',') || null,
       dataNascita: valori.dataNascita || null,
@@ -161,7 +167,9 @@ export class FormGiocatore implements OnInit {
     const modifiche = Object.fromEntries(
       Object.entries(req).filter(
         ([campo, valore]) =>
-          campo !== 'noteMediche' && valore !== this.giocatore?.[campo as keyof Giocatore],
+          campo !== 'noteMediche' && (campo === 'movimentiConsentiti'
+            ? JSON.stringify(valore ?? []) !== JSON.stringify(this.giocatore?.movimentiConsentiti ?? [])
+            : valore !== this.giocatore?.[campo as keyof Giocatore]),
       ),
     ) as Partial<GiocatoreRequest>;
     const op$ = this.isModifica

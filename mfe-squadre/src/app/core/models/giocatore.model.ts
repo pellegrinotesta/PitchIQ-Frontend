@@ -58,6 +58,22 @@ export const RUOLI_PER_CATEGORIA: Record<CategoriaRuolo, RuoloGiocatore[]> = {
 };
 export type StatoGiocatore = 'ATTIVO' | 'INFORTUNATO' | 'SQUALIFICATO';
 
+export const MOVIMENTI_LABEL = {
+  SOVRAPPOSIZIONE: 'Sovrapposizione',
+  SOTTOPOSIZIONE: 'Sottoposizione',
+  INSERIMENTO: 'Inserimento',
+  TAGLIO_INTERNO: 'Taglio interno',
+  ATTACCO_PROFONDITA: 'Attacco della profondità',
+  SMARCAMENTO_INCONTRO: 'Smarcamento incontro',
+  AMPIEZZA: 'Ricerca di ampiezza',
+  RIPIEGAMENTO: 'Ripiegamento',
+  SCIVOLAMENTO_LATERALE: 'Scivolamento laterale',
+  COPERTURA: 'Copertura',
+  USCITA_PALLA: 'Uscita palla',
+} as const;
+
+export type MovimentoTattico = keyof typeof MOVIMENTI_LABEL;
+
 export interface Giocatore {
   id: number;
   nome: string;
@@ -80,6 +96,7 @@ export interface Giocatore {
   clausola: number | null;
   noteMediche: string | null;
   agente: string | null;
+  movimentiConsentiti?: MovimentoTattico[] | null;
 }
 
 export type GiocatoreRequest = Omit<Giocatore, 'id' | 'eta'>;

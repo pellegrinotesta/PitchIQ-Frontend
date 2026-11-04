@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { Table } from 'primeng/table';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Giocatore } from '../../core/models/giocatore.model';
@@ -64,6 +66,13 @@ describe('Workspace rosa', () => {
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith();
     component.resetFiltri();
     expect(component.filtrati()).toHaveLength(2);
+  });
+
+  it('disattiva la colorazione hover della tabella', async () => {
+    const fixture = TestBed.createComponent(ElencoGiocatori);
+    await fixture.whenStable();
+    const tabella = fixture.debugElement.query(By.directive(Table)).componentInstance as Table;
+    expect(tabella.rowHover()).toBe(false);
   });
 
   it('limita il confronto, preserva la selezione ai filtri e la riconcilia al reload', () => {

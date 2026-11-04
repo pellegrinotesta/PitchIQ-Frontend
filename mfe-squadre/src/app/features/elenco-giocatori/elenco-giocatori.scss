@@ -485,9 +485,12 @@ h2 {
   padding: 14px 12px;
   font-size: 12px;
 }
-:host ::ng-deep .p-datatable-tbody > tr:hover,
 :host ::ng-deep .p-datatable-tbody > tr.selected-row {
   background: #15241b;
+}
+:host ::ng-deep .p-datatable-tbody > tr:not(.selected-row):hover {
+  background: transparent !important;
+  color: #eef4f0;
 }
 :host ::ng-deep .p-paginator {
   background: transparent;

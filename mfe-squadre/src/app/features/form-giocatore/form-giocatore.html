@@ -156,6 +156,11 @@
           appendTo="body"
         />
       </div>
+      <div class="field">
+        <label for="giocatore-movimenti">Movimenti tattici assegnati (massimo 6)</label>
+        <p-multiselect inputId="giocatore-movimenti" [options]="movimentiOptions" formControlName="movimentiConsentiti" optionLabel="label" optionValue="value" [selectionLimit]="6" [showToggleAll]="false" [showClear]="true" placeholder="Nessun movimento assegnato" appendTo="body" />
+        @if (form.controls.movimentiConsentiti.invalid) { <small class="hint-errore">Assegna al massimo 6 movimenti.</small> }
+      </div>
     </div>
 
     <div class="form-section">
