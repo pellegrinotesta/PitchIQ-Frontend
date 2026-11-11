@@ -17,7 +17,7 @@
         @if (tabAttivo === 'formazioni') {
         <div class="sidebar-header">
             <p class="sidebar-label">FORMAZIONI</p>
-            <button class="btn-nuovo" (click)="nuovaFormazione()">
+            <button class="btn-nuovo" title="Nuova formazione" aria-label="Nuova formazione" (click)="nuovaFormazione()">
                 <i class="pi pi-plus"></i>
             </button>
         </div>
@@ -28,7 +28,7 @@
                     <span class="item-nome">{{ f.nome }}</span>
                     <span class="item-sub">{{ f.modulo }}</span>
                 </div>
-                <button class="btn-elimina" (click)="$event.stopPropagation(); eliminaFormazione(f)">
+                <button class="btn-elimina" title="Elimina formazione" aria-label="Elimina formazione" (click)="$event.stopPropagation(); eliminaFormazione(f)">
                     <i class="pi pi-trash"></i>
                 </button>
             </div>
@@ -42,7 +42,7 @@
         @if (tabAttivo === 'schemi') {
         <div class="sidebar-header">
             <p class="sidebar-label">SCHEMI</p>
-            <button class="btn-nuovo" (click)="nuovoSchema()">
+            <button class="btn-nuovo" title="Nuovo schema" aria-label="Nuovo schema" (click)="nuovoSchema()">
                 <i class="pi pi-plus"></i>
             </button>
         </div>
@@ -59,7 +59,7 @@
                         <i class="pi pi-play"></i>
                     </button>
                     }
-                    <button class="btn-elimina" (click)="$event.stopPropagation(); eliminaSchema(s)">
+                    <button class="btn-elimina" title="Elimina schema" aria-label="Elimina schema" (click)="$event.stopPropagation(); eliminaSchema(s)">
                         <i class="pi pi-trash"></i>
                     </button>
                 </div>

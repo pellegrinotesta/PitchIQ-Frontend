@@ -469,3 +469,180 @@
 .ruolo-attaccante {
     color: #ef4444;
 }
+
+// Workspace layout
+.editor {
+    grid-template-columns: 240px minmax(0, 1fr);
+    background: #101914;
+    color: #edf4ee;
+
+    &:has(.sidebar-destra) {
+        grid-template-columns: 240px minmax(0, 1fr) 200px;
+    }
+}
+
+.sidebar-sinistra,
+.sidebar-destra,
+.toolbar {
+    background: #151d19;
+    border-color: #303d35;
+}
+
+.tab-switcher {
+    padding: 1rem .75rem .75rem;
+    border-color: #303d35;
+}
+
+.tab-btn {
+    color: #a7b5a9;
+
+    &.active {
+        background: #274c37;
+        color: #a7f3bd;
+    }
+}
+
+.sidebar-header {
+    padding: 1.1rem 1rem .65rem;
+}
+
+.sidebar-label {
+    color: #a7b5a9;
+    letter-spacing: 0;
+}
+
+.lista-item {
+    border: 1px solid transparent;
+
+    &:hover {
+        background: #24332a;
+    }
+
+    &.active {
+        background: #263d2e;
+        border-color: #4a7655;
+    }
+}
+
+.item-sub,
+.giocatore-maglia {
+    color: #a7f3bd;
+}
+
+.btn-elimina,
+.drag-icon,
+.giocatore-ruolo {
+    color: #9bab9e;
+}
+
+.sidebar-empty {
+    color: #a7b5a9;
+}
+
+.giocatore-item:hover {
+    background: #24332a;
+}
+
+.placeholder {
+    padding: 2rem;
+    text-align: center;
+    color: #b6c4b8;
+
+    i {
+        color: #6ea780;
+    }
+}
+
+.toolbar {
+    padding: .85rem 1.25rem;
+}
+
+.toolbar-left {
+    min-width: 0;
+}
+
+.inp-nome,
+.inp-modulo,
+.btn-back {
+    background: #202c24;
+    border-color: #415246;
+    color: #edf4ee;
+}
+
+.inp-nome {
+    width: min(100%, 240px);
+}
+
+.campo-wrapper {
+    min-width: 0;
+    background: repeating-linear-gradient(135deg, #1a2820 0, #1a2820 1px, #17231c 1px, #17231c 12px);
+}
+
+@media (max-width: 900px) {
+    .editor,
+    .editor:has(.sidebar-destra) {
+        grid-template-columns: 190px minmax(0, 1fr);
+        height: auto;
+        max-height: none;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .main {
+        min-height: 620px;
+    }
+
+    .sidebar-destra {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid #303d35;
+    }
+
+    .rosa-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 600px) {
+    .editor,
+    .editor:has(.sidebar-destra) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-sinistra {
+        max-height: 220px;
+        border-right: 0;
+        border-bottom: 1px solid #303d35;
+    }
+
+    .lista-scroll {
+        min-height: 48px;
+    }
+
+    .main {
+        min-height: 600px;
+        height: auto;
+    }
+
+    .toolbar {
+        flex-wrap: wrap;
+        padding: .75rem;
+    }
+
+    .toolbar-left {
+        flex-wrap: wrap;
+        flex-basis: 100%;
+    }
+
+    .inp-nome {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .campo-wrapper {
+        padding: .75rem;
+    }
+}

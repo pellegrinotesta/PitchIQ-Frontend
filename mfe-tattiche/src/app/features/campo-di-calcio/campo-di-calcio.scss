@@ -306,3 +306,39 @@
         transform: translateX(-50%) translateY(0);
     }
 }
+
+.campo {
+    max-width: 100%;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .35), 0 0 0 5px #344c3a;
+}
+
+.pin-avatar {
+    background: #d7f3b4;
+    color: #172a1d;
+    border-color: #fff;
+}
+
+.campo-hint {
+    width: 90%;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    color: rgba(255, 255, 255, .75);
+}
+
+.item-ruolo,
+.dropdown-vuoto {
+    color: #a7b5a9;
+}
+
+@media (max-width: 600px) {
+    .campo {
+        width: min(100%, 340px);
+        height: auto;
+        max-height: none;
+    }
+
+    .giocatore-pin .pin-remove {
+        display: flex;
+    }
+}
