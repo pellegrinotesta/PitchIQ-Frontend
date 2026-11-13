@@ -27,6 +27,7 @@ export interface StatistichePartita {
     falli: number | null;
     fuorigioco: number | null;
     xg: number | null;
+    fonte: string | null;
 }
 
 export interface Partita {

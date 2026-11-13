@@ -190,13 +190,13 @@ export class DettaglioPartita implements OnInit {
     return 'neutro';
   }
 
-  get passaggiPct(): number {
-    if (!this.stats.passaggi || !this.stats.passaggiRiusciti) return 0;
+  get passaggiPct(): number | null {
+    if (this.stats.passaggi === null || this.stats.passaggi <= 0 || this.stats.passaggiRiusciti === null) return null;
     return Math.round((this.stats.passaggiRiusciti / this.stats.passaggi) * 100);
   }
 
-  get duelliPct(): number {
-    if (!this.stats.duelliTotali || !this.stats.duelliVinti) return 0;
+  get duelliPct(): number | null {
+    if (this.stats.duelliTotali === null || this.stats.duelliTotali <= 0 || this.stats.duelliVinti === null) return null;
     return Math.round((this.stats.duelliVinti / this.stats.duelliTotali) * 100);
   }
 
@@ -205,7 +205,7 @@ export class DettaglioPartita implements OnInit {
       possessoPct: null, tiriTotali: null, tiriInPorta: null,
       passaggi: null, passaggiRiusciti: null,
       duelliVinti: null, duelliTotali: null,
-      corner: null, falli: null, fuorigioco: null, xg: null,
+      corner: null, falli: null, fuorigioco: null, xg: null, fonte: null,
     };
   }
 

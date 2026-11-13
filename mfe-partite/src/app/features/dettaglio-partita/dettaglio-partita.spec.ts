@@ -52,4 +52,24 @@ describe('DettaglioPartita - titolari', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Nessun titolare registrato');
   });
+
+  it('mostra il possesso decimale e distingue gli zeri dai dati assenti', () => {
+    const component = fixture.componentInstance;
+    component.tabAttivo = 'statistiche';
+    component.stats = {
+      possessoPct: 37.3, tiriTotali: 12, tiriInPorta: 3,
+      passaggi: 294, passaggiRiusciti: 0, duelliVinti: null, duelliTotali: null,
+      corner: 1, falli: 13, fuorigioco: 0, xg: null, fonte: 'ESPN',
+    };
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('37.3%');
+    expect(text).toContain('62.7%');
+    expect(text).toContain('0% riusciti');
+    expect(text).toContain('Duelli — non disponibile');
+    expect(text).toContain('ESPN');
+    component.stats.tiriTotali = null;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.tiri-num').textContent.trim()).toBe('–');
+  });
 });

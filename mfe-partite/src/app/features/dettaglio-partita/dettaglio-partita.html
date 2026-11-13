@@ -171,6 +171,9 @@
     <!-- TAB STATISTICHE -->
     @if (tabAttivo === 'statistiche') {
     <div class="tab-content">
+        @if (stats.fonte) {
+        <p class="dato-non-disponibile">Fonte dati importati: {{ stats.fonte }}. Modificando e salvando i valori la fonte viene rimossa.</p>
+        }
         <div class="stats-grid">
 
             <!-- Possesso -->
@@ -187,10 +190,10 @@
                     <div class="bar">
                         <div class="bar-fill" [style.width.%]="stats.possessoPct"></div>
                     </div>
-                    <span class="possesso-avv">{{ 100 - stats.possessoPct }}%</span>
+                    <span class="possesso-avv">{{ (100 - stats.possessoPct).toFixed(1) }}%</span>
                 </div>
                 <label class="visually-hidden" for="possesso-range">Possesso palla percentuale</label>
-                <input id="possesso-range" class="inp-stat" type="range" min="0" max="100" [(ngModel)]="stats.possessoPct" />
+                <input id="possesso-range" class="inp-stat" type="range" min="0" max="100" step="0.1" [(ngModel)]="stats.possessoPct" />
                 }
             </div>
 
@@ -198,9 +201,9 @@
             <div class="stat-card-big">
                 <p class="stat-titolo">Tiri</p>
                 <div class="tiri-display">
-                    <span class="tiri-num">{{ stats.tiriTotali ?? 0 }}</span>
+                    <span class="tiri-num">{{ stats.tiriTotali ?? '–' }}</span>
                     <span class="tiri-label">totali</span>
-                    <span class="tiri-num in-porta">{{ stats.tiriInPorta ?? 0 }}</span>
+                    <span class="tiri-num in-porta">{{ stats.tiriInPorta ?? '–' }}</span>
                     <span class="tiri-label">in porta</span>
                 </div>
                 <div class="field-row">
@@ -217,7 +220,7 @@
 
             <!-- Passaggi -->
             <div class="stat-card-big">
-                <p class="stat-titolo">Passaggi — {{ passaggiPct }}% riusciti</p>
+                <p class="stat-titolo">Passaggi — {{ passaggiPct === null ? 'non disponibile' : passaggiPct + '% riusciti' }}</p>
                 <div class="field-row">
                     <div class="field">
                         <label>Totali</label>
@@ -232,7 +235,7 @@
 
             <!-- Duelli -->
             <div class="stat-card-big">
-                <p class="stat-titolo">Duelli — {{ duelliPct }}% vinti</p>
+                <p class="stat-titolo">Duelli — {{ duelliPct === null ? 'non disponibile' : duelliPct + '% vinti' }}</p>
                 <div class="field-row">
                     <div class="field">
                         <label>Vinti</label>
