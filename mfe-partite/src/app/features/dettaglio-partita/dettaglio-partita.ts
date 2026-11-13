@@ -29,6 +29,25 @@ export class DettaglioPartita implements OnInit {
 
   tabAttivo: Tab = 'timeline';
 
+  private readonly posizioniCampo: Record<string, { x: number; y: number }> = {
+    'G': { x: 50, y: 90 },
+    'LB': { x: 12, y: 70 }, 'RB': { x: 88, y: 70 },
+    'CD-L': { x: 30, y: 70 }, 'CD': { x: 50, y: 70 }, 'CD-R': { x: 70, y: 70 },
+    'LM': { x: 12, y: 48 }, 'RM': { x: 88, y: 48 },
+    'CM-L': { x: 32, y: 49 }, 'CM': { x: 50, y: 49 }, 'CM-R': { x: 68, y: 49 },
+    'M': { x: 50, y: 52 }, 'AM': { x: 50, y: 31 },
+    'AM-L': { x: 23, y: 30 }, 'AM-R': { x: 77, y: 30 },
+    'F': { x: 50, y: 12 }, 'CF-L': { x: 32, y: 12 }, 'CF-R': { x: 68, y: 12 },
+  };
+
+  posizioneCampo(posizione: string | null): { x: number; y: number } | null {
+    return posizione ? this.posizioniCampo[posizione] ?? null : null;
+  }
+
+  get titolariSenzaPosizione(): Titolare[] {
+    return this.titolari().filter(g => !this.posizioneCampo(g.posizione));
+  }
+
   // Form evento
   nuovoMinuto = 0;
   nuovoTipo: TipoEvento = 'GOL';

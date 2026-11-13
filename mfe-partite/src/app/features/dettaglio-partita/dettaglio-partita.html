@@ -58,12 +58,43 @@
         <div class="stato-box">Nessun titolare registrato per questa partita.</div>
         } @else {
         <section class="titolari">
-            <h2>Titolari</h2>
-            <ul>
+            <div class="formazione-header">
+                <div>
+                    <h2>Formazione iniziale</h2>
+                    <p>Disposizione indicativa per ruolo partita, non posizioni di tracking · Fonte: ESPN</p>
+                </div>
+                @if (titolari()[0].moduloFonte; as modulo) {
+                <span class="modulo-badge">ESPN {{ modulo }}</span>
+                }
+            </div>
+            @if (titolari()[0].moduloFonte && p.modulo && titolari()[0].moduloFonte !== p.modulo) {
+            <p class="senza-posizione">Il modulo ESPN differisce dal modulo del tabellino salvato: {{ p.modulo }}.</p>
+            }
+            @if (titolari().length > titolariSenzaPosizione.length) {
+            <div class="campo-formazione" aria-label="Formazione iniziale">
+                <div class="campo-linea"></div>
+                <div class="campo-cerchio"></div>
+                <div class="campo-area campo-area-alta"></div>
+                <div class="campo-area campo-area-bassa"></div>
                 @for (giocatore of titolari(); track giocatore.id) {
+                @if (posizioneCampo(giocatore.posizione); as posizione) {
+                <div class="giocatore-campo" [style.left.%]="posizione.x" [style.top.%]="posizione.y">
+                    <span class="maglia-campo">{{ giocatore.numeroMaglia ?? '–' }}</span>
+                    <span class="nome-campo">{{ giocatore.cognome }}</span>
+                    <span class="ruolo-campo">{{ giocatore.posizione }}</span>
+                </div>
+                }
+                }
+            </div>
+            }
+            @if (titolariSenzaPosizione.length > 0) {
+            <p class="senza-posizione">Posizione non disponibile:</p>
+            <ul class="titolari-non-posizionati">
+                @for (giocatore of titolariSenzaPosizione; track giocatore.id) {
                 <li>{{ giocatore.nome }} {{ giocatore.cognome }}</li>
                 }
             </ul>
+            }
         </section>
         }
     </div>
@@ -73,7 +104,8 @@
     @if (tabAttivo === 'timeline') {
     <div class="tab-content">
         <!-- Form nuovo evento -->
-        <div class="form-evento">
+        <details class="form-evento">
+            <summary>Aggiungi evento</summary>
             <p class="form-titolo">Aggiungi evento</p>
             <div class="evento-fields">
                 <div class="field">
@@ -138,7 +170,7 @@
                     <i class="pi pi-plus"></i>
                 </button>
             </div>
-        </div>
+        </details>
 
         <!-- Timeline -->
         @if (p.eventi.length === 0) {
@@ -147,7 +179,7 @@
         <div class="timeline">
             @for (e of p.eventi; track e.id) {
             <div class="timeline-item" [class]="getTipoClass(e.tipo)">
-                <div class="timeline-minuto">{{ e.minuto }}'</div>
+                <div class="timeline-minuto">{{ e.minuto }}@if (e.minutoAggiuntivo) {+{{ e.minutoAggiuntivo }}}'</div>
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
                     <span class="evento-tipo">{{ getTipoLabel(e.tipo) }}</span>
@@ -158,7 +190,7 @@
                     <span class="evento-nota">{{ e.nota }}</span>
                     }
                 </div>
-                <button class="btn-remove" (click)="rimuoviEvento(e)">
+                <button class="btn-remove" (click)="rimuoviEvento(e)" aria-label="Rimuovi evento">
                     <i class="pi pi-times"></i>
                 </button>
             </div>

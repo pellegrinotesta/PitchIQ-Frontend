@@ -8,6 +8,7 @@ export type TipoEvento =
 export interface EventoPartita {
     id: number;
     minuto: number;
+    minutoAggiuntivo: number | null;
     tipo: TipoEvento;
     giocatoreId: number | null;
     nomeGiocatore: string | null;
@@ -49,6 +50,9 @@ export interface Titolare {
     id: number;
     nome: string;
     cognome: string;
+    posizione: string | null;
+    numeroMaglia: number | null;
+    moduloFonte: string | null;
 }
 
 export interface HeatmapZona {

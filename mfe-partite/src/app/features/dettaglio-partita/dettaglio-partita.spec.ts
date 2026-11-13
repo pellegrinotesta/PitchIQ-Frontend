@@ -35,10 +35,19 @@ describe('DettaglioPartita - titolari', () => {
   });
 
   it('mostra i titolari della partita', () => {
-    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Raffaele', cognome: 'Russo' }]));
+    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Raffaele', cognome: 'Russo', posizione: 'CF-L', numeroMaglia: 10 }]));
     fixture.componentInstance.mostraTitolari();
     fixture.detectChanges();
     expect(service.getTitolari).toHaveBeenCalledWith(1);
+    expect(fixture.nativeElement.querySelector('.campo-formazione').textContent).toContain('Russo');
+    expect(fixture.nativeElement.querySelector('.campo-formazione').textContent).toContain('10');
+  });
+
+  it('mantiene nella lista i titolari senza posizione attendibile', () => {
+    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Raffaele', cognome: 'Russo', posizione: null, numeroMaglia: null }]));
+    fixture.componentInstance.mostraTitolari();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Posizione non disponibile');
     expect(fixture.nativeElement.textContent).toContain('Raffaele Russo');
   });
 
@@ -68,7 +77,10 @@ describe('DettaglioPartita - titolari', () => {
     expect(text).toContain('0% riusciti');
     expect(text).toContain('Duelli — non disponibile');
     expect(text).toContain('ESPN');
-    component.stats.tiriTotali = null;
+  });
+
+  it('non mostra zero quando i tiri non sono disponibili', () => {
+    fixture.componentInstance.tabAttivo = 'statistiche';
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.tiri-num').textContent.trim()).toBe('–');
   });
