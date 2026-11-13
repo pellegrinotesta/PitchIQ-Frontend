@@ -44,6 +44,12 @@ export interface Partita {
     statistiche: StatistichePartita | null;
 }
 
+export interface Titolare {
+    id: number;
+    nome: string;
+    cognome: string;
+}
+
 export interface HeatmapZona {
     id?: number;
     giocatoreId: number;

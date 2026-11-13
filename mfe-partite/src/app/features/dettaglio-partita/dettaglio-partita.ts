@@ -2,11 +2,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { HeatmapCampo } from '../heatmap-campo/heatmap-campo';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Partita, GiocatoreBase, TipoEvento, StatistichePartita, HeatmapZona, EventoPartita } from '../../core/models/partita.model';
+import { Partita, GiocatoreBase, TipoEvento, StatistichePartita, HeatmapZona, EventoPartita, Titolare } from '../../core/models/partita.model';
 import { PartitaService } from '../../core/services/partita.service';
 
 
-type Tab = 'timeline' | 'statistiche' | 'heatmap';
+type Tab = 'timeline' | 'titolari' | 'statistiche' | 'heatmap';
 
 @Component({
   selector: 'par-dettaglio',
@@ -23,6 +23,9 @@ export class DettaglioPartita implements OnInit {
   loading = signal(true);
   salvando = signal(false);
   messaggio = signal<string | null>(null);
+  titolari = signal<Titolare[]>([]);
+  caricamentoTitolari = signal(false);
+  erroreTitolari = signal(false);
 
   tabAttivo: Tab = 'timeline';
 
@@ -71,6 +74,25 @@ export class DettaglioPartita implements OnInit {
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
+    });
+  }
+
+  mostraTitolari(): void {
+    this.tabAttivo = 'titolari';
+    const partita = this.partita();
+    if (!partita || this.caricamentoTitolari()) return;
+
+    this.caricamentoTitolari.set(true);
+    this.erroreTitolari.set(false);
+    this.service.getTitolari(partita.id).subscribe({
+      next: (titolari) => {
+        this.titolari.set(titolari);
+        this.caricamentoTitolari.set(false);
+      },
+      error: () => {
+        this.erroreTitolari.set(true);
+        this.caricamentoTitolari.set(false);
+      },
     });
   }
 

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     Partita, HeatmapZona, ScoutingAvversario, GiocatoreBase,
-    StatistichePartita
+    StatistichePartita, Titolare
 } from '../models/partita.model';
 
 const BFF = 'http://localhost:8080/api';
@@ -31,6 +31,10 @@ export class PartitaService {
 
     getById(id: number): Observable<Partita> {
         return this.http.get<Partita>(`${BFF}/partite/${id}`);
+    }
+
+    getTitolari(id: number): Observable<Titolare[]> {
+        return this.http.get<Titolare[]>(`${BFF}/partite/${id}/titolari`);
     }
 
     create(req: any): Observable<Partita> {
