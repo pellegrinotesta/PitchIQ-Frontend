@@ -35,7 +35,7 @@ export class DettaglioPartita implements OnInit {
     'CD-L': { x: 30, y: 70 }, 'CD': { x: 50, y: 70 }, 'CD-R': { x: 70, y: 70 },
     'LM': { x: 12, y: 48 }, 'RM': { x: 88, y: 48 },
     'CM-L': { x: 32, y: 49 }, 'CM': { x: 50, y: 49 }, 'CM-R': { x: 68, y: 49 },
-    'M': { x: 50, y: 52 }, 'AM': { x: 50, y: 31 },
+    'M': { x: 50, y: 60 }, 'AM': { x: 50, y: 31 },
     'AM-L': { x: 23, y: 30 }, 'AM-R': { x: 77, y: 30 },
     'F': { x: 50, y: 12 }, 'CF-L': { x: 32, y: 12 }, 'CF-R': { x: 68, y: 12 },
   };
@@ -199,6 +199,11 @@ export class DettaglioPartita implements OnInit {
 
   getTipoLabel(tipo: TipoEvento): string {
     return this.tipiEvento.find(t => t.value === tipo)?.label ?? tipo;
+  }
+
+  notaContieneGiocatore(evento: EventoPartita): boolean {
+    return !!evento.nota && !!evento.nomeGiocatore && !!evento.cognomeGiocatore
+      && evento.nota.includes(`${evento.nomeGiocatore} ${evento.cognomeGiocatore}`);
   }
 
   getTipoClass(tipo: TipoEvento): string {

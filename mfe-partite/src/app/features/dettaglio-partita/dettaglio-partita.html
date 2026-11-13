@@ -183,7 +183,7 @@
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
                     <span class="evento-tipo">{{ getTipoLabel(e.tipo) }}</span>
-                    @if (e.cognomeGiocatore) {
+                    @if (e.cognomeGiocatore && !notaContieneGiocatore(e)) {
                     <span class="evento-giocatore">{{ e.cognomeGiocatore }} {{ e.nomeGiocatore }}</span>
                     }
                     @if (e.nota) {

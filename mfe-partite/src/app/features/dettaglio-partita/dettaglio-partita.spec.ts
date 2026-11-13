@@ -84,4 +84,18 @@ describe('DettaglioPartita - titolari', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.tiri-num').textContent.trim()).toBe('–');
   });
+
+  it('mostra il recupero e non ripete il giocatore presente nella nota', () => {
+    const partita = fixture.componentInstance.partita()!;
+    fixture.componentInstance.partita.set({
+      ...partita,
+      eventi: [{
+        id: 1, minuto: 45, minutoAggiuntivo: 2, tipo: 'GOL', giocatoreId: 7,
+        nomeGiocatore: 'Raffaele', cognomeGiocatore: 'Russo', nota: 'Raffaele Russo - Avellino',
+      }],
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.timeline-minuto').textContent.trim()).toBe("45+2'");
+    expect(fixture.nativeElement.querySelector('.timeline-content').textContent.match(/Raffaele Russo/g)).toHaveLength(1);
+  });
 });
