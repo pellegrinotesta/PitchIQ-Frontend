@@ -89,6 +89,43 @@ describe('FormGiocatore', () => {
     expect(service.update.mock.calls[0][1]).not.toHaveProperty('nazionalita');
   });
 
+  it('nasconde i campi economici riservati e non li invia in modifica', async () => {
+    expect(fixture.nativeElement.querySelector('#giocatore-stipendio')).not.toBeNull();
+    config.data.giocatore = {
+      id: 8, nome: 'Marco', cognome: 'Rossi', numeroMaglia: 5, ruolo: 'DC', stato: 'ATTIVO',
+      stipendioAnnuo: null, clausola: null, agente: null, valoreMercato: null,
+      datiEconomiciVisibili: false,
+    } as Giocatore;
+    component.ngOnInit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('#giocatore-stipendio')).toBeNull();
+    expect(el.querySelector('#giocatore-clausola')).toBeNull();
+    expect(el.querySelector('#giocatore-agente')).toBeNull();
+    expect(el.querySelector('#giocatore-valore')).not.toBeNull();
+    expect(el.textContent).toContain('riservati alla dirigenza');
+
+    component.form.controls.nome.setValue('Luca');
+    component.submit();
+    const modifiche = service.update.mock.calls.at(-1)![1];
+    expect(modifiche).toHaveProperty('nome', 'Luca');
+    for (const campo of ['stipendioAnnuo', 'clausola', 'agente', 'noteMediche']) {
+      expect(modifiche).not.toHaveProperty(campo);
+    }
+  });
+
+  it('invia formazione e fuori lista quando cambiano', () => {
+    config.data.giocatore = {
+      id: 8, nome: 'Marco', cognome: 'Rossi', numeroMaglia: 5, ruolo: 'DC', stato: 'ATTIVO',
+      formazione: null, fuoriLista: false,
+    } as Giocatore;
+    component.ngOnInit();
+    component.form.patchValue({ formazione: 'CLUB', fuoriLista: true });
+    component.submit();
+    expect(service.update.mock.calls.at(-1)![1]).toMatchObject({ formazione: 'CLUB', fuoriLista: true });
+  });
+
   it('blocca doppi invii e consente retry dopo errore', () => {
     component.form.patchValue({ nome: 'Marco', cognome: 'Rossi', ruolo: 'DC', numeroMaglia: 5 });
     const risposta = new Subject<Giocatore>();

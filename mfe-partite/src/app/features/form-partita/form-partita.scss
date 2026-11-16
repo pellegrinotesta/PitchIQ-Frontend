@@ -162,3 +162,12 @@ textarea.inp {
     opacity: .4;
     cursor: not-allowed;
 }
+.check-giocata {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .88rem;
+    color: #ccc;
+    margin-bottom: .75rem;
+    cursor: pointer;
+}

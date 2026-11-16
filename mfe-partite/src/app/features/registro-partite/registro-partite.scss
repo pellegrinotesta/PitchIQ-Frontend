@@ -288,3 +288,258 @@
         color: #00ff87;
     }
 }
+/* Filtri stagione / competizione */
+.filtri {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.filtro {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    font-size: .7rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+    select {
+        min-width: 170px;
+        padding: .5rem .7rem;
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        color: #fff;
+        font-size: .9rem;
+    }
+
+    select:focus-visible {
+        outline: 2px solid #00ff87;
+        outline-offset: 1px;
+    }
+}
+
+.filtri-conteggio {
+    font-size: .82rem;
+    color: #888;
+    padding-bottom: .55rem;
+}
+
+.stat-box.punti {
+    border-color: rgba(0, 255, 135, .35);
+}
+
+.stat-box.punti .stat-num {
+    color: #00ff87;
+}
+
+.stat-lbl {
+    color: #888;
+}
+
+/* Pannelli rendimento e disciplina */
+.pannelli {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(320px, 2fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.pannello {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    min-width: 0;
+
+    h2 {
+        font-size: .8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #aaa;
+        margin: 0 0 .9rem;
+    }
+}
+
+.pannello-largo {
+    grid-column: 1 / -1;
+}
+
+.pannello-testata {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .9rem;
+
+    h2 {
+        margin: 0;
+    }
+}
+
+.pannello-nota {
+    font-size: .8rem;
+    color: #888;
+    line-height: 1.5;
+    margin-top: .75rem;
+
+    &.errore {
+        color: #ff6464;
+    }
+}
+
+.btn-piccolo {
+    padding: .4rem .8rem;
+    font-size: .82rem;
+
+    &:disabled {
+        opacity: .6;
+        cursor: default;
+    }
+}
+
+.forma {
+    display: flex;
+    gap: .5rem;
+}
+
+.forma-item {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.tabella {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .88rem;
+    font-variant-numeric: tabular-nums;
+
+    th {
+        font-size: .7rem;
+        font-weight: 600;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 0 .5rem .5rem;
+        text-align: center;
+    }
+
+    td {
+        padding: .5rem;
+        text-align: center;
+        border-top: 1px solid #1e1e1e;
+        color: #ccc;
+    }
+
+    .th-sx,
+    .td-sx,
+    .td-nome {
+        text-align: left;
+    }
+
+    .td-nome,
+    .td-forte {
+        color: #fff;
+        font-weight: 700;
+    }
+}
+
+.tag {
+    display: inline-block;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    margin-right: .5rem;
+}
+
+.tag-squalificato {
+    background: rgba(255, 100, 100, .12);
+    color: #ff6464;
+}
+
+.tag-diffidato {
+    background: rgba(255, 180, 0, .12);
+    color: #ffb400;
+}
+
+.motivo {
+    font-size: .8rem;
+    color: #888;
+}
+
+@media (max-width: 900px) {
+    .pannelli {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+    }
+
+    .pannello {
+        overflow-x: auto;
+    }
+}
+
+/* Calendario */
+.calendario {
+    margin-bottom: 1.5rem;
+}
+
+.partita-card.prossima {
+    border-color: rgba(0, 255, 135, .35);
+}
+
+.data-box {
+    width: 40px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+
+    .giorno {
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .mese {
+        font-size: .7rem;
+        color: #888;
+        text-transform: uppercase;
+    }
+}
+
+.vs {
+    text-transform: capitalize;
+}
+
+.tag-prossima {
+    background: rgba(0, 255, 135, .12);
+    color: #00ff87;
+}
+
+.meta-item {
+    color: #888;
+}
+
+.meta-item.scouting-ok {
+    color: #00ff87;
+}

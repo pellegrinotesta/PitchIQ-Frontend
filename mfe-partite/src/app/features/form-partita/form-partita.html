@@ -9,7 +9,7 @@
         <div class="field-row">
             <div class="field">
                 <label>Data *</label>
-                <input class="inp" type="date" [(ngModel)]="data" />
+                <input class="inp" type="date" [(ngModel)]="data" (ngModelChange)="cambiaData()" />
             </div>
             <div class="field">
                 <label>Casa/Trasferta</label>
@@ -23,7 +23,24 @@
 
         <div class="field">
             <label>Avversario *</label>
-            <input class="inp" type="text" [(ngModel)]="avversario" placeholder="Es. AC Milan" />
+            <input class="inp" type="text" [(ngModel)]="avversario" placeholder="Es. AC Milan"
+                (blur)="suggerisciScouting()" />
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Orario d'inizio</label>
+                <input class="inp" type="time" [(ngModel)]="oraInizio" />
+            </div>
+            <div class="field">
+                <label>Report di scouting</label>
+                <select class="inp" [(ngModel)]="scoutingId">
+                    <option [ngValue]="null">Nessuno</option>
+                    @for (s of scouting(); track s.id) {
+                    <option [ngValue]="s.id">{{ s.nome }}</option>
+                    }
+                </select>
+            </div>
         </div>
 
         <div class="field-row">
@@ -45,6 +62,11 @@
 
     <div class="form-section">
         <p class="section-title">Risultato</p>
+        <label class="check-giocata">
+            <input type="checkbox" [ngModel]="!giocata" (ngModelChange)="giocata = !$event" />
+            Partita ancora da giocare
+        </label>
+        @if (giocata) {
         <div class="score-input">
             <div class="score-field">
                 <label>Gol fatti</label>
@@ -56,6 +78,7 @@
                 <input class="inp inp-score" type="number" min="0" [(ngModel)]="golSubiti" />
             </div>
         </div>
+        }
     </div>
 
     <div class="form-section">

@@ -106,6 +106,14 @@
       >
         <i class="pi pi-calendar" aria-hidden="true"></i> Contratti
       </button>
+      <button
+        type="button"
+        [class.active]="vista() === 'lista'"
+        [attr.aria-pressed]="vista() === 'lista'"
+        (click)="cambiaVista('lista')"
+      >
+        <i class="pi pi-list-check" aria-hidden="true"></i> Lista 25
+      </button>
     </nav>
     <section class="filters" aria-label="Filtri rosa">
       <label class="search"
@@ -276,6 +284,8 @@
             </td></tr
         ></ng-template>
       </p-table>
+    } @else if (vista() === 'lista') {
+      <app-lista-campionato [rosa]="giocatori()" [oggi]="aggiornato() ?? oggiPredefinito" />
     } @else if (vista() === 'copertura') {
       <div class="section-heading">
         <h2>Profondità per ruolo</h2>
@@ -364,8 +374,13 @@
             >
               {{ statoContratto(giocatore.contrattoFine) }}
             </td>
-            <td>{{ valuta(giocatore.stipendioAnnuo) }}</td>
-            <td>{{ giocatore.agente || 'N/D' }}</td>
+            @if (giocatore.datiEconomiciVisibili === false) {
+              <td>Riservato</td>
+              <td>Riservato</td>
+            } @else {
+              <td>{{ valuta(giocatore.stipendioAnnuo) }}</td>
+              <td>{{ giocatore.agente || 'N/D' }}</td>
+            }
             <td>
               <button
                 class="icon-button"

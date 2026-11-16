@@ -1,0 +1,185 @@
+.page {
+    padding: 1.5rem 2rem;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.breadcrumb a {
+    display: inline-block;
+    color: #888;
+    text-decoration: none;
+    font-size: .9rem;
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb a:hover {
+    color: #00ff87;
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.page-label {
+    color: #00ff87;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: .25rem;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.data {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+    font-size: .7rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.data input {
+    padding: .5rem .7rem;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: .9rem;
+    color-scheme: dark;
+}
+
+.stato-box {
+    text-align: center;
+    color: #888;
+    padding: 4rem 1rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #00ff87;
+    cursor: pointer;
+    font-size: inherit;
+    text-decoration: underline;
+}
+
+.sintesi {
+    font-size: .95rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.avviso {
+    color: #ffb400;
+    margin-left: .5rem;
+}
+
+.tabella-wrap {
+    overflow-x: auto;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+}
+
+.tabella {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    font-size: .88rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.tabella th {
+    font-size: .7rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: .8rem .75rem;
+    text-align: right;
+}
+
+.tabella td {
+    padding: .6rem .75rem;
+    text-align: right;
+    border-top: 1px solid #1e1e1e;
+    color: #ccc;
+}
+
+.tabella .sx {
+    text-align: left;
+}
+
+.forte {
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.maglia {
+    display: inline-block;
+    min-width: 1.8rem;
+    color: #888;
+}
+
+.nome {
+    color: #fff;
+    font-weight: 600;
+}
+
+.ruolo,
+.motivo {
+    color: #888;
+    font-size: .78rem;
+    margin-left: .5rem;
+}
+
+.tag {
+    display: inline-block;
+    padding: .15rem .6rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, .06);
+    color: #aaa;
+}
+
+.zona-ALTO {
+    background: rgba(255, 100, 100, .12);
+    color: #ff6464;
+}
+
+.zona-ATTENZIONE {
+    background: rgba(255, 180, 0, .12);
+    color: #ffb400;
+}
+
+.zona-BASSO {
+    background: rgba(96, 165, 250, .12);
+    color: #60a5fa;
+}
+
+.zona-OTTIMALE {
+    background: rgba(0, 255, 135, .1);
+    color: #00ff87;
+}
+
+.nota {
+    font-size: .8rem;
+    color: #888;
+    line-height: 1.5;
+    margin-top: 1rem;
+    max-width: 70ch;
+}

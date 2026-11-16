@@ -11,12 +11,17 @@
     <!-- Header -->
     <header class="match-header">
         <div class="match-result" [class]="getRisultatoClass(p.risultato)">
+            @if (p.giocata === false) {
+            <span class="result-badge" title="Da giocare"><i class="pi pi-calendar"></i></span>
+            <span class="score">Da giocare</span>
+            } @else {
             <span class="result-badge">{{ p.risultato }}</span>
             <span class="score">{{ p.golFatti }} – {{ p.golSubiti }}</span>
+            }
             <span class="vs">vs {{ p.avversario }}</span>
         </div>
         <div class="match-meta">
-            <span><i class="pi pi-calendar"></i> {{ p.data }}</span>
+            <span><i class="pi pi-calendar"></i> {{ p.data }}@if (p.oraInizio) { · {{ p.oraInizio.slice(0, 5) }} }</span>
             @if (p.competizione) { <span><i class="pi pi-tag"></i> {{ p.competizione }}</span> }
             @if (p.modulo) { <span><i class="pi pi-sitemap"></i> {{ p.modulo }}</span> }
             <span [class]="p.casaTrasferta === 'CASA' ? 'casa' : 'trasferta'">
@@ -28,6 +33,24 @@
         <span class="msg-ok">{{ messaggio() }}</span>
         }
     </header>
+
+    <!-- Scouting dell'avversario -->
+    @if (scouting(); as sc) {
+    <section class="scouting-box">
+        <h2><i class="pi pi-eye"></i> Scouting · {{ sc.nome }} @if (sc.modulo) { <span>{{ sc.modulo }}</span> }</h2>
+        <dl>
+            @if (sc.puntiForza) { <div><dt>Punti di forza</dt><dd>{{ sc.puntiForza }}</dd></div> }
+            @if (sc.debolezze) { <div><dt>Debolezze</dt><dd>{{ sc.debolezze }}</dd></div> }
+            @if (sc.giocatoriChiave) { <div><dt>Giocatori chiave</dt><dd>{{ sc.giocatoriChiave }}</dd></div> }
+            @if (sc.note) { <div><dt>Note</dt><dd>{{ sc.note }}</dd></div> }
+        </dl>
+    </section>
+    } @else if (p.giocata === false) {
+    <p class="scouting-mancante">
+        <i class="pi pi-eye-slash"></i> Nessun report di scouting collegato a questa partita.
+        <a routerLink="../scouting">Vai allo scouting</a>
+    </p>
+    }
 
     <!-- Tab -->
     <div class="tab-bar">

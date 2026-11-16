@@ -368,7 +368,9 @@
             <div class="campi">
               <div class="campo">
                 <span class="campo-label">Agente</span
-                ><span class="campo-val">{{ g.agente ?? '–' }}</span>
+                ><span class="campo-val" [class.riservato]="g.datiEconomiciVisibili === false">{{
+                  g.datiEconomiciVisibili === false ? 'Riservato' : (g.agente ?? '–')
+                }}</span>
               </div>
               <div class="campo">
                 <span class="campo-label">Stato</span>
@@ -448,11 +450,15 @@
               </div>
               <div class="campo">
                 <span class="campo-label">Stipendio annuo</span>
-                <span class="campo-val">{{ formatValuta(g.stipendioAnnuo) }}</span>
+                <span class="campo-val" [class.riservato]="g.datiEconomiciVisibili === false">{{
+                  g.datiEconomiciVisibili === false ? 'Riservato' : formatValuta(g.stipendioAnnuo)
+                }}</span>
               </div>
               <div class="campo">
                 <span class="campo-label">Clausola rescissoria</span>
-                <span class="campo-val">{{ formatValuta(g.clausola) }}</span>
+                <span class="campo-val" [class.riservato]="g.datiEconomiciVisibili === false">{{
+                  g.datiEconomiciVisibili === false ? 'Riservato' : formatValuta(g.clausola)
+                }}</span>
               </div>
             </div>
           </div>
@@ -465,7 +471,11 @@
       <div class="tab-content">
         <div class="dettaglio-card">
           <p class="card-titolo">Note mediche</p>
-          @if (g.noteMediche) {
+          @if (g.datiMediciVisibili === false) {
+            <p class="note-vuote riservato">
+              Riservate allo staff medico. Lo stato di disponibilità resta visibile qui sotto.
+            </p>
+          } @else if (g.noteMediche) {
             <p class="note-testo">{{ g.noteMediche }}</p>
           } @else {
             <p class="note-vuote">Nessuna nota medica registrata.</p>

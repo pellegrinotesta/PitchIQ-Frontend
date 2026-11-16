@@ -16,6 +16,8 @@ import {
   MovimentoTattico,
 } from '../../core/models/giocatore.model';
 import { ruoliSecondari } from '../../core/models/rosa-insights';
+import { FormazioneVivaio } from '../../core/models/giocatore.model';
+import { FORMAZIONE_LABEL } from '../../core/models/lista-campionato';
 import { GiocatoreService } from '../../core/services/giocatore.service';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -44,6 +46,8 @@ export class FormGiocatore implements OnInit {
   private config = inject(DynamicDialogConfig);
 
   giocatore: Giocatore | null = null;
+  /** false: stipendio, clausola e agente sono riservati e il backend ne ignora le modifiche */
+  economiciVisibili = true;
   errore = signal<string | null>(null);
   saving = signal(false);
 
@@ -60,6 +64,11 @@ export class FormGiocatore implements OnInit {
     .slice(0, 10);
 
   readonly movimentiOptions = Object.entries(MOVIMENTI_LABEL).map(([value, label]) => ({ value, label }));
+
+  readonly formazioneOptions = Object.entries(FORMAZIONE_LABEL).map(([value, label]) => ({
+    value,
+    label,
+  }));
 
   readonly statiOptions = [
     { label: 'Attivo', value: 'ATTIVO' },
@@ -124,6 +133,8 @@ export class FormGiocatore implements OnInit {
         ],
       ],
       agente: [null as string | null, Validators.maxLength(100)],
+      formazione: [null as FormazioneVivaio | null],
+      fuoriLista: [false],
     },
     {
       validators: (controllo: AbstractControl): ValidationErrors | null => {
@@ -138,6 +149,8 @@ export class FormGiocatore implements OnInit {
 
   ngOnInit(): void {
     this.giocatore = this.config.data?.giocatore ?? null;
+    this.economiciVisibili =
+      (this.giocatore?.datiEconomiciVisibili ?? this.config.data?.datiEconomiciVisibili) !== false;
     if (this.giocatore) {
       this.form.patchValue({ ...this.giocatore, ruoliSecondari: ruoliSecondari(this.giocatore), movimentiConsentiti: this.giocatore.movimentiConsentiti ?? [] });
     }
@@ -156,6 +169,7 @@ export class FormGiocatore implements OnInit {
       ruolo: valori.ruolo!,
       stato: valori.stato!,
       movimentiConsentiti: valori.movimentiConsentiti ?? [],
+      fuoriLista: !!valori.fuoriLista,
       ruoliSecondari:
         (valori.ruoliSecondari ?? []).filter((ruolo) => ruolo !== valori.ruolo).join(',') || null,
       dataNascita: valori.dataNascita || null,

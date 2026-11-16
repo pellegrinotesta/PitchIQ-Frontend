@@ -2,13 +2,16 @@
 
     <header class="page-header">
         <div class="header-left">
-            <a (click)="goToDashboard()" class="btn-back">
+            <a routerLink="/home" class="btn-back" title="Torna alla home">
                 <i class="pi pi-arrow-left"></i>
             </a>
             <div>
                 <p class="page-label">PIANIFICAZIONE</p>
                 <h1>Allenamenti</h1>
             </div>
+            <a routerLink="carico" class="btn-carico">
+                <i class="pi pi-chart-bar"></i> Carico di lavoro
+            </a>
             <button class="btn-primary" (click)="apriNuova()">
                 <i class="pi pi-plus"></i> Nuova seduta
             </button>

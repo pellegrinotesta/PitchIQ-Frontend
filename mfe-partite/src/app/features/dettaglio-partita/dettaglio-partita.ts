@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { HeatmapCampo } from '../heatmap-campo/heatmap-campo';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Partita, GiocatoreBase, TipoEvento, StatistichePartita, HeatmapZona, EventoPartita, Titolare } from '../../core/models/partita.model';
+import { Partita, GiocatoreBase, TipoEvento, StatistichePartita, HeatmapZona, EventoPartita, Titolare, ScoutingAvversario } from '../../core/models/partita.model';
 import { PartitaService } from '../../core/services/partita.service';
 
 
@@ -23,6 +23,7 @@ export class DettaglioPartita implements OnInit {
   loading = signal(true);
   salvando = signal(false);
   messaggio = signal<string | null>(null);
+  scouting = signal<ScoutingAvversario | null>(null);
   titolari = signal<Titolare[]>([]);
   caricamentoTitolari = signal(false);
   erroreTitolari = signal(false);
@@ -91,6 +92,12 @@ export class DettaglioPartita implements OnInit {
         this.partita.set(p);
         if (p.statistiche) this.stats = { ...p.statistiche };
         this.loading.set(false);
+        if (p.scoutingId) {
+          this.service.getScouting(p.scoutingId).subscribe({
+            next: (s) => this.scouting.set(s),
+            error: () => this.scouting.set(null),
+          });
+        }
       },
       error: () => this.loading.set(false),
     });
@@ -191,7 +198,8 @@ export class DettaglioPartita implements OnInit {
   }
 
   // ===== UTILS =====
-  getRisultatoClass(r: string): string {
+  getRisultatoClass(r: string | null): string {
+    if (r === null) return 'da-giocare';
     if (r === 'V') return 'vittoria';
     if (r === 'P') return 'sconfitta';
     return 'pareggio';

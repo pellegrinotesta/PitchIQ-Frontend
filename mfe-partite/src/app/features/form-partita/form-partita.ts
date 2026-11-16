@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Partita, CasaTrasferta } from '../../core/models/partita.model';
+import { Partita, CasaTrasferta, ScoutingAvversario } from '../../core/models/partita.model';
 import { PartitaService } from '../../core/services/partita.service';
 
 @Component({
@@ -25,6 +25,11 @@ export class FormPartita implements OnInit {
   casaTrasferta: CasaTrasferta = 'CASA';
   golFatti = 0;
   golSubiti = 0;
+  /** false = partita in calendario, senza risultato */
+  giocata = true;
+  oraInizio = '';
+  scoutingId: number | null = null;
+  scouting = signal<ScoutingAvversario[]>([]);
   modulo = '';
   note = '';
 
@@ -47,9 +52,31 @@ export class FormPartita implements OnInit {
       this.golSubiti = this.partita.golSubiti;
       this.modulo = this.partita.modulo ?? '';
       this.note = this.partita.note ?? '';
+      this.giocata = this.config.data?.giocata ?? this.partita.giocata !== false;
+      this.oraInizio = (this.partita.oraInizio ?? '').slice(0, 5);
+      this.scoutingId = this.partita.scoutingId ?? null;
     } else {
       this.data = new Date().toISOString().split('T')[0];
+      this.competizione = this.config.data?.competizione ?? '';
     }
+    this.service.getAllScouting().subscribe({
+      next: (lista) => { this.scouting.set(lista); this.suggerisciScouting(); },
+      error: () => this.scouting.set([]),
+    });
+  }
+
+  /** Una data futura non può avere un risultato: propone "da giocare". */
+  cambiaData(): void {
+    if (!this.partita && this.data > new Date().toISOString().split('T')[0]) this.giocata = false;
+  }
+
+  /** Collega il report con lo stesso nome dell'avversario, se non ne è già stato scelto uno. */
+  suggerisciScouting(): void {
+    if (this.scoutingId !== null) return;
+    const nome = this.avversario.trim().toLocaleLowerCase('it');
+    if (!nome) return;
+    this.scoutingId =
+      this.scouting().find((s) => s.nome.trim().toLocaleLowerCase('it') === nome)?.id ?? null;
   }
 
   submit(): void {
@@ -61,8 +88,11 @@ export class FormPartita implements OnInit {
       avversario: this.avversario,
       competizione: this.competizione || null,
       casaTrasferta: this.casaTrasferta,
-      golFatti: this.golFatti,
-      golSubiti: this.golSubiti,
+      golFatti: this.giocata ? this.golFatti : 0,
+      golSubiti: this.giocata ? this.golSubiti : 0,
+      giocata: this.giocata,
+      oraInizio: this.oraInizio || null,
+      scoutingId: this.scoutingId,
       modulo: this.modulo || null,
       note: this.note || null,
     };

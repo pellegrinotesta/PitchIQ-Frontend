@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { SedutaAllenamento, Presenza, TipoSeduta } from '../../core/models/allenamento.model';
+import { SedutaAllenamento, Presenza, TipoSeduta, durataMinuti } from '../../core/models/allenamento.model';
 import { AllenamentoService } from '../../core/services/allenamento.service';
 
 @Component({
@@ -63,6 +63,8 @@ export class DettaglioAllenamento implements OnInit {
         presente: p.presente,
         motivoAssenza: p.motivoAssenza,
         valutazione: p.valutazione,
+        minuti: p.presente ? (p.minuti ?? null) : null,
+        rpe: p.presente ? (p.rpe ?? null) : null,
       })),
     };
 
@@ -74,6 +76,31 @@ export class DettaglioAllenamento implements OnInit {
       },
       error: () => this.salvando.set(false),
     });
+  }
+
+  readonly scalaRpe = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  durata(s: SedutaAllenamento): number {
+    return durataMinuti(s.oraInizio, s.oraFine);
+  }
+
+  impostaRpe(p: Presenza, valore: string): void {
+    p.rpe = valore ? Number(valore) : null;
+  }
+
+  impostaMinuti(p: Presenza, valore: string): void {
+    const minuti = Math.round(Number(valore));
+    p.minuti = valore !== '' && Number.isFinite(minuti) && minuti >= 0 ? Math.min(minuti, 600) : null;
+  }
+
+  /** RPE × minuti; senza minuti individuali vale la durata della seduta. */
+  carico(p: Presenza, s: SedutaAllenamento): number | null {
+    return p.rpe ? p.rpe * (p.minuti ?? this.durata(s)) : null;
+  }
+
+  caricoMedio(s: SedutaAllenamento): number | null {
+    const carichi = s.presenze.flatMap((p) => (p.presente ? (this.carico(p, s) ?? []) : []));
+    return carichi.length ? Math.round(carichi.reduce((a, b) => a + b, 0) / carichi.length) : null;
   }
 
   getTipoClass(tipo: TipoSeduta): string {

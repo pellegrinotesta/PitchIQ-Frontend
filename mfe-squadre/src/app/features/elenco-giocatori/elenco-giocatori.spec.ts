@@ -56,6 +56,17 @@ describe('Workspace rosa', () => {
     });
   });
 
+  it('mostra la vista Lista 25 calcolata su tutta la rosa', async () => {
+    const fixture = TestBed.createComponent(ElencoGiocatori);
+    await fixture.whenStable();
+    fixture.componentInstance.cambiaVista('lista');
+    await fixture.whenStable();
+    const testo = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(testo).toContain('Lista dei 25');
+    expect(testo).toContain('2 su 25 posti');
+    expect(testo).toContain('Da classificare');
+  });
+
   it('filtra senza richieste aggiuntive o KPI variabili', async () => {
     const fixture = TestBed.createComponent(ElencoGiocatori);
     await fixture.whenStable();
@@ -193,5 +204,15 @@ describe('Analisi rosa', () => {
     expect(csv).toContain('"\'=HYPERLINK(""test"")"');
     expect(csv).toContain('"Rossi;Bianchi"');
     expect(csv).not.toContain('RISERVATO');
+  });
+  it('non esporta le colonne economiche quando sono riservate', () => {
+    const visibile = esportaRosaCsv([giocatore({ agente: 'Mino' })]);
+    expect(visibile).toContain('Stipendio annuo EUR');
+    expect(visibile).toContain('Mino');
+
+    const riservato = esportaRosaCsv([giocatore({ datiEconomiciVisibili: false })]);
+    expect(riservato).not.toContain('Stipendio annuo EUR');
+    expect(riservato).not.toContain('Agente');
+    expect(riservato.split('\r\n')[0].split(';')).toHaveLength(14);
   });
 });

@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { apiUrl } from './api-url';
 
 export const SB_API_URL = new InjectionToken<string>('SB_API_URL', {
     providedIn: 'root',
-    factory: () => 'http://localhost:8080/api/tracking/statsbomb',
+    factory: () => `${apiUrl()}/tracking/statsbomb`,
 });
 
 export interface Competizione {

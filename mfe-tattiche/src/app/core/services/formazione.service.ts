@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Formazione, FormazioneRequest, GiocatoreDisponibile } from '../model/formazione.model';
 import { SchemaFormazione, SchemaFormazioneRequest } from '../model/schema.model';
+import { apiUrl } from '../api-url';
 
 
-const BFF = 'http://localhost:8080/api';
+const BFF = apiUrl();
 
 @Injectable({ providedIn: 'root' })
 export class FormazioneService {

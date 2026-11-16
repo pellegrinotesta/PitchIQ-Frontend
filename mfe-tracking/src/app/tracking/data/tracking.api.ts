@@ -5,11 +5,12 @@ import {
   AggregatoEsitoDto, AnimazioneDto, EsitoPressione, ImportDto,
   PartitaDettaglioDto, PartitaDto, SequenzaDto,
 } from './tracking.models';
+import { apiUrl } from './api-url';
 
-/** Base URL del dominio tracking nel BFF. Allinealo a come lo fanno gli altri MFE (environment). */
+/** Base URL del dominio tracking nel BFF. */
 export const TRACKING_API_URL = new InjectionToken<string>('TRACKING_API_URL', {
   providedIn: 'root',
-  factory: () => 'http://localhost:8080/api/tracking',
+  factory: () => `${apiUrl()}/tracking`,
 });
 
 export interface FiltriSequenze {

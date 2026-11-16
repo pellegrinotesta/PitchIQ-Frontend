@@ -7,9 +7,9 @@ import {
   RuoloGiocatore,
   StatoGiocatore,
 } from '../models/giocatore.model';
+import { apiUrl } from '../api-url';
 
-// TODO: leggere da environment.ts per supportare staging/prod senza rebuild
-const BASE = 'http://localhost:8080/api/squadre/giocatori';
+const BASE = `${apiUrl()}/squadre/giocatori`;
 
 @Injectable({ providedIn: 'root' })
 export class GiocatoreService {
@@ -41,7 +41,7 @@ export class GiocatoreService {
 
   getStorico(id: number): Observable<StatisticaOsservata[]> {
     return this.http.get<StatisticaOsservata[]>(
-      `http://localhost:8080/api/statistiche/giocatori/${id}/storico`,
+      `${apiUrl()}/statistiche/giocatori/${id}/storico`,
     );
   }
 

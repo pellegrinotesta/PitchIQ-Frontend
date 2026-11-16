@@ -88,6 +88,19 @@ npm test --prefix shell-app
 
 Sostituisci `shell-app` con la cartella del microfrontend da verificare.
 
+## Configurazione per ambiente
+
+Gli indirizzi non sono compilati nel codice: la shell li legge all'avvio da due file serviti accanto all'app, quindi lo stesso build funziona in ogni ambiente.
+
+| File (in `shell-app/public/`) | Contenuto |
+| --- | --- |
+| `config.json` | `apiUrl`: base delle API del backend, ad esempio `https://pitchiq.example.it/api` oppure `/api` se il backend è dietro lo stesso dominio |
+| `federation.manifest.json` | indirizzo del `remoteEntry.json` di ogni microfrontend |
+
+Per un nuovo ambiente sostituisci questi due file (o montali come volume) e ricarica la pagina: non serve ricompilare. I microfrontend ricevono `apiUrl` dalla shell; avviati da soli, o se `config.json` manca, usano `http://localhost:8080/api`.
+
+Sul backend ricorda di aggiungere l'origine della shell e dei microfrontend alla proprietà `app.cors.allowed-origins`.
+
 ## Federation
 
-Il manifest della shell contiene gli URL `remoteEntry.json` usati per caricare i moduli. Al momento, la voce sulla porta `4206` nel manifest è denominata `mfe-giocatori`, mentre il progetto presente e il servizio Compose si chiamano `mfe-tracking`: allinea nome e configurazione prima di affidarti all'integrazione tracking nella shell.
+Il manifest della shell contiene gli URL `remoteEntry.json` usati per caricare i moduli.

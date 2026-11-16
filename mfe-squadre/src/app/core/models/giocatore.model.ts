@@ -57,6 +57,8 @@ export const RUOLI_PER_CATEGORIA: Record<CategoriaRuolo, RuoloGiocatore[]> = {
   ATTACCANTE: ['PC', 'SP', 'FW'],
 };
 export type StatoGiocatore = 'ATTIVO' | 'INFORTUNATO' | 'SQUALIFICATO';
+/** Formazione nel vivaio ai fini della lista dei 25 */
+export type FormazioneVivaio = 'CLUB' | 'ITALIA' | 'ALTRO';
 
 export const MOVIMENTI_LABEL = {
   SOVRAPPOSIZIONE: 'Sovrapposizione',
@@ -97,6 +99,20 @@ export interface Giocatore {
   noteMediche: string | null;
   agente: string | null;
   movimentiConsentiti?: MovimentoTattico[] | null;
+  /** null: non ancora classificato */
+  formazione?: FormazioneVivaio | null;
+  /** Over 22 tesserato ma escluso dalla lista dei 25 */
+  fuoriLista?: boolean;
+  /** false: stipendio, clausola e agente arrivano null perché riservati al ruolo dell'utente */
+  datiEconomiciVisibili?: boolean;
+  /** false: le note mediche arrivano null perché riservate al ruolo dell'utente */
+  datiMediciVisibili?: boolean;
 }
 
-export type GiocatoreRequest = Omit<Giocatore, 'id' | 'eta'>;
+export type GiocatoreRequest = Omit<
+  Giocatore,
+  'id' | 'eta' | 'datiEconomiciVisibili' | 'datiMediciVisibili'
+>;
+
+export const economiciVisibili = (g: Giocatore): boolean => g.datiEconomiciVisibili !== false;
+export const mediciVisibili = (g: Giocatore): boolean => g.datiMediciVisibili !== false;

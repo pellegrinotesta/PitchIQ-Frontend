@@ -24,8 +24,9 @@ import { ConfirmationService } from 'primeng/api';
 import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormGiocatore } from '../form-giocatore/form-giocatore';
+import { ListaCampionato } from '../lista-campionato/lista-campionato';
 
-type Vista = 'rosa' | 'copertura' | 'contratti';
+type Vista = 'rosa' | 'copertura' | 'contratti' | 'lista';
 const FILTRI_INIZIALI: FiltriRosa = {
   ricerca: '',
   ruolo: null,
@@ -45,6 +46,7 @@ const FILTRI_INIZIALI: FiltriRosa = {
     ConfirmDialogModule,
     DynamicDialogModule,
     TooltipModule,
+    ListaCampionato,
   ],
   providers: [ConfirmationService, DialogService],
   templateUrl: './elenco-giocatori.html',
@@ -96,6 +98,7 @@ export class ElencoGiocatori implements OnInit {
     ),
   );
   primaRiga = 0;
+  readonly oggiPredefinito = new Date();
 
   ngOnInit(): void {
     this.carica();
@@ -233,7 +236,10 @@ export class ElencoGiocatori implements OnInit {
       closable: true,
       draggable: false,
       resizable: false,
-      data: { giocatore },
+      data: {
+        giocatore,
+        datiEconomiciVisibili: this.giocatori().every((g) => g.datiEconomiciVisibili !== false),
+      },
     });
     ref?.onClose.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((salvato: boolean) => {
       if (salvato) {

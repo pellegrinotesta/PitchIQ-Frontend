@@ -1,4 +1,10 @@
-import { Giocatore, RUOLO_LABEL, RuoloGiocatore, StatoGiocatore } from './giocatore.model';
+import {
+  economiciVisibili,
+  Giocatore,
+  RUOLO_LABEL,
+  RuoloGiocatore,
+  StatoGiocatore,
+} from './giocatore.model';
 
 export type FiltroContratto = 'TUTTI' | '180' | 'SCADUTI' | 'MANCANTI';
 
@@ -105,6 +111,8 @@ export function esportaRosaCsv(rosa: Giocatore[]): string {
     const sicuro = /^\s*[=+\-@\t\r\n]/.test(testo) ? `'${testo}` : testo;
     return `"${sicuro.replace(/"/g, '""')}"`;
   };
+  // Senza accesso ai dati economici le colonne riservate non vengono esportate
+  const economici = rosa.every(economiciVisibili);
   const righe: unknown[][] = [
     [
       'ID',
@@ -121,8 +129,7 @@ export function esportaRosaCsv(rosa: Giocatore[]): string {
       'Peso kg',
       'Fine contratto',
       'Valore mercato EUR',
-      'Stipendio annuo EUR',
-      'Agente',
+      ...(economici ? ['Stipendio annuo EUR', 'Agente'] : []),
     ],
     ...rosa.map((giocatore) => [
       giocatore.id,
@@ -139,8 +146,7 @@ export function esportaRosaCsv(rosa: Giocatore[]): string {
       giocatore.pesoKg,
       giocatore.contrattoFine,
       giocatore.valoreMercato,
-      giocatore.stipendioAnnuo,
-      giocatore.agente,
+      ...(economici ? [giocatore.stipendioAnnuo, giocatore.agente] : []),
     ]),
   ];
   return '\uFEFF' + righe.map((riga) => riga.map(cella).join(';')).join('\r\n');

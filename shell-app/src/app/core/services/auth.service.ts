@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { apiUrl } from '../api-url';
 
 export interface LoginRequest  { username: string; password: string; }
 export interface LoginResponse { token: string; expiresIn: number; ruolo: string; }
 
-const BFF_BASE_URL = 'http://localhost:8080/api';
+const BFF_BASE_URL = apiUrl();
 const TOKEN_KEY    = 'jwt_token';
 
 @Injectable({ providedIn: 'root' })

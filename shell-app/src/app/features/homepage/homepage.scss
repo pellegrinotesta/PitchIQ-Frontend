@@ -5,50 +5,6 @@
     flex-direction: column;
 }
 
-.navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 2.5rem;
-    border-bottom: 1px solid var(--bordo);
-    background: var(--bg-primary);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.navbar-brand {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    font-size: 1.1rem;
-}
-
-.brand-name {
-    font-weight: 800;
-    font-size: 1.2rem;
-    letter-spacing: -.3px;
-}
-
-.btn-logout {
-    background: transparent;
-    border: 1px solid var(--bordo);
-    color: var(--testo-secondario);
-    padding: .45rem .9rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: .85rem;
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    transition: border-color .2s, color .2s;
-}
-
-.btn-logout:hover {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
 .hero {
     padding: 4rem 2.5rem 2rem;
 }
@@ -157,8 +113,189 @@
     .hero h1 {
         font-size: 2rem;
     }
+}
+/* Panoramica operativa */
+.panoramica {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1rem 2.5rem 0;
+}
 
-    .navbar {
-        padding: 1rem 1.5rem;
+.riquadro {
+    background: var(--bg-card);
+    border: 1px solid var(--bordo);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    min-width: 0;
+}
+
+.riquadro-testata {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .9rem;
+
+    h2 {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #aaa;
+    }
+
+    .sotto {
+        color: var(--verde);
+        margin-left: .3rem;
+    }
+
+    a {
+        font-size: .78rem;
+        color: var(--testo-secondario);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    a:hover {
+        color: var(--verde);
+    }
+}
+
+.numero {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.unita {
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--testo-secondario);
+}
+
+.dettaglio,
+.vuoto {
+    font-size: .85rem;
+    color: var(--testo-secondario);
+    margin-top: .35rem;
+}
+
+.forma {
+    display: flex;
+    gap: .4rem;
+    margin-top: .9rem;
+}
+
+.forma-item {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: .85rem;
+    text-decoration: none;
+
+    &.vittoria {
+        background: rgba(0, 255, 135, .1);
+        color: #00ff87;
+    }
+
+    &.pareggio {
+        background: rgba(255, 180, 0, .1);
+        color: #ffb400;
+    }
+
+    &.sconfitta {
+        background: rgba(255, 100, 100, .1);
+        color: #ff6464;
+    }
+}
+
+.elenco {
+    list-style: none;
+    margin-top: .75rem;
+    max-height: 9.5rem;
+    overflow-y: auto;
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: .4rem 0;
+        border-top: 1px solid var(--bordo);
+        font-size: .88rem;
+    }
+
+    a {
+        color: var(--testo);
+        text-decoration: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    a:hover {
+        color: var(--verde);
+    }
+}
+
+.tag {
+    flex-shrink: 0;
+    padding: .12rem .5rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, .06);
+    color: #aaa;
+}
+
+.tag-rosso {
+    background: rgba(255, 100, 100, .12);
+    color: #ff6464;
+}
+
+.tag-giallo {
+    background: rgba(255, 180, 0, .12);
+    color: #ffb400;
+}
+
+@media (max-width: 768px) {
+    .panoramica {
+        margin: 1rem 1rem 0;
+    }
+}
+
+.prossima {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem .6rem;
+    margin-top: .9rem;
+    padding-top: .7rem;
+    border-top: 1px solid var(--bordo);
+    font-size: .85rem;
+
+    > span:first-child {
+        width: 100%;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--testo-secondario);
+    }
+
+    a {
+        color: var(--testo);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: var(--verde);
     }
 }

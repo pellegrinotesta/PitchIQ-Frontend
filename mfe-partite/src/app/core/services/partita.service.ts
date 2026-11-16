@@ -5,8 +5,9 @@ import {
     Partita, HeatmapZona, ScoutingAvversario, GiocatoreBase,
     StatistichePartita, Titolare
 } from '../models/partita.model';
+import { apiUrl } from '../api-url';
 
-const BFF = 'http://localhost:8080/api';
+const BFF = apiUrl();
 
 @Injectable({ providedIn: 'root' })
 export class PartitaService {
@@ -75,6 +76,10 @@ export class PartitaService {
     // Scouting
     getAllScouting(): Observable<ScoutingAvversario[]> {
         return this.http.get<ScoutingAvversario[]>(`${BFF}/scouting`);
+    }
+
+    getScouting(id: number): Observable<ScoutingAvversario> {
+        return this.http.get<ScoutingAvversario>(`${BFF}/scouting/${id}`);
     }
 
     createScouting(req: any): Observable<ScoutingAvversario> {

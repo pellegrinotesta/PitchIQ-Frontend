@@ -130,3 +130,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+.hint-riservato {
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  margin-top: 1.4rem;
+  cursor: pointer;
+}

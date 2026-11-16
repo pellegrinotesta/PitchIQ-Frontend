@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SedutaAllenamento, SedutaRequest } from '../models/allenamento.model';
+import { CaricoGiocatore, SedutaAllenamento, SedutaRequest } from '../models/allenamento.model';
+import { apiUrl } from '../api-url';
 
-const BFF = 'http://localhost:8080/api';
+const BFF = apiUrl();
 
 @Injectable({ providedIn: 'root' })
 export class AllenamentoService {
@@ -30,6 +31,12 @@ export class AllenamentoService {
 
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${BFF}/allenamenti/${id}`);
+    }
+
+    getCarico(al?: string): Observable<CaricoGiocatore[]> {
+        let params = new HttpParams();
+        if (al) params = params.set('al', al);
+        return this.http.get<CaricoGiocatore[]>(`${BFF}/allenamenti/carico`, { params });
     }
 
     generaPresenze(id: number): Observable<SedutaAllenamento> {

@@ -135,7 +135,10 @@ export class SchedaGiocatore implements OnInit {
       { label: 'Inizio contratto', presente: !!giocatore.contrattoInizio },
       { label: 'Fine contratto', presente: !!giocatore.contrattoFine },
       { label: 'Valore di mercato', presente: giocatore.valoreMercato !== null },
-      { label: 'Agente', presente: !!giocatore.agente?.trim() },
+      // Un dato nascosto dal ruolo non va contato come mancante
+      ...(giocatore.datiEconomiciVisibili === false
+        ? []
+        : [{ label: 'Agente', presente: !!giocatore.agente?.trim() }]),
     ];
   });
   readonly campiPresenti = computed(

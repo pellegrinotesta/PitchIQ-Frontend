@@ -1,0 +1,78 @@
+<div class="page">
+
+    <nav class="breadcrumb">
+        <a routerLink=".."><i class="pi pi-arrow-left"></i> Allenamenti</a>
+    </nav>
+
+    <header class="page-header">
+        <div>
+            <p class="page-label">MONITORAGGIO</p>
+            <h1>Carico di lavoro</h1>
+        </div>
+        <label class="data">
+            <span>Situazione al</span>
+            <input #data type="date" [value]="al()" (change)="cambiaData(data.value)" />
+        </label>
+    </header>
+
+    @if (loading()) {
+    <div class="stato-box">Caricamento…</div>
+    } @else if (errore()) {
+    <div class="stato-box">
+        Impossibile caricare il carico di lavoro.
+        <button class="btn-link" (click)="carica()">Riprova</button>
+    </div>
+    } @else if (righe().length === 0) {
+    <div class="stato-box">Nessuna presenza registrata nei 28 giorni precedenti.</div>
+    } @else {
+
+    <p class="sintesi">
+        <strong>{{ daMonitorare() }}</strong> giocatori da monitorare su {{ righe().length }}.
+        @if (senzaRpe() > 0) {
+        <span class="avviso">{{ senzaRpe() }} presenze senza RPE: il carico reale è sottostimato.</span>
+        }
+    </p>
+
+    <div class="tabella-wrap">
+        <table class="tabella">
+            <thead>
+                <tr>
+                    <th class="sx">Giocatore</th>
+                    <th title="Somma dei carichi degli ultimi 7 giorni">Acuto (7 gg)</th>
+                    <th title="Media settimanale degli ultimi 28 giorni">Cronico (28 gg)</th>
+                    <th title="Carico acuto diviso carico cronico">Rapporto</th>
+                    <th>Sedute con RPE</th>
+                    <th class="sx">Valutazione</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (r of righe(); track r.giocatoreId) {
+                <tr>
+                    <td class="sx">
+                        <span class="maglia">{{ r.numeroMaglia ?? '?' }}</span>
+                        <span class="nome">{{ r.cognomeGiocatore }} {{ r.nomeGiocatore }}</span>
+                        <span class="ruolo">{{ r.ruolo }}</span>
+                    </td>
+                    <td>{{ r.caricoAcuto | number:'1.0-0' }}</td>
+                    <td>{{ r.caricoCronico | number:'1.0-0' }}</td>
+                    <td class="forte">{{ r.acwr === null ? '–' : (r.acwr | number:'1.2-2') }}</td>
+                    <td>{{ r.seduteConRpe }}/{{ r.seduteConRpe + r.seduteSenzaRpe }}</td>
+                    <td class="sx">
+                        <span class="tag" [class]="'tag zona-' + r.zona">{{ etichette[r.zona] }}</span>
+                        @if (r.zona === 'NON_VALUTABILE') {
+                        <span class="motivo">{{ r.acwr === null ? 'nessun RPE registrato' : 'meno di tre settimane di dati' }}</span>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="nota">
+        Carico di una seduta = RPE (1–10) × minuti. Il rapporto confronta gli ultimi 7 giorni con la media
+        settimanale degli ultimi 28: tra 0,8 e 1,3 è considerato ottimale, oltre 1,5 alto. Considera solo
+        gli allenamenti registrati, non i minuti di gara, ed è un'indicazione per lo staff, non una diagnosi.
+    </p>
+    }
+</div>

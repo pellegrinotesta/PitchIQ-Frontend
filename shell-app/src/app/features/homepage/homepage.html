@@ -5,6 +5,111 @@
         <h1>La tua <span class="accent">squadra</span>,<br>tutto sotto controllo.</h1>
     </header>
 
+    <section class="panoramica" aria-label="Panoramica">
+
+        <article class="riquadro">
+            <header class="riquadro-testata">
+                <h2>Rendimento @if (stagione(); as s) { <span class="sotto">{{ s.nome }}</span> }</h2>
+                <a routerLink="/partite">Partite <i class="pi pi-arrow-right"></i></a>
+            </header>
+            @if (partite() === null) {
+            <p class="vuoto">Caricamento…</p>
+            } @else if (partite() === 'errore') {
+            <p class="vuoto">Dati non disponibili.</p>
+            } @else if (stagione(); as s) {
+            <p class="numero">{{ s.mediaPunti | number:'1.2-2' }} <span class="unita">punti a gara</span></p>
+            <p class="dettaglio">{{ s.giocate }} giocate · {{ s.vittorie }} V · {{ s.pareggi }} N · {{ s.sconfitte }} P</p>
+            <div class="forma">
+                @for (p of s.ultime; track p.id) {
+                <a [routerLink]="['/partite', p.id]" class="forma-item" [class]="classeRisultato(p.risultato)"
+                    [title]="p.avversario + ' ' + p.golFatti + '–' + p.golSubiti">{{ p.risultato }}</a>
+                }
+            </div>
+            } @else {
+            <p class="vuoto">Nessuna partita giocata.</p>
+            }
+            @if (prossima(); as p) {
+            <p class="prossima">
+                <span>Prossima gara</span>
+                <a [routerLink]="['/partite', p.id]">vs {{ p.avversario }} · {{ p.data | date:'EEE dd/MM' }}@if (p.oraInizio) { · {{ p.oraInizio.slice(0, 5) }} }</a>
+                <span class="tag" [class.tag-giallo]="!p.scoutingId">{{ p.scoutingId ? 'Scouting pronto' : 'Scouting mancante' }}</span>
+            </p>
+            }
+        </article>
+
+        <article class="riquadro">
+            <header class="riquadro-testata">
+                <h2>Disponibilità</h2>
+                <a routerLink="/squadre">Rosa <i class="pi pi-arrow-right"></i></a>
+            </header>
+            @if (rosa() === null) {
+            <p class="vuoto">Caricamento…</p>
+            } @else if (rosa() === 'errore') {
+            <p class="vuoto">Dati non disponibili.</p>
+            } @else if (disponibilita(); as d) {
+            <p class="numero">{{ d.disponibili }} <span class="unita">su {{ d.totale }} disponibili</span></p>
+            @if (d.infortunati.length === 0 && d.squalificati.length === 0) {
+            <p class="dettaglio">Nessun indisponibile.</p>
+            }
+            <ul class="elenco">
+                @for (g of d.infortunati; track g.id) {
+                <li><a [routerLink]="['/squadre', g.id]">{{ g.cognome }} {{ g.nome }}</a>
+                    <span class="tag tag-rosso">Infortunato</span></li>
+                }
+                @for (g of d.squalificati; track g.id) {
+                <li><a [routerLink]="['/squadre', g.id]">{{ g.cognome }} {{ g.nome }}</a>
+                    <span class="tag tag-giallo">Squalificato</span></li>
+                }
+            </ul>
+            }
+        </article>
+
+        <article class="riquadro">
+            <header class="riquadro-testata">
+                <h2>Contratti in scadenza</h2>
+                <a routerLink="/squadre">Rosa <i class="pi pi-arrow-right"></i></a>
+            </header>
+            @if (rosa() === null) {
+            <p class="vuoto">Caricamento…</p>
+            } @else if (rosa() === 'errore') {
+            <p class="vuoto">Dati non disponibili.</p>
+            } @else if (contratti(); as c) {
+            <p class="numero">{{ c.length }} <span class="unita">entro 180 giorni</span></p>
+            <ul class="elenco">
+                @for (g of c; track g.id) {
+                <li><a [routerLink]="['/squadre', g.id]">{{ g.cognome }} {{ g.nome }}</a>
+                    <span class="tag" [class.tag-rosso]="g.giorni < 0" [class.tag-giallo]="g.giorni >= 0">
+                        {{ g.giorni < 0 ? 'Scaduto' : (g.contrattoFine | date:'dd/MM/yyyy') }}
+                    </span></li>
+                }
+            </ul>
+            }
+        </article>
+
+        <article class="riquadro">
+            <header class="riquadro-testata">
+                <h2>Prossime sedute</h2>
+                <a routerLink="/allenamenti">Allenamenti <i class="pi pi-arrow-right"></i></a>
+            </header>
+            @if (sedute() === null) {
+            <p class="vuoto">Caricamento…</p>
+            } @else if (sedute() === 'errore') {
+            <p class="vuoto">Dati non disponibili.</p>
+            } @else if (prossimeSedute(); as ps) {
+            @if (ps.length === 0) {
+            <p class="vuoto">Nessuna seduta pianificata.</p>
+            }
+            <ul class="elenco">
+                @for (s of ps; track s.id) {
+                <li><a [routerLink]="['/allenamenti', s.id]">{{ s.data | date:'EEE dd/MM' }} · {{ s.oraInizio.slice(0, 5) }}</a>
+                    <span class="tag">{{ s.tipo }}</span></li>
+                }
+            </ul>
+            }
+        </article>
+
+    </section>
+
     <main class="sezioni-grid">
         @for (s of sezioni; track s.route) {
         <a [routerLink]="s.route" class="sezione-card">

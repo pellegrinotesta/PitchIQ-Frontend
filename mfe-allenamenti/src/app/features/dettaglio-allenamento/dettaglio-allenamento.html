@@ -66,6 +66,10 @@
             </span>
             <span class="stat-label">Partecipazione</span>
         </div>
+        <div class="stat-card">
+            <span class="stat-valore">{{ caricoMedio(s) ?? '–' }}</span>
+            <span class="stat-label">Carico medio (RPE × min)</span>
+        </div>
         }
     </div>
 
@@ -103,6 +107,23 @@
                     @if (p.valutazione) {
                     <span class="val-numero">{{ p.valutazione }}</span>
                     }
+                </div>
+
+                <!-- Carico: sforzo percepito e minuti svolti -->
+                <div class="carico">
+                    <label>RPE
+                        <select #rpe (change)="impostaRpe(p, rpe.value)">
+                            <option value="" [selected]="!p.rpe">–</option>
+                            @for (v of scalaRpe; track v) {
+                            <option [value]="v" [selected]="p.rpe === v">{{ v }}</option>
+                            }
+                        </select>
+                    </label>
+                    <label>Min
+                        <input #min type="number" min="0" max="600" [value]="p.minuti ?? ''"
+                            [placeholder]="durata(s)" (change)="impostaMinuti(p, min.value)" />
+                    </label>
+                    <span class="carico-valore" title="Carico della seduta: RPE × minuti">{{ carico(p, s) ?? '–' }}</span>
                 </div>
 
                 <button class="btn-toggle assente" (click)="togglePresenza(p)" title="Segna assente">

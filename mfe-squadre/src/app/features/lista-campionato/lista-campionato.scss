@@ -1,0 +1,156 @@
+:host {
+  display: block;
+  --line: #2b332f;
+  --muted: #a4b1a9;
+  --accent: #61efa4;
+  --warning: #f0c66c;
+  --danger: #ff8a8a;
+}
+
+.testata {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+
+  h2 {
+    font-size: 1.1rem;
+    margin: 0 0 0.25rem;
+  }
+}
+
+.esito {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  &.ok {
+    color: var(--accent);
+  }
+
+  &.ko {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+}
+
+.nota {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.avviso {
+  color: var(--warning);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warning);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  margin: 0 0 0.6rem;
+}
+
+.fasce {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.fascia {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  min-width: 0;
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0.5rem 0;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border-top: 1px solid var(--line);
+    font-size: 0.86rem;
+  }
+
+  li span {
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: right;
+  }
+
+  li .da-fare {
+    color: var(--warning);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+
+  .vuoto {
+    color: var(--muted);
+    font-style: italic;
+  }
+}
+
+.fascia-ko {
+  border-color: var(--danger);
+
+  h3,
+  .conteggio {
+    color: var(--danger);
+  }
+}
+
+.conteggio {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.barra {
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+}

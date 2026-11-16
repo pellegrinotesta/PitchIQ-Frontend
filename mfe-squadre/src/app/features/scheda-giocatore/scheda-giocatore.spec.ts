@@ -80,6 +80,33 @@ describe('SchedaGiocatore', () => {
     expect(harness.routeNativeElement?.textContent).toContain('Storico osservato');
   });
 
+  it('mostra Riservato al posto dei dati che il ruolo non può vedere', async () => {
+    service.getById.mockReturnValue(
+      of({
+        ...PROFILO, stipendioAnnuo: null, noteMediche: null, agente: null,
+        datiEconomiciVisibili: false, datiMediciVisibili: false,
+      }),
+    );
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/giocatori/1', SchedaGiocatore);
+    expect(component.campiQualita().map((c) => c.label)).not.toContain('Agente');
+
+    component.tabAttivo.set('contratto');
+    harness.detectChanges();
+    const contratto = harness.routeNativeElement!.textContent!;
+    expect(contratto.match(/Riservato/g)).toHaveLength(2);
+
+    component.tabAttivo.set('anagrafica');
+    harness.detectChanges();
+    expect(harness.routeNativeElement!.textContent!.match(/Riservato/g)).toHaveLength(1);
+
+    component.tabAttivo.set('medico');
+    harness.detectChanges();
+    const medico = harness.routeNativeElement!.textContent!;
+    expect(medico).toContain('Riservate allo staff medico');
+    expect(medico).not.toContain('Nessuna nota medica');
+  });
+
   it('filtra il periodo e distingue intervallo errato da assenza dati', async () => {
     const harness = await RouterTestingHarness.create();
     const component = await harness.navigateByUrl('/giocatori/1', SchedaGiocatore);

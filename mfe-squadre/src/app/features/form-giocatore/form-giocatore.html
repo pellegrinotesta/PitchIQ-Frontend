@@ -197,6 +197,7 @@
             step="0.01"
           />
         </div>
+        @if (economiciVisibili) {
         <div class="field">
           <label for="giocatore-stipendio">Stipendio annuo (EUR)</label
           ><input
@@ -208,7 +209,9 @@
             step="0.01"
           />
         </div>
+        }
       </div>
+      @if (economiciVisibili) {
       <div class="field-row">
         <div class="field">
           <label for="giocatore-clausola">Clausola (EUR)</label
@@ -224,6 +227,34 @@
         <div class="field">
           <label for="giocatore-agente">Agente</label
           ><input id="giocatore-agente" pInputText formControlName="agente" maxlength="100" />
+        </div>
+      </div>
+      } @else {
+        <p class="hint-riservato">Stipendio, clausola e agente sono riservati alla dirigenza.</p>
+      }
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Lista campionato</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="giocatore-formazione">Formazione nel vivaio</label>
+          <p-select
+            inputId="giocatore-formazione"
+            [options]="formazioneOptions"
+            formControlName="formazione"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            placeholder="Da classificare"
+            appendTo="body"
+          />
+        </div>
+        <div class="field">
+          <label class="check" for="giocatore-fuori-lista">
+            <input id="giocatore-fuori-lista" type="checkbox" formControlName="fuoriLista" />
+            Fuori dalla lista dei 25
+          </label>
         </div>
       </div>
     </div>

@@ -1,0 +1,97 @@
+@let v = verifica();
+<div class="testata">
+  <div>
+    <h2>Lista dei 25 · {{ stagione() }}</h2>
+    <p class="nota">Calcolata su tutta la rosa, senza i filtri qui sopra.</p>
+  </div>
+  <p class="esito" [class.ok]="v.conforme" [class.ko]="!v.conforme" role="status">
+    <i class="pi" [class.pi-check-circle]="v.conforme" [class.pi-exclamation-triangle]="!v.conforme"
+      aria-hidden="true"></i>
+    {{ v.inLista }} su {{ postiTotali }} posti ·
+    {{ v.conforme ? 'composizione valida' : 'composizione non valida' }}
+  </p>
+</div>
+
+@for (problema of v.problemi; track problema) {
+  <p class="avviso">{{ problema }}</p>
+}
+
+<div class="fasce">
+  @for (fascia of v.fasce; track fascia.chiave) {
+    <section class="fascia">
+      <header>
+        <h3>{{ fascia.label }}</h3>
+        <span class="conteggio">{{ fascia.giocatori.length }}/{{ fascia.posti }}</span>
+      </header>
+      <div class="barra" aria-hidden="true">
+        <span [style.width.%]="(fascia.giocatori.length / fascia.posti) * 100"></span>
+      </div>
+      <ul>
+        @for (g of fascia.giocatori; track g.id) {
+          <li>
+            <a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a>
+            <span [class.da-fare]="!g.formazione">{{ formazione(g) }}</span>
+          </li>
+        } @empty {
+          <li class="vuoto">Nessun giocatore</li>
+        }
+      </ul>
+      @if (fascia.giocatori.length < fascia.posti) {
+        <p class="nota">{{ fascia.posti - fascia.giocatori.length }} posti disponibili</p>
+      }
+    </section>
+  }
+</div>
+
+<div class="fasce">
+  @if (v.eccedenza.length) {
+    <section class="fascia fascia-ko">
+      <header>
+        <h3>Senza posto</h3>
+        <span class="conteggio">{{ v.eccedenza.length }}</span>
+      </header>
+      <ul>
+        @for (g of v.eccedenza; track g.id) {
+          <li>
+            <a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a>
+            <span [class.da-fare]="!g.formazione">{{ formazione(g) }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+  <section class="fascia">
+    <header>
+      <h3>Under 22</h3>
+      <span class="conteggio">{{ v.under22.length }}</span>
+    </header>
+    <p class="nota">Nati dal 1º gennaio {{ annoUnder22() }}: utilizzabili senza occupare posti.</p>
+    <ul>
+      @for (g of v.under22; track g.id) {
+        <li><a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a><span>{{ g.eta }} anni</span></li>
+      } @empty {
+        <li class="vuoto">Nessun giocatore</li>
+      }
+    </ul>
+  </section>
+  <section class="fascia">
+    <header>
+      <h3>Fuori lista</h3>
+      <span class="conteggio">{{ v.fuoriLista.length }}</span>
+    </header>
+    <p class="nota">Over 22 tesserati ma non utilizzabili in campionato.</p>
+    <ul>
+      @for (g of v.fuoriLista; track g.id) {
+        <li><a [routerLink]="[g.id]">{{ g.cognome }} {{ g.nome }}</a><span>{{ formazione(g) }}</span></li>
+      } @empty {
+        <li class="vuoto">Nessun giocatore</li>
+      }
+    </ul>
+  </section>
+</div>
+
+<p class="nota">
+  Regola: 25 posti, di cui 4 riservati ai formati nel club e 4 ai formati in Italia; gli Under 22 sono
+  liberi. Formazione e fuori lista si impostano dalla modifica del giocatore. Verifica indicativa: non
+  considera i limiti sui calciatori extracomunitari e fa fede la lista depositata in Lega.
+</p>

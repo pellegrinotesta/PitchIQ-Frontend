@@ -262,3 +262,19 @@
     border-color: #00ff87;
     color: #00ff87;
 }
+.btn-carico {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .6rem 1rem;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #aaa;
+    font-size: .9rem;
+    text-decoration: none;
+}
+
+.btn-carico:hover {
+    border-color: #00ff87;
+    color: #00ff87;
+}

@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/native-federation';
 import { authGuard } from './core/guards/auth.guard';
-import federationManifest from '../../public/federation.manifest.json';
+import manifestPredefinito from '../../public/federation.manifest.json';
 
-function loadRemoteRoutes(remoteName: keyof typeof federationManifest) {
-    const remoteEntry = federationManifest[remoteName];
+/** Gli indirizzi dei microfrontend sono quelli letti all'avvio da federation.manifest.json (vedi main.ts). */
+function loadRemoteRoutes(remoteName: keyof typeof manifestPredefinito) {
+    const remotes = (globalThis as { __PITCHIQ__?: { remotes?: Record<string, string> } }).__PITCHIQ__?.remotes;
+    const remoteEntry = remotes?.[remoteName] ?? manifestPredefinito[remoteName];
     return loadRemoteModule({ remoteName, remoteEntry, exposedModule: './Routes' });
 }
 

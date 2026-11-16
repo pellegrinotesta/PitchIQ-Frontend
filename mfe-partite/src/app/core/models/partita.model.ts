@@ -39,7 +39,14 @@ export interface Partita {
     casaTrasferta: CasaTrasferta;
     golFatti: number;
     golSubiti: number;
-    risultato: Risultato;
+    /** null se la partita è in calendario e non ancora giocata */
+    risultato: Risultato | null;
+    /** false = in calendario; assente nei dati precedenti al calendario, che sono tutte gare giocate */
+    giocata?: boolean;
+    /** "HH:mm[:ss]" */
+    oraInizio?: string | null;
+    /** Report di scouting dell'avversario */
+    scoutingId?: number | null;
     modulo: string | null;
     note: string | null;
     eventi: EventoPartita[];

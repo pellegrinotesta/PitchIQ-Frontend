@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TrendDto, StatisticaRequest, CategoriaMetrica, GiocatoreStatistica, ConfrontoDto } from '../models/statistica.model';
+import { apiUrl } from '../api-url';
 
-const BFF = 'http://localhost:8080/api';
+const BFF = apiUrl();
 
 @Injectable({ providedIn: 'root' })
 export class StatisticaService {

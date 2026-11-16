@@ -9,6 +9,11 @@ export const ALLENAMENTI_ROUTES: Routes = [
       ),
   },
   {
+    path: 'carico',
+    loadComponent: () =>
+      import('./features/carico-lavoro/carico-lavoro').then((m) => m.CaricoLavoro),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./features/dettaglio-allenamento/dettaglio-allenamento').then(
