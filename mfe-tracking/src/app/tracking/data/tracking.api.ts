@@ -2,7 +2,7 @@ import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  AggregatoEsitoDto, AnimazioneDto, EsitoPressione, ImportDto,
+  AggregatoEsitoDto, AnalisiVideoDto, AnimazioneDto, EsitoPressione, ImportDto,
   PartitaDettaglioDto, PartitaDto, SequenzaDto,
 } from './tracking.models';
 import { apiUrl } from './api-url';
@@ -31,6 +31,25 @@ export class TrackingApi {
     form.append('eventi', eventi);
     if (tracking) form.append('tracking', tracking);
     return this.http.post<ImportDto>(`${this.base}/import`, form, { reportProgress: true, observe: 'events' });
+  }
+
+  caricaVideo(video: File): Observable<HttpEvent<AnalisiVideoDto>> {
+    const form = new FormData();
+    form.append('video', video);
+    return this.http.post<AnalisiVideoDto>(`${this.base}/video-analyses`, form, {
+      reportProgress: true,
+      observe: 'events',
+    });
+  }
+
+  statoAnalisiVideo(id: string): Observable<AnalisiVideoDto> {
+    return this.http.get<AnalisiVideoDto>(`${this.base}/video-analyses/${encodeURIComponent(id)}`);
+  }
+
+  clipVideo(id: string, clipId: string): Observable<Blob> {
+    return this.http.get(`${this.base}/video-analyses/${encodeURIComponent(id)}/clips/${encodeURIComponent(clipId)}`, {
+      responseType: 'blob',
+    });
   }
 
   statoImport(id: number): Observable<ImportDto> {

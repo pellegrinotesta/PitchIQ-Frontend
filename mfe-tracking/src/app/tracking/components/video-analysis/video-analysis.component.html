@@ -1,0 +1,59 @@
+<section class="video-card" aria-labelledby="video-analysis-title">
+  <div class="video-head">
+    <div>
+      <p class="video-eyebrow">MOTORE SPERIMENTALE</p>
+      <h2 id="video-analysis-title">Trova azioni nel video</h2>
+      <p>Carica una clip calcistica fino a 2 minuti per estrarre segmenti da rivedere.</p>
+    </div>
+  </div>
+
+  <p class="video-notice">
+    Questa versione individua solo intervalli con movimento visivo intenso. Non riconosce ancora
+    passaggi, tiri, dribbling, contrasti, intercetti o gol: le clip sono candidate da verificare.
+  </p>
+
+  <div class="video-controls">
+    <label class="video-picker">
+      <span>{{ file()?.name ?? 'Scegli un video MP4, MOV o WebM' }}</span>
+      <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"
+             [disabled]="fase() === 'upload' || fase() === 'processing'" (change)="onPick($event)">
+    </label>
+    <button type="button" class="video-submit" [disabled]="!file() || fase() === 'upload' || fase() === 'processing'"
+            (click)="avvia()">
+      @if (fase() === 'upload' || fase() === 'processing') {
+        <span class="video-spinner"></span> Analisi…
+      } @else {
+        <i class="pi pi-play"></i> Analizza video
+      }
+    </button>
+  </div>
+
+  @if (fase() === 'upload') {
+    <div class="video-progress" aria-live="polite">
+      <span>Caricamento {{ progresso() }}%</span>
+      <div><span [style.width.%]="progresso()"></span></div>
+    </div>
+  } @else if (fase() === 'processing') {
+    <p class="video-status" aria-live="polite">Analisi in corso…</p>
+  } @else if (fase() === 'error' && errore()) {
+    <p class="video-error" role="alert">{{ errore() }}</p>
+  } @else if (fase() === 'done' && analisi(); as result) {
+    <p class="video-status" aria-live="polite">{{ result.messaggio }}</p>
+    <div class="candidate-list">
+      @for (event of result.eventi; track event.id) {
+        <article class="candidate">
+          <div class="candidate-info">
+            <strong>{{ event.etichetta }}</strong>
+            <span>{{ timestamp(event.inizioSecondi) }}–{{ timestamp(event.fineSecondi) }}</span>
+            <small>Indice di movimento {{ (event.intensitaMovimento * 100).toFixed(0) }}% · non è una confidenza</small>
+          </div>
+          <video controls preload="metadata" [src]="clipUrl(event)" [attr.aria-label]="'Clip candidata ' + event.id">
+            Il browser non supporta la riproduzione video.
+          </video>
+        </article>
+      } @empty {
+        <p class="video-status">Nessun intervallo candidato rilevato. Prova con una clip più dinamica.</p>
+      }
+    </div>
+  }
+</section>

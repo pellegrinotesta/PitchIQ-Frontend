@@ -1,5 +1,22 @@
 export type EsitoPressione = 'SUPERATA' | 'NEUTRALIZZATA' | 'CONTENUTA';
 export type StatoImport = 'IN_CODA' | 'IN_ELABORAZIONE' | 'COMPLETATO' | 'ERRORE';
+export type StatoAnalisiVideo = 'IN_CODA' | 'IN_ELABORAZIONE' | 'COMPLETATO' | 'ERRORE';
+
+export interface EventoVideoDto {
+  id: string;
+  etichetta: string;
+  inizioSecondi: number;
+  fineSecondi: number;
+  intensitaMovimento: number;
+}
+
+export interface AnalisiVideoDto {
+  id: string;
+  stato: StatoAnalisiVideo;
+  messaggio: string | null;
+  durataSecondi: number | null;
+  eventi: EventoVideoDto[];
+}
 
 export interface ImportDto {
   id: number;

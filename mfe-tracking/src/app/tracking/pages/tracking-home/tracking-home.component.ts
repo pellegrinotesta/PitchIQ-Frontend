@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, of, switchMap, takeWhile, timer } from 'rxjs';
 import { EsitoBarsComponent } from '../../components/esito-bars/esito-bars.component';
 import { UploadPanelComponent } from '../../components/upload-panel/upload-panel.component';
+import { VideoAnalysisComponent } from '../../components/video-analysis/video-analysis.component';
 import { TrackingApi } from '../../data/tracking.api';
 import { AggregatoEsitoDto, ImportDto, PartitaDto } from '../../data/tracking.models';
 
@@ -18,7 +19,7 @@ interface RigaConfronto {
 @Component({
   selector: 'tk-tracking-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [UploadPanelComponent, EsitoBarsComponent, RouterLink, DatePipe],
+  imports: [UploadPanelComponent, VideoAnalysisComponent, EsitoBarsComponent, RouterLink, DatePipe],
   templateUrl: './tracking-home.component.html',
   styleUrl: './tracking-home.component.scss',
 })
