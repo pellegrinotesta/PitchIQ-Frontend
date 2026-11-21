@@ -54,11 +54,6 @@
                     <span class="item-sub">{{ s.modulo }}</span>
                 </div>
                 <div class="item-actions">
-                    @if (formazioneAttiva()?.id) {
-                    <button class="btn-applica" title="Applica" (click)="$event.stopPropagation(); applicaSchema(s)">
-                        <i class="pi pi-play"></i>
-                    </button>
-                    }
                     <button class="btn-elimina" title="Elimina schema" aria-label="Elimina schema" (click)="$event.stopPropagation(); eliminaSchema(s)">
                         <i class="pi pi-trash"></i>
                     </button>
@@ -119,6 +114,13 @@
                 </select>
             </div>
             <div class="toolbar-right">
+                @if (schemi().length) {
+                <select class="inp-applica" aria-label="Applica uno schema alla formazione"
+                    (change)="applicaSchemaDaBarra($any($event.target).value); $any($event.target).value = ''">
+                    <option value="">Applica schema…</option>
+                    @for (s of schemi(); track s.id) { <option [value]="s.id">{{ s.nome }} · {{ s.modulo }}</option> }
+                </select>
+                }
                 <button class="btn-salva" (click)="salvaFormazione()" [disabled]="salvando()">
                     @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> }
                     @else { <i class="pi pi-save"></i> }
@@ -194,10 +196,10 @@
                 </a>
                 <input class="inp-nome" [ngModel]="schemaAttivo()!.nome" (ngModelChange)="onNomeSchemaChange($event)"
                     placeholder="Nome schema" />
-                <select class="inp-modulo" [ngModel]="schemaAttivo()!.modulo"
-                    (ngModelChange)="onModuloSchemaChange($event)">
+                <select class="inp-modulo" aria-label="Modulo dello schema"
+                    (change)="onModuloSchemaChange($any($event.target))">
                     @for (m of moduliOptions; track m) {
-                    <option [value]="m">{{ m }}</option>
+                    <option [value]="m" [selected]="m === schemaAttivo()!.modulo">{{ m }}</option>
                     }
                 </select>
             </div>
@@ -209,11 +211,51 @@
                 </button>
             </div>
         </div>
-        <div class="campo-wrapper">
-            <app-campo-schema [slot]="schemaAttivo()!.slot" [frecce]="schemaAttivo()!.frecce"
-                [modulo]="schemaAttivo()!.modulo" (slotChange)="onSlotChange($event)"
-                (frecceChange)="onFrecceChange($event)" />
+        <div class="fasi-bar">
+            <div class="fasi-tabs" role="tablist" aria-label="Fase di gioco dello schema">
+                <button type="button" role="tab" class="fase-tab" [class.attiva]="faseSchemaAttiva() === 'SCHIERAMENTO'"
+                    [attr.aria-selected]="faseSchemaAttiva() === 'SCHIERAMENTO'" (click)="faseSchemaAttiva.set('SCHIERAMENTO')">
+                    Schieramento
+                </button>
+                @for (f of fasiDisponibili; track f.valore) {
+                <button type="button" role="tab" class="fase-tab" [class.attiva]="faseSchemaAttiva() === f.valore"
+                    [attr.aria-selected]="faseSchemaAttiva() === f.valore" [attr.title]="f.nome" (click)="faseSchemaAttiva.set(f.valore)">
+                    {{ f.breve }}
+                    @if (fasiSchemaConContenuto().has(f.valore)) { <span class="fase-punto" aria-label="definita"></span> }
+                </button>
+                }
+            </div>
+            @if (faseSchemaCorrente(); as fase) {
+            <div class="fasi-azioni">
+                <select class="inp-copia" aria-label="Copia posizioni da un'altra fase"
+                    (change)="copiaFaseSchemaDa($any($event.target).value); $any($event.target).value = ''">
+                    <option value="">Copia posizioni da…</option>
+                    @for (f of fasiDisponibili; track f.valore) {
+                    @if (f.valore !== fase) { <option [value]="f.valore">{{ f.nome }}</option> }
+                    }
+                </select>
+                <button type="button" class="btn-ripristina" [disabled]="!fasiSchemaConContenuto().has(fase)" (click)="ripristinaFaseSchema()">
+                    <i class="pi pi-replay" aria-hidden="true"></i> Ripristina
+                </button>
+            </div>
+            }
         </div>
+        <div class="campo-wrapper">
+            @if (faseSchemaCorrente(); as fase) {
+            <app-campo-fase [posizioni]="posizioniSchema()" [fasi]="fasiSchemaVista()" [fase]="fase" [mostraNomi]="false"
+                (fasiChange)="onFasiSchemaChange($event)" />
+            } @else {
+            <app-campo-schema [slot]="schemaAttivo()!.slot" (slotChange)="onSlotChange($event)"
+                (slotRinominato)="onSlotRinominato($event)" />
+            }
+        </div>
+        <p class="fase-aiuto">
+            @if (faseSchemaCorrente(); as fase) {
+            {{ nomeFase(fase) }}: sposta gli slot solo per questa fase e disegna corse, passaggi e pressioni. Applicando lo schema le fasi passano alla formazione con i giocatori assegnati.
+            } @else {
+            Lo schema è un modello riusabile: applicalo a una formazione dalla barra della formazione ("Applica schema").
+            }
+        </p>
         }
         }
 

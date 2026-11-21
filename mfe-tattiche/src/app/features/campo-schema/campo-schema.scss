@@ -1,421 +1,74 @@
-:host {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-}
+:host { display: block; width: 100%; height: 100%; min-height: 0; }
 
-.schema-editor {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-}
+.schema { display: flex; gap: 1rem; height: 100%; min-height: 0; }
+.colonna-campo { display: flex; flex: 1; flex-direction: column; align-items: center; gap: .6rem; min-width: 0; min-height: 0; }
 
-.modalita-bar {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .5rem 1rem;
-    background: #0f0f0f;
-    border-bottom: 1px solid #1a1a1a;
-    flex-shrink: 0;
-}
-
-.mode-btn {
-    display: flex;
-    align-items: center;
-    gap: .35rem;
-    padding: .4rem .85rem;
-    background: transparent;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #555;
-    font-size: .82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-}
-
-.mode-btn:hover {
-    color: #888;
-    border-color: #333;
-}
-
-.mode-btn.active {
-    background: rgba(0, 255, 135, .08);
-    border-color: rgba(0, 255, 135, .2);
-    color: #00ff87;
-}
-
-.mode-hint {
-    font-size: .78rem;
-    color: #333;
-    margin-left: .5rem;
-}
-
-.editor-body {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    gap: 1rem;
-    padding: 1.5rem;
-    align-items: flex-start;
-}
-
-.campo-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-/* Campo */
-.campo {
-    position: relative;
-    height: 100%;
-    max-height: calc(100vh - 200px);
-    aspect-ratio: 68 / 105;
-    background: linear-gradient(180deg,
-            #1a3a1a 0%, #1e4a1e 8.33%,
-            #1a3a1a 8.33%, #1a3a1a 16.66%,
-            #1e4a1e 16.66%, #1e4a1e 25%,
-            #1a3a1a 25%, #1a3a1a 33.33%,
-            #1e4a1e 33.33%, #1e4a1e 41.66%,
-            #1a3a1a 41.66%, #1a3a1a 50%,
-            #1e4a1e 50%, #1e4a1e 58.33%,
-            #1a3a1a 58.33%, #1a3a1a 66.66%,
-            #1e4a1e 66.66%, #1e4a1e 75%,
-            #1a3a1a 75%, #1a3a1a 83.33%,
-            #1e4a1e 83.33%, #1e4a1e 91.66%,
-            #1a3a1a 91.66%, #1a3a1a 100%);
-    border-radius: 4px;
-    box-shadow: 0 0 60px rgba(0, 0, 0, .8);
-    cursor: crosshair;
-    user-select: none;
-}
-
-.campo.mode-freccia {
-    cursor: crosshair;
-}
-
-.campo-linee,
-.frecce-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.frecce-overlay {
-    pointer-events: all;
-}
-
-.freccia-line {
-    cursor: pointer;
-    transition: opacity .15s;
-}
-
-.freccia-line:hover {
-    opacity: .6;
-}
-
-/* Slot pin */
-.slot-pin {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: grab;
-    z-index: 10;
-    user-select: none;
-}
-
-.slot-pin:active {
-    cursor: grabbing;
-}
-
-.slot-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: .6rem;
-    font-weight: 800;
-    border: 2px solid rgba(255, 255, 255, .2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
-    color: #000;
-    transition: transform .15s;
-}
-
-.slot-pin.selected .slot-avatar {
-    transform: scale(1.15);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, .3);
-}
-
-.slot-pin:hover .slot-avatar {
-    transform: scale(1.1);
-}
-
-/* Colori per ruolo */
-.ruolo-portiere {
-    background: #f59e0b;
-}
-
-.ruolo-difensore {
-    background: #3b82f6;
-}
-
-.ruolo-centrocampista {
-    background: #00ff87;
-}
-
-.ruolo-attaccante {
-    background: #ef4444;
-}
-
-.slot-remove {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 15px;
-    height: 15px;
-    background: #ff6464;
-    border: none;
-    border-radius: 50%;
-    color: #fff;
-    font-size: .5rem;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.slot-pin:hover .slot-remove {
-    display: flex;
-}
-
-.campo-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: rgba(255, 255, 255, .12);
-    font-size: .82rem;
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-/* Pannello dettaglio */
-.slot-detail {
-    width: 220px;
-    background: #0f0f0f;
-    border: 1px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
-    flex-shrink: 0;
-    align-self: flex-start;
-}
-
-.detail-title {
-    font-size: .75rem;
-    font-weight: 700;
-    color: #00ff87;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0;
-}
-
-.detail-hint {
-    font-size: .75rem;
-    color: #444;
-    margin: 0;
-}
-
-.detail-field {
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
-}
-
-.detail-field label {
-    font-size: .72rem;
-    font-weight: 600;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-}
-
-.inp {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #fff;
-    padding: .45rem .6rem;
-    font-size: .85rem;
-    outline: none;
-    width: 100%;
-    transition: border-color .15s;
-    color-scheme: dark;
-    resize: vertical;
-}
-
-.inp:focus {
-    border-color: #00ff87;
-}
-
-.inp.inp-sm {
-    padding: .3rem .5rem;
-    font-size: .8rem;
-}
-
-.btn-chiudi {
-    background: transparent;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #555;
-    padding: .4rem;
-    cursor: pointer;
-    font-size: .82rem;
-    transition: all .15s;
-}
-
-.btn-chiudi:hover {
-    border-color: #555;
-    color: #888;
-}
-
-.freccia-item {
-    display: flex;
-    gap: .4rem;
-    align-items: center;
-}
-
-.btn-elimina-freccia {
-    background: transparent;
-    border: none;
-    color: #333;
-    cursor: pointer;
-    padding: .25rem;
-    font-size: .8rem;
-    transition: color .15s;
-}
-
-.btn-elimina-freccia:hover {
-    color: #ff6464;
-}
-
-.modalita-bar {
-    flex-wrap: wrap;
-    background: #151d19;
-    border-color: #303d35;
-}
-
-.mode-btn {
-    color: #b6c4b8;
-    border-color: #415246;
-}
-
-.mode-btn.active {
-    background: #274c37;
-    border-color: #61946c;
-    color: #c4f6ce;
-}
-
-.mode-hint,
-.detail-hint,
-.detail-field label,
-.btn-chiudi,
-.btn-elimina-freccia {
-    color: #a7b5a9;
-}
+.controlli { display: flex; flex-wrap: wrap; justify-content: center; gap: .3rem .9rem; margin: 0; padding: 0; list-style: none; font-size: .74rem; color: #fbbf24; }
+.controlli li { display: inline-flex; align-items: center; gap: .3rem; }
+.controlli li.ok { color: #6ee7a0; }
+.controlli li.aiuto { flex-basis: 100%; justify-content: center; color: #9bab9e; }
 
 .campo {
-    max-width: 100%;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, .35), 0 0 0 5px #344c3a;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-width: 100%;
+  aspect-ratio: 68 / 105;
+  background: repeating-linear-gradient(180deg, #1e4a1e 0, #1e4a1e 8.33%, #1a3a1a 8.33%, #1a3a1a 16.66%);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .35), 0 0 0 5px #344c3a;
+  cursor: copy;
+  touch-action: none; // il dito sposta gli slot invece di scorrere la pagina
+  user-select: none;
+}
+.linee { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255, 255, 255, .18); stroke-width: .4; }
+
+.slot {
+  position: absolute; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  color: #0b130e; background: #d7f3b4; border: 2px solid #fff; border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .5); font: inherit; cursor: grab; transform: translate(-50%, -50%); touch-action: none;
+}
+.slot-nome { font-size: .62rem; font-weight: 800; letter-spacing: -.2px; }
+.slot.ruolo-portiere { background: #fde68a; }
+.slot.ruolo-difensore { background: #bfdbfe; }
+.slot.ruolo-centrocampista { background: #d7f3b4; }
+.slot.ruolo-attaccante { background: #fecaca; }
+.slot.ruolo-specifico { background: #e9d5ff; }
+.slot.selezionato { box-shadow: 0 0 0 3px #6ee7a0, 0 2px 8px rgba(0, 0, 0, .5); transform: translate(-50%, -50%) scale(1.12); }
+.slot.trascinato { cursor: grabbing; z-index: 3; }
+.slot:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.avviso {
+  position: absolute; bottom: 6%; left: 50%; z-index: 4; margin: 0; padding: .45rem .8rem;
+  color: #fde68a; background: rgba(20, 20, 20, .95); border: 1px solid rgba(251, 191, 36, .5); border-radius: 8px;
+  font-size: .75rem; white-space: nowrap; transform: translateX(-50%);
 }
 
-.campo-hint {
-    color: rgba(255, 255, 255, .75);
-    white-space: normal;
-    text-align: center;
-    width: 90%;
-    justify-content: center;
+.dettaglio {
+  display: flex; flex: none; flex-direction: column; gap: .75rem; width: 240px; padding: 1rem;
+  background: #151d19; border: 1px solid #303d35; border-radius: 10px; overflow-y: auto;
 }
-
-.slot-detail {
-    background: #151d19;
-    border-color: #415246;
-    border-radius: 8px;
-}
-
-.detail-title {
-    color: #a7f3bd;
-    letter-spacing: 0;
-}
-
-.detail-field label {
-    letter-spacing: 0;
-}
-
+.dettaglio-titolo { margin: 0; color: #a7f3bd; font-size: .8rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.campo-form { display: grid; gap: .3rem; font-size: .72rem; color: #a7b5a9; }
+.campo-form small { color: #9bab9e; font-size: .68rem; line-height: 1.4; }
 .inp {
-    box-sizing: border-box;
-    background: #202c24;
-    border-color: #415246;
+  width: 100%; min-height: 2.25rem; padding: .4rem .55rem; box-sizing: border-box; color: #edf4ee; background: #202c24;
+  border: 1px solid #415246; border-radius: 7px; font: inherit; font-size: .8rem; color-scheme: dark; resize: vertical;
 }
-
-.freccia-item .inp {
-    min-width: 0;
+.azioni { display: flex; gap: .5rem; margin-top: auto; }
+.btn-togli, .btn-chiudi {
+  display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: .35rem; min-height: 2.25rem;
+  border-radius: 7px; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer;
 }
+.btn-togli { color: #fecaca; background: transparent; border: 1px solid rgba(248, 113, 113, .45); }
+.btn-chiudi { color: #edf4ee; background: #202c24; border: 1px solid #415246; }
 
+@media (pointer: coarse) {
+  .slot { width: 46px; height: 46px; }
+  .inp, .btn-togli, .btn-chiudi { min-height: 44px; }
+}
 @media (max-width: 900px) {
-    .editor-body {
-        flex-direction: column;
-        align-items: stretch;
-        overflow-y: auto;
-    }
-
-    .campo-container {
-        flex: none;
-        height: 480px;
-    }
-
-    .slot-detail {
-        width: auto;
-        align-self: stretch;
-    }
-}
-
-@media (max-width: 600px) {
-    .editor-body {
-        padding: 1rem .5rem;
-    }
-
-    .campo-container {
-        height: auto;
-    }
-
-    .campo {
-        width: min(100%, 300px);
-        height: auto;
-        max-height: none;
-    }
-
-    .slot-pin .slot-remove {
-        display: flex;
-    }
+  .schema { flex-direction: column; height: auto; }
+  .dettaglio { width: auto; }
+  .campo { flex: none; width: min(100%, 420px); }
 }

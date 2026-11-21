@@ -1,155 +1,125 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { FrecciaSchema, SlotSchema } from '../../core/model/schema.model';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
+import { SlotSchema } from '../../core/model/schema.model';
+import {
+  CATEGORIE, MAX_SLOT, RUOLI_SPECIFICI, nuovoSlot, ruoloAutomatico, spostaSlot, verificaSchema,
+} from '../../core/schema-slot';
 
-type Modalita = 'slot' | 'freccia';
-
+/**
+ * Schieramento di uno schema: tocca il campo per aggiungere uno slot (nome e ruolo dalla zona),
+ * trascina per spostarlo, tocca uno slot per configurarlo. Pointer events: mouse, penna e dito.
+ * Le frecce si disegnano nelle fasi di gioco.
+ */
 @Component({
   selector: 'app-campo-schema',
-  imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './campo-schema.html',
   styleUrl: './campo-schema.scss',
 })
 export class CampoSchema {
-  @Input() slot: SlotSchema[] = [];
-  @Input() frecce: FrecciaSchema[] = [];
-  @Input() modulo = '4-3-3';
-  @Output() slotChange = new EventEmitter<SlotSchema[]>();
-  @Output() frecceChange = new EventEmitter<FrecciaSchema[]>();
+  readonly slot = input.required<SlotSchema[]>();
+  readonly slotChange = output<SlotSchema[]>();
+  /** Rinomina: serve all'editor per aggiornare le fasi, dove gli slot sono citati per nome. */
+  readonly slotRinominato = output<{ vecchio: string; nuovo: string }>();
 
-  modalita: Modalita = 'slot';
-  slotSelezionato: SlotSchema | null = null;
+  private readonly campo = viewChild.required<ElementRef<HTMLElement>>('campo');
 
-  // Stato disegno freccia
-  disegnandoFreccia = false;
-  frecciaInCorso: { startX: number; startY: number } | null = null;
-  mouseX = 0;
-  mouseY = 0;
+  protected readonly categorie = CATEGORIE;
+  protected readonly ruoliSpecifici = RUOLI_SPECIFICI;
+  protected readonly selezionato = signal<number | null>(null);
+  protected readonly trascina = signal<{ indice: number; x: number; y: number; mosso: boolean } | null>(null);
+  protected readonly avviso = signal<string | null>(null);
 
-  readonly ruoliOptions = [
-    { label: 'Portiere', value: 'PORTIERE' },
-    { label: 'Difensore', value: 'DIFENSORE' },
-    { label: 'Centrocampista', value: 'CENTROCAMPISTA' },
-    { label: 'Attaccante', value: 'ATTACCANTE' },
-  ];
+  protected readonly controlli = computed(() => verificaSchema(this.slot()));
+  protected readonly slotSelezionato = computed(() => {
+    const i = this.selezionato();
+    return i === null ? null : this.slot()[i] ?? null;
+  });
+  protected readonly vista = computed(() => {
+    const t = this.trascina();
+    return this.slot().map((s, i) => t?.indice === i && t.mosso ? { ...s, coordX: t.x, coordY: t.y } : s);
+  });
 
-  readonly coloriOptions = [
-    { label: 'Verde', value: '#00ff87' },
-    { label: 'Rosso', value: '#ff6464' },
-    { label: 'Giallo', value: '#ffb400' },
-    { label: 'Bianco', value: '#ffffff' },
-    { label: 'Azzurro', value: '#60a5fa' },
-  ];
-
-  onCampoClick(event: MouseEvent): void {
-    if (this.modalita !== 'slot') return;
-    const { x, y } = this.getCoord(event);
-
-    const nuovoSlot: SlotSchema = {
-      slotRuolo: `SLOT${this.slot.length + 1}`,
-      ruolo: 'CENTROCAMPISTA',
-      coordX: x,
-      coordY: y,
-      note: null,
-    };
-
-    this.slotChange.emit([...this.slot, nuovoSlot]);
-    this.slotSelezionato = nuovoSlot;
+  protected automatico(ruolo: string): boolean {
+    return ruoloAutomatico(ruolo);
   }
 
-  onCampoMouseDown(event: MouseEvent): void {
-    if (this.modalita !== 'freccia') return;
-    event.preventDefault();
-    const { x, y } = this.getCoord(event);
-    this.disegnandoFreccia = true;
-    this.frecciaInCorso = { startX: x, startY: y };
+  private punto(event: PointerEvent): { x: number; y: number } {
+    const r = this.campo().nativeElement.getBoundingClientRect();
+    const tondo = (n: number) => Math.round(Math.min(Math.max(n, 3), 97) * 10) / 10;
+    return { x: tondo(((event.clientX - r.left) / r.width) * 100), y: tondo(((event.clientY - r.top) / r.height) * 100) };
   }
 
-  onCampoMouseMove(event: MouseEvent): void {
-    if (!this.disegnandoFreccia || !this.frecciaInCorso) return;
-    const { x, y } = this.getCoord(event);
-    this.mouseX = x;
-    this.mouseY = y;
-  }
-
-  onCampoMouseUp(event: MouseEvent): void {
-    if (!this.disegnandoFreccia || !this.frecciaInCorso) return;
-    const { x, y } = this.getCoord(event);
-
-    // Ignora click senza movimento
-    const dist = Math.sqrt(
-      Math.pow(x - this.frecciaInCorso.startX, 2) +
-      Math.pow(y - this.frecciaInCorso.startY, 2)
-    );
-    if (dist > 3) {
-      const nuovaFreccia: FrecciaSchema = {
-        startX: this.frecciaInCorso.startX,
-        startY: this.frecciaInCorso.startY,
-        endX: x,
-        endY: y,
-        colore: '#00ff87',
-        etichetta: null,
-      };
-      this.frecceChange.emit([...this.frecce, nuovaFreccia]);
+  /** Tocco sul campo vuoto: nuovo slot. */
+  protected onCampo(event: PointerEvent): void {
+    if (event.target !== this.campo().nativeElement && !(event.target as Element).closest('.linee')) return;
+    if (this.slot().length >= MAX_SLOT) {
+      this.selezionato.set(null);
+      this.mostra('Lo schema ha già 11 slot: spostane uno o toglilo');
+      return;
     }
-
-    this.disegnandoFreccia = false;
-    this.frecciaInCorso = null;
+    const { x, y } = this.punto(event);
+    const indice = this.slot().length; // calcolato prima: il genitore può aggiornare subito l'elenco
+    this.slotChange.emit([...this.slot(), nuovoSlot(this.slot(), x, y)]);
+    this.selezionato.set(indice);
   }
 
-  selezionaSlot(slot: SlotSchema, event: MouseEvent): void {
+  protected giuSlot(event: PointerEvent, indice: number): void {
     event.stopPropagation();
-    this.slotSelezionato = this.slotSelezionato === slot ? null : slot;
-  }
-
-  aggiornaSlot(index: number, campo: keyof SlotSchema, valore: any): void {
-    const updated = this.slot.map((s, i) =>
-      i === index ? { ...s, [campo]: valore } : s
-    );
-    this.slotChange.emit(updated);
-    this.slotSelezionato = updated[index];
-  }
-
-  rimuoviSlot(index: number, event: MouseEvent): void {
-    event.stopPropagation();
-    this.slotSelezionato = null;
-    this.slotChange.emit(this.slot.filter((_, i) => i !== index));
-  }
-
-  rimuoviFreccia(index: number): void {
-    this.frecceChange.emit(this.frecce.filter((_, i) => i !== index));
-  }
-
-  draggingSlotIndex: number | null = null;
-
-  onSlotDragStart(event: DragEvent, index: number): void {
-    this.draggingSlotIndex = index;
-  }
-
-  onCampoDragOver(event: DragEvent): void {
     event.preventDefault();
+    (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+    const s = this.slot()[indice];
+    this.trascina.set({ indice, x: s.coordX, y: s.coordY, mosso: false });
   }
 
-  onCampoDrop(event: DragEvent): void {
-    if (this.draggingSlotIndex === null) return;
-    const { x, y } = this.getCoord(event);
-    const updated = this.slot.map((s, i) =>
-      i === this.draggingSlotIndex ? { ...s, coordX: x, coordY: y } : s
-    );
-    this.slotChange.emit(updated);
-    this.draggingSlotIndex = null;
+  protected muoviSlot(event: PointerEvent): void {
+    const t = this.trascina();
+    if (!t) return;
+    const { x, y } = this.punto(event);
+    const s = this.slot()[t.indice];
+    const mosso = t.mosso || Math.hypot(x - s.coordX, y - s.coordY) > 1.5;
+    this.trascina.set({ ...t, x, y, mosso });
   }
 
-  private getCoord(event: MouseEvent): { x: number; y: number } {
-    const el = (event.currentTarget as HTMLElement).closest('.campo') as HTMLElement;
-    const rect = el.getBoundingClientRect();
-    return {
-      x: Math.min(Math.max(((event.clientX - rect.left) / rect.width) * 100, 2), 98),
-      y: Math.min(Math.max(((event.clientY - rect.top) / rect.height) * 100, 2), 98),
-    };
+  protected suSlot(): void {
+    const t = this.trascina();
+    this.trascina.set(null);
+    if (!t) return;
+    if (!t.mosso) {
+      // tocco senza spostamento: seleziona o deseleziona
+      this.selezionato.set(this.selezionato() === t.indice ? null : t.indice);
+      return;
+    }
+    this.slotChange.emit(spostaSlot(this.slot(), t.indice, t.x, t.y));
   }
 
-  getSlotIndex(slot: SlotSchema): number {
-    return this.slot.indexOf(slot);
+  protected aggiorna(campo: 'slotRuolo' | 'ruolo' | 'note', valore: string): void {
+    const i = this.selezionato();
+    if (i === null) return;
+    const vecchio = this.slot()[i];
+    const nuovoValore = campo === 'note' ? (valore || null) : valore;
+    if (campo === 'slotRuolo') {
+      const nome = valore.trim().toUpperCase().slice(0, 20);
+      if (!nome) return;
+      if (this.slot().some((s, j) => j !== i && s.slotRuolo.toUpperCase() === nome)) {
+        this.mostra(`Esiste già uno slot ${nome}`);
+        return;
+      }
+      this.slotChange.emit(this.slot().map((s, j) => j === i ? { ...s, slotRuolo: nome } : s));
+      this.slotRinominato.emit({ vecchio: vecchio.slotRuolo, nuovo: nome });
+      return;
+    }
+    this.slotChange.emit(this.slot().map((s, j) => j === i ? { ...s, [campo]: nuovoValore } : s));
+  }
+
+  protected rimuovi(): void {
+    const i = this.selezionato();
+    if (i === null) return;
+    this.selezionato.set(null);
+    this.slotChange.emit(this.slot().filter((_, j) => j !== i));
+  }
+
+  private mostra(testo: string): void {
+    this.avviso.set(testo);
+    setTimeout(() => this.avviso.set(null), 3000);
   }
 }

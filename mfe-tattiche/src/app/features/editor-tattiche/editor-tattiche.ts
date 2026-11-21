@@ -18,6 +18,7 @@ import { PreparazionePartita } from '../preparazione-partita/preparazione-partit
 import { CampoFase } from '../campo-fase/campo-fase';
 import { ElementoTrascinato, Trascina, TrascinamentoService } from '../../core/trascinamento';
 import { FASI, copiaDa, haContenuto, ripristina } from '../../core/fasi';
+import { fasiFormazioneComeSchema, fasiSchemaComeFormazione, rinominaSlot, slotComePosizioni, slotDaModulo } from '../../core/schema-slot';
 import { Fase, FasiFormazione } from '../../core/model/formazione.model';
 import { Partita } from '../../core/model/partita.model';
 import { posizioniDaPartita } from '../../core/posizioni-fonte';
@@ -26,6 +27,7 @@ import { SchemaFormazione, SlotSchema, FrecciaSchema } from '../../core/model/sc
 import { CampoSchema } from '../campo-schema/campo-schema';
 import { ConfirmService } from '../confirm-dialog/confirm.service';
 import { assegnaASlot, repartoSlot } from '../../core/ruoli';
+import { MODULI, POSIZIONI_MODULO } from '../../core/moduli';
 
 @Component({
   selector: 'app-editor-tattiche',
@@ -104,6 +106,46 @@ export class EditorTattiche implements OnInit {
 
   nomeFase(fase: Fase): string {
     return FASI.find(f => f.valore === fase)?.nome ?? fase;
+  }
+
+  // Fasi dello schema: stesso campo delle formazioni, gli slot fanno da giocatori
+  faseSchemaAttiva = signal<'SCHIERAMENTO' | Fase>('SCHIERAMENTO');
+  readonly faseSchemaCorrente = computed(() => {
+    const f = this.faseSchemaAttiva();
+    return f === 'SCHIERAMENTO' ? null : f;
+  });
+  readonly posizioniSchema = computed(() => slotComePosizioni(this.schemaAttivo()?.slot ?? []));
+  readonly fasiSchemaVista = computed(() => {
+    const s = this.schemaAttivo();
+    return s ? fasiSchemaComeFormazione(s.fasi, s.slot) : {};
+  });
+  readonly fasiSchemaConContenuto = computed(() =>
+    new Set(FASI.filter(f => haContenuto(this.fasiSchemaVista(), f.valore)).map(f => f.valore)));
+
+  onFasiSchemaChange(fasi: FasiFormazione): void {
+    const s = this.schemaAttivo();
+    if (s) this.aggiornaSchema({ fasi: fasiFormazioneComeSchema(fasi, s.slot) });
+  }
+
+  ripristinaFaseSchema(): void {
+    const fase = this.faseSchemaCorrente();
+    if (fase) this.onFasiSchemaChange(ripristina(this.fasiSchemaVista(), fase));
+  }
+
+  copiaFaseSchemaDa(da: string): void {
+    const fase = this.faseSchemaCorrente();
+    if (fase && da) this.onFasiSchemaChange(copiaDa(this.fasiSchemaVista(), da as Fase, fase, this.posizioniSchema()));
+  }
+
+  /** Nelle fasi gli slot sono citati per nome: la rinomina va riportata anche lì. */
+  onSlotRinominato({ vecchio, nuovo }: { vecchio: string; nuovo: string }): void {
+    const s = this.schemaAttivo();
+    if (s?.fasi) this.aggiornaSchema({ fasi: rinominaSlot(s.fasi, vecchio, nuovo) });
+  }
+
+  applicaSchemaDaBarra(id: string): void {
+    const schema = this.schemi().find(s => s.id === Number(id));
+    if (schema) this.applicaSchema(schema);
   }
 
   // Partite: collegamento della formazione al calendario
@@ -240,91 +282,9 @@ export class EditorTattiche implements OnInit {
     });
   }
 
-  readonly moduliOptions = [
-    '4-3-3', '4-4-2', '4-2-3-1', '3-5-2', '5-3-2', '3-4-3'
-  ];
+  readonly moduliOptions: string[] = [...MODULI];
 
-  // Coordinate standard per modulo (coordX, coordY, slotRuolo)
-  private readonly POSIZIONI_MODULO: Record<string, { coordX: number; coordY: number; slotRuolo: string; categoria: string }[]> = {
-    '4-3-3': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 20, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
-      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 80, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
-      { coordX: 25, coordY: 50, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 75, coordY: 50, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
-      { coordX: 18, coordY: 20, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
-      { coordX: 82, coordY: 20, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
-    ],
-    '4-4-2': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 15, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
-      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 85, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
-      { coordX: 15, coordY: 50, slotRuolo: 'LM', categoria: 'CENTROCAMPISTA' },
-      { coordX: 38, coordY: 52, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 62, coordY: 52, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 85, coordY: 50, slotRuolo: 'RM', categoria: 'CENTROCAMPISTA' },
-      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
-      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
-    ],
-    '4-2-3-1': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 15, coordY: 72, slotRuolo: 'LB', categoria: 'DIFENSORE' },
-      { coordX: 38, coordY: 75, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 62, coordY: 75, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 85, coordY: 72, slotRuolo: 'RB', categoria: 'DIFENSORE' },
-      { coordX: 35, coordY: 57, slotRuolo: 'DM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 65, coordY: 57, slotRuolo: 'DM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 18, coordY: 35, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 32, slotRuolo: 'AM', categoria: 'CENTROCAMPISTA' },
-      { coordX: 82, coordY: 35, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
-    ],
-    '3-5-2': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 25, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 75, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
-      { coordX: 10, coordY: 52, slotRuolo: 'LWB', categoria: 'CENTROCAMPISTA' },
-      { coordX: 30, coordY: 48, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 70, coordY: 48, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
-      { coordX: 90, coordY: 52, slotRuolo: 'RWB', categoria: 'CENTROCAMPISTA' },
-      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
-      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
-    ],
-    '5-3-2': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 10, coordY: 68, slotRuolo: 'LWB', categoria: 'DIFENSORE' },
-      { coordX: 28, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 72, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
-      { coordX: 90, coordY: 68, slotRuolo: 'RWB', categoria: 'DIFENSORE' },
-      { coordX: 25, coordY: 48, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 44, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 75, coordY: 48, slotRuolo: 'CM3', categoria: 'CENTROCAMPISTA' },
-      { coordX: 35, coordY: 18, slotRuolo: 'ST1', categoria: 'ATTACCANTE' },
-      { coordX: 65, coordY: 18, slotRuolo: 'ST2', categoria: 'ATTACCANTE' },
-    ],
-    '3-4-3': [
-      { coordX: 50, coordY: 88, slotRuolo: 'GK', categoria: 'PORTIERE' },
-      { coordX: 25, coordY: 74, slotRuolo: 'CB1', categoria: 'DIFENSORE' },
-      { coordX: 50, coordY: 76, slotRuolo: 'CB2', categoria: 'DIFENSORE' },
-      { coordX: 75, coordY: 74, slotRuolo: 'CB3', categoria: 'DIFENSORE' },
-      { coordX: 15, coordY: 52, slotRuolo: 'LM', categoria: 'CENTROCAMPISTA' },
-      { coordX: 38, coordY: 50, slotRuolo: 'CM1', categoria: 'CENTROCAMPISTA' },
-      { coordX: 62, coordY: 50, slotRuolo: 'CM2', categoria: 'CENTROCAMPISTA' },
-      { coordX: 85, coordY: 52, slotRuolo: 'RM', categoria: 'CENTROCAMPISTA' },
-      { coordX: 18, coordY: 20, slotRuolo: 'LW', categoria: 'CENTROCAMPISTA' },
-      { coordX: 50, coordY: 14, slotRuolo: 'ST', categoria: 'ATTACCANTE' },
-      { coordX: 82, coordY: 20, slotRuolo: 'RW', categoria: 'CENTROCAMPISTA' },
-    ],
-  };
+  private readonly POSIZIONI_MODULO = POSIZIONI_MODULO;
 
   readonly ruoliSlot = [
     { label: 'Portiere', value: 'PORTIERE' },
@@ -514,7 +474,7 @@ export class EditorTattiche implements OnInit {
     this.puoiAbbandonare().subscribe(ok => {
       if (!ok) return;
       this.service.getSchemaById(s.id).subscribe({
-        next: (full) => { this.schemaAttivo.set(full); this.modificata.set(false); },
+        next: (full) => { this.schemaAttivo.set(full); this.modificata.set(false); this.faseSchemaAttiva.set('SCHIERAMENTO'); },
       });
     });
   }
@@ -522,10 +482,12 @@ export class EditorTattiche implements OnInit {
   nuovoSchema(): void {
     this.puoiAbbandonare().subscribe(ok => {
       if (!ok) return;
+      // parte dal modulo: 11 slot già posizionati, con nome e ruolo
       this.schemaAttivo.set({
         id: 0, nome: 'Nuovo schema',
-        modulo: '4-3-3', descrizione: null, slot: [], frecce: [],
+        modulo: '4-3-3', descrizione: null, slot: slotDaModulo('4-3-3'), frecce: [], fasi: null,
       });
+      this.faseSchemaAttiva.set('SCHIERAMENTO');
       this.modificata.set(true);
     });
   }
@@ -537,11 +499,28 @@ export class EditorTattiche implements OnInit {
 
   onSlotChange(slot: SlotSchema[]): void { this.aggiornaSchema({ slot }); }
 
-  onFrecceChange(frecce: FrecciaSchema[]): void { this.aggiornaSchema({ frecce }); }
-
   onNomeSchemaChange(nome: string): void { this.aggiornaSchema({ nome }); }
 
-  onModuloSchemaChange(modulo: string): void { this.aggiornaSchema({ modulo }); }
+  /** Cambio di modulo: propone di riposizionare gli slot secondo il modulo (le fasi ripartono da zero). */
+  onModuloSchemaChange(select: HTMLSelectElement): void {
+    const s = this.schemaAttivo();
+    if (!s) return;
+    const modulo = select.value;
+    if (!s.slot.length) {
+      this.aggiornaSchema({ modulo, slot: slotDaModulo(modulo) });
+      return;
+    }
+    this.confirmService.conferma({
+      header: 'Cambia modulo',
+      messaggio: `Riposizionare gli slot secondo il ${modulo}? Nomi, compiti e fasi dello schema ripartono da zero.`,
+      labelConferma: 'Riposiziona',
+      labelAnnulla: 'Tieni gli slot',
+      pericoloso: true,
+    }).subscribe(ok => {
+      if (ok) this.aggiornaSchema({ modulo, slot: slotDaModulo(modulo), fasi: null });
+      else this.aggiornaSchema({ modulo }); // solo l'etichetta del modulo
+    });
+  }
 
   salvaSchema(): void {
     const s = this.schemaAttivo();
@@ -554,11 +533,9 @@ export class EditorTattiche implements OnInit {
         slotRuolo: sl.slotRuolo, ruolo: sl.ruolo,
         coordX: sl.coordX, coordY: sl.coordY, note: sl.note,
       })),
-      frecce: s.frecce.map(fr => ({
-        startX: fr.startX, startY: fr.startY,
-        endX: fr.endX, endY: fr.endY,
-        colore: fr.colore, etichetta: fr.etichetta,
-      })),
+      // le frecce ora stanno nelle fasi; quelle sullo schieramento non sono più modificabili
+      frecce: [],
+      fasi: s.fasi ?? null,
     };
 
     const op$ = s.id
@@ -603,9 +580,10 @@ export class EditorTattiche implements OnInit {
       return;
     }
     this.confirmService.conferma({
-      messaggio: this.modificata()
-        ? `Applicare "${s.nome}" a "${f.nome}"? Lo schema parte dalla versione salvata: le modifiche non salvate andranno perse.`
-        : `Applicare "${s.nome}" a "${f.nome}"? I titolari verranno ridisposti secondo lo schema; la panchina resta.`,
+      messaggio: `Applicare "${s.nome}" a "${f.nome}"? I titolari verranno ridisposti secondo lo schema e la panchina resta.`
+        + (Object.values(s.fasi ?? {}).some(fase => fase && (fase.posizioni.length || fase.frecce.length))
+          ? ' Le fasi di gioco della formazione verranno sostituite da quelle dello schema.' : '')
+        + (this.modificata() ? ' Si parte dalla versione salvata: le modifiche non salvate andranno perse.' : ''),
       header: 'Applica schema',
       labelConferma: 'Applica',
       labelAnnulla: 'Annulla',

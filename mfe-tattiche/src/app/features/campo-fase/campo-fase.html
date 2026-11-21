@@ -76,8 +76,8 @@
          [style.left.%]="g.x" [style.top.%]="g.y"
          (pointerdown)="iniziaSpostamento($event, g.p.giocatoreId)" (pointermove)="muoviGiocatore($event)"
          (pointerup)="fineSpostamento()" (pointercancel)="trascina.set(null)">
-      <span class="avatar">{{ g.p.numeroMaglia ?? g.p.cognomeGiocatore[0] }}</span>
-      <span class="nome">{{ g.p.cognomeGiocatore }}</span>
+      <span class="avatar" [class.testo]="g.p.numeroMaglia === null">{{ g.p.numeroMaglia ?? g.p.cognomeGiocatore.slice(0, 4) }}</span>
+      @if (mostraNomi()) { <span class="nome">{{ g.p.cognomeGiocatore }}</span> }
     </div>
   }
 

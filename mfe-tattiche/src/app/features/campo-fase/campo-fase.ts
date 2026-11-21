@@ -19,6 +19,8 @@ export class CampoFase {
   readonly posizioni = input.required<PosizioneCampo[]>();
   readonly fasi = input<FasiFormazione | null | undefined>(null);
   readonly fase = input.required<Fase>();
+  /** false per gli schemi: il nome dello slot è già dentro la pedina. */
+  readonly mostraNomi = input(true);
   readonly fasiChange = output<FasiFormazione>();
 
   private readonly campo = viewChild.required<ElementRef<HTMLElement>>('campo');
