@@ -40,4 +40,14 @@ export interface GiocatoreDisponibile {
     numeroMaglia: number | null;
     ruolo: string;
     categoriaRuolo: string; // PORTIERE | DIFENSORE | CENTROCAMPISTA | ATTACCANTE
+    stato?: 'ATTIVO' | 'INFORTUNATO' | 'SQUALIFICATO';
+    /** Escluso dalla lista dei 25: non schierabile in campionato. */
+    fuoriLista?: boolean;
   }
+
+/** Carico di allenamento (da /api/allenamenti/carico), solo i campi che servono alle tattiche. */
+export interface CaricoGiocatore {
+    giocatoreId: number;
+    acwr: number | null;
+    storicoInsufficiente: boolean;
+}

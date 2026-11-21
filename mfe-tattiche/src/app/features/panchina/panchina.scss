@@ -1,0 +1,40 @@
+:host { display: block; }
+
+.panchina {
+  display: grid;
+  gap: .6rem;
+  padding: .8rem 1rem;
+  background: #151d19;
+  border: 1px dashed #415246;
+  border-radius: 10px;
+  transition: border-color .15s, background .15s;
+}
+.panchina.sopra { border-color: #00ff87; background: rgba(0, 255, 135, .04); }
+
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem 1rem; }
+h3 { margin: 0; color: #fff; font-size: .85rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.conta { margin-left: .3rem; color: #00ff87; font-family: "JetBrains Mono", ui-monospace, monospace; }
+.aiuto { color: #9bab9e; font-size: .72rem; }
+
+.riserve { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.riserva {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .3rem .35rem .3rem .3rem;
+  color: #edf4ee; background: #202c24; border: 1px solid #303d35; border-radius: 99px; cursor: grab; font-size: .78rem;
+}
+.riserva:active { cursor: grabbing; }
+.maglia {
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; color: #000; background: #9aa;
+  border-radius: 50%; font-size: .7rem; font-weight: 800;
+}
+.nome { font-weight: 600; }
+.ruolo { color: #9bab9e; font-size: .7rem; }
+.segnale { padding: .05rem .4rem; border-radius: 99px; font-size: .65rem; font-weight: 700; }
+.segnale.errore { color: #ff8a8a; background: rgba(255, 100, 100, .12); }
+.segnale.avviso { color: #ffd27a; background: rgba(255, 180, 0, .12); }
+.segnale.info { color: #9cc7ff; background: rgba(96, 165, 250, .12); }
+.togli { display: inline-grid; place-items: center; width: 1.4rem; height: 1.4rem; padding: 0; color: #666; background: none; border: 0; border-radius: 50%; cursor: pointer; }
+.togli:hover { color: #ff6464; background: rgba(255, 100, 100, .1); }
+.vuota { margin: 0; color: #a7b5a9; font-size: .78rem; }
+
+@media (prefers-reduced-motion: reduce) { .panchina { transition: none; } }
+

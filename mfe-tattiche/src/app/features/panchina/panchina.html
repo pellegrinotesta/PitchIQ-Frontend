@@ -1,0 +1,29 @@
+<section class="panchina" [class.sopra]="sopra()" aria-labelledby="panchina-titolo"
+         (dragover)="onDragOver($event)" (dragleave)="sopra.set(false)" (drop)="onDrop($event)">
+  <header>
+    <h3 id="panchina-titolo">Panchina <span class="conta">{{ riserve().length }}</span></h3>
+    <span class="aiuto">Trascina qui dalla rosa o dal campo · trascina su un titolare per il cambio</span>
+  </header>
+
+  @if (riserve().length) {
+    <ul class="riserve">
+      @for (r of riserve(); track r.p.giocatoreId) {
+        <li class="riserva" draggable="true" (dragstart)="onDragStart($event, r.p)"
+            [attr.title]="'Trascina in campo o su un titolare per far entrare ' + r.p.cognomeGiocatore">
+          <span class="maglia">{{ r.p.numeroMaglia ?? '?' }}</span>
+          <span class="nome">{{ r.p.cognomeGiocatore }}</span>
+          <span class="ruolo">{{ r.ruolo }}</span>
+          @for (s of r.segnali; track s.testo) {
+            <span class="segnale" [class]="'segnale ' + s.gravita">{{ s.testo }}</span>
+          }
+          <button type="button" class="togli" (click)="rimuovi(r.p)"
+                  [attr.aria-label]="'Togli ' + r.p.cognomeGiocatore + ' dalla panchina'">
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="vuota">Nessun giocatore in panchina.</p>
+  }
+</section>

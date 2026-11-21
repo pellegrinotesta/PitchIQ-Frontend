@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Formazione, FormazioneRequest, GiocatoreDisponibile } from '../model/formazione.model';
+import { CaricoGiocatore, Formazione, FormazioneRequest, GiocatoreDisponibile } from '../model/formazione.model';
 import { SchemaFormazione, SchemaFormazioneRequest } from '../model/schema.model';
 import { apiUrl } from '../api-url';
 
@@ -33,8 +33,14 @@ export class FormazioneService {
         return this.http.delete<void>(`${BFF}/tattiche/formazioni/${id}`);
     }
 
+    /** Tutta la rosa, compresi infortunati e squalificati: vengono mostrati come non disponibili. */
     getRosaDisponibile(): Observable<GiocatoreDisponibile[]> {
-        return this.http.get<GiocatoreDisponibile[]>(`${BFF}/squadre/giocatori?stato=ATTIVO`);
+        return this.http.get<GiocatoreDisponibile[]>(`${BFF}/squadre/giocatori`);
+    }
+
+    /** Carico di allenamento di oggi (rapporto acuto/cronico) per segnalare i giocatori affaticati. */
+    getCarichi(): Observable<CaricoGiocatore[]> {
+        return this.http.get<CaricoGiocatore[]>(`${BFF}/allenamenti/carico`);
     }
 
     // --- Schemi ---
