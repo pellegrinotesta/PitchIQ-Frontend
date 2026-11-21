@@ -1,0 +1,62 @@
+<section class="prep" aria-labelledby="prep-titolo">
+  <button type="button" class="prep-testa" (click)="aperto.set(!aperto())" [attr.aria-expanded]="aperto()">
+    <span id="prep-titolo" class="prep-etichetta">PREPARAZIONE PARTITA</span>
+    @if (partita(); as p) {
+      <span class="prep-partita">
+        {{ p.casaTrasferta === 'CASA' ? 'Avellino – ' + p.avversario : p.avversario + ' – Avellino' }}
+        <small>{{ p.data | date: 'dd/MM/yyyy' }}@if (p.oraInizio) { · {{ p.oraInizio.slice(0, 5) }} }@if (p.competizione) { · {{ p.competizione }} }</small>
+      </span>
+    } @else {
+      <span class="prep-partita vuota">Nessuna partita collegata: sceglila nella barra in alto</span>
+    }
+    <i class="pi" [class.pi-chevron-up]="aperto()" [class.pi-chevron-down]="!aperto()" aria-hidden="true"></i>
+  </button>
+
+  @if (aperto()) {
+    <div class="prep-corpo">
+      <div class="prep-col">
+        <h4>Avversario</h4>
+        @if (scouting(); as s) {
+          <dl class="scouting">
+            @if (s.modulo) { <dt>Modulo</dt><dd class="mono">{{ s.modulo }}</dd> }
+            @if (s.puntiForza) { <dt>Punti di forza</dt><dd>{{ s.puntiForza }}</dd> }
+            @if (s.debolezze) { <dt>Debolezze</dt><dd>{{ s.debolezze }}</dd> }
+            @if (s.giocatoriChiave) { <dt>Giocatori chiave</dt><dd>{{ s.giocatoriChiave }}</dd> }
+            @if (s.note) { <dt>Note</dt><dd>{{ s.note }}</dd> }
+          </dl>
+        } @else if (partita()) {
+          <p class="vuoto">Nessun report di scouting per {{ partita()!.avversario }}. Puoi aggiungerlo dal calendario in Partite.</p>
+        } @else {
+          <p class="vuoto">Collega una partita per vedere lo scouting dell'avversario.</p>
+        }
+      </div>
+
+      <div class="prep-col">
+        <h4>Formazioni recenti</h4>
+        @if (recenti().length) {
+          <ul class="recenti">
+            @for (r of recenti(); track r.id) {
+              <li>
+                <span class="esito" [class]="'esito esito-' + (r.risultato ?? 'X')" [attr.title]="r.risultato ? esito[r.risultato] : null">
+                  {{ r.risultato ?? '–' }}
+                </span>
+                <span class="recente-info">
+                  <strong>{{ r.casaTrasferta === 'CASA' ? 'vs' : '@' }} {{ r.avversario }}</strong>
+                  <small>{{ r.data | date: 'dd/MM' }} · {{ r.golFatti ?? '–' }}–{{ r.golSubiti ?? '–' }} · <span class="mono">{{ r.modulo ?? '?' }}</span></small>
+                </span>
+                <button type="button" class="btn-base" [disabled]="caricandoBase() !== null" (click)="usaComeBase.emit(r)"
+                        [attr.aria-label]="'Usa la formazione contro ' + r.avversario + ' come base'">
+                  @if (caricandoBase() === r.id) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+                  @else { <i class="pi pi-copy" aria-hidden="true"></i> }
+                  Usa come base
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="vuoto">Nessuna partita giocata con la formazione registrata.</p>
+        }
+      </div>
+    </div>
+  }
+</section>

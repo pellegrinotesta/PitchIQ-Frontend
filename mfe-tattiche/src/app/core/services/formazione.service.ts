@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CaricoGiocatore, Formazione, FormazioneRequest, GiocatoreDisponibile } from '../model/formazione.model';
 import { SchemaFormazione, SchemaFormazioneRequest } from '../model/schema.model';
+import { Partita, Scouting, TitolarePartita } from '../model/partita.model';
 import { apiUrl } from '../api-url';
 
 
@@ -41,6 +42,19 @@ export class FormazioneService {
     /** Carico di allenamento di oggi (rapporto acuto/cronico) per segnalare i giocatori affaticati. */
     getCarichi(): Observable<CaricoGiocatore[]> {
         return this.http.get<CaricoGiocatore[]>(`${BFF}/allenamenti/carico`);
+    }
+
+    // --- Partite (calendario, scouting, formazioni reali) ---
+    getPartite(): Observable<Partita[]> {
+        return this.http.get<Partita[]>(`${BFF}/partite`);
+    }
+
+    getScouting(id: number): Observable<Scouting> {
+        return this.http.get<Scouting>(`${BFF}/scouting/${id}`);
+    }
+
+    getTitolariPartita(partitaId: number): Observable<TitolarePartita[]> {
+        return this.http.get<TitolarePartita[]>(`${BFF}/partite/${partitaId}/titolari`);
     }
 
     // --- Schemi ---
