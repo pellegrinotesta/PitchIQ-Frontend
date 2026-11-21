@@ -35,20 +35,20 @@ describe('DettaglioPartita - titolari', () => {
   });
 
   it('mostra i titolari della partita', () => {
-    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Raffaele', cognome: 'Russo', posizione: 'CF-L', numeroMaglia: 10 }]));
+    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Lorenzo', cognome: 'Bettinelli', posizione: 'CF-L', numeroMaglia: 10 }]));
     fixture.componentInstance.mostraTitolari();
     fixture.detectChanges();
     expect(service.getTitolari).toHaveBeenCalledWith(1);
-    expect(fixture.nativeElement.querySelector('.campo-formazione').textContent).toContain('Russo');
+    expect(fixture.nativeElement.querySelector('.campo-formazione').textContent).toContain('Bettinelli');
     expect(fixture.nativeElement.querySelector('.campo-formazione').textContent).toContain('10');
   });
 
   it('mantiene nella lista i titolari senza posizione attendibile', () => {
-    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Raffaele', cognome: 'Russo', posizione: null, numeroMaglia: null }]));
+    service.getTitolari.mockReturnValue(of([{ id: 7, nome: 'Lorenzo', cognome: 'Bettinelli', posizione: null, numeroMaglia: null }]));
     fixture.componentInstance.mostraTitolari();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Posizione non disponibile');
-    expect(fixture.nativeElement.textContent).toContain('Raffaele Russo');
+    expect(fixture.nativeElement.textContent).toContain('Lorenzo Bettinelli');
   });
 
   it('distingue dati assenti da errori e consente di riprovare', () => {
@@ -91,11 +91,11 @@ describe('DettaglioPartita - titolari', () => {
       ...partita,
       eventi: [{
         id: 1, minuto: 45, minutoAggiuntivo: 2, tipo: 'GOL', giocatoreId: 7,
-        nomeGiocatore: 'Raffaele', cognomeGiocatore: 'Russo', nota: 'Raffaele Russo - Avellino',
+        nomeGiocatore: 'Lorenzo', cognomeGiocatore: 'Bettinelli', nota: 'Lorenzo Bettinelli - Squadra Demo',
       }],
     });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.timeline-minuto').textContent.trim()).toBe("45+2'");
-    expect(fixture.nativeElement.querySelector('.timeline-content').textContent.match(/Raffaele Russo/g)).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector('.timeline-content').textContent.match(/Lorenzo Bettinelli/g)).toHaveLength(1);
   });
 });

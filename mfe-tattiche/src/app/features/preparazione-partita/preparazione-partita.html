@@ -3,8 +3,8 @@
     <span id="prep-titolo" class="prep-etichetta">PREPARAZIONE PARTITA</span>
     @if (partita(); as p) {
       <span class="prep-partita">
-        {{ p.casaTrasferta === 'CASA' ? 'Avellino – ' + p.avversario : p.avversario + ' – Avellino' }}
-        <small>{{ p.data | date: 'dd/MM/yyyy' }}@if (p.oraInizio) { · {{ p.oraInizio.slice(0, 5) }} }@if (p.competizione) { · {{ p.competizione }} }</small>
+        {{ p.casaTrasferta === 'CASA' ? 'vs' : '@' }} {{ p.avversario }}
+        <small>{{ p.casaTrasferta === 'CASA' ? 'In casa' : 'In trasferta' }} · {{ p.data | date: 'dd/MM/yyyy' }}@if (p.oraInizio) { · {{ p.oraInizio.slice(0, 5) }} }@if (p.competizione) { · {{ p.competizione }} }</small>
       </span>
     } @else {
       <span class="prep-partita vuota">Nessuna partita collegata: sceglila nella barra in alto</span>

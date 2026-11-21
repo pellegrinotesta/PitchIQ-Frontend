@@ -22,10 +22,10 @@ describe('ruoli', () => {
   it('cambiando modulo nessun titolare resta fuori e i lati vengono mantenuti', () => {
     // da 4-3-3 a 3-5-2: quattro difensori per tre slot di difesa
     const giocatori = [
-      { id: 'Sala', ruolo: 'TSS', x: 20 },
-      { id: 'Izzo', ruolo: 'DC', x: 38 },
-      { id: 'Simic', ruolo: 'DC', x: 62 },
-      { id: 'Missori', ruolo: 'TSD', x: 80 },
+      { id: 'Brambati', ruolo: 'TSS', x: 20 },
+      { id: 'Valsecchi', ruolo: 'DC', x: 38 },
+      { id: 'Kremer', ruolo: 'DC', x: 62 },
+      { id: 'Pagliari', ruolo: 'TSD', x: 80 },
     ];
     const slot = [
       { nome: 'CB1', reparto: 'DIFENSORE' as const, x: 25 },
@@ -38,10 +38,10 @@ describe('ruoli', () => {
     const su = (nome: string) => assegnati.get(slot.find(s => s.nome === nome)!)?.id;
 
     expect(assegnati.size).toBe(4);
-    expect(su('LWB')).toBe('Sala'); // il terzino sinistro diventa quinto a sinistra
-    expect(su('CB1')).toBe('Izzo');
-    expect(su('CB2')).toBe('Simic');
-    expect(su('CB3')).toBe('Missori');
+    expect(su('LWB')).toBe('Brambati'); // il terzino sinistro diventa quinto a sinistra
+    expect(su('CB1')).toBe('Valsecchi');
+    expect(su('CB2')).toBe('Kremer');
+    expect(su('CB3')).toBe('Pagliari');
     expect(new Set(assegnati.values()).size).toBe(4);
   });
 

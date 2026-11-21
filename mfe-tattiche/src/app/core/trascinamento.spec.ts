@@ -7,8 +7,8 @@ import { PRESSIONE_MS, Rilascio, Trascina, TrascinamentoService } from './trasci
   imports: [Trascina],
   providers: [TrascinamentoService],
   template: `
-    <div class="sorgente" [appTrascina]="{ giocatoreId: 70, origine: 'rosa', etichetta: 'Russo', numero: 10 }" (click)="clic = clic + 1">Russo</div>
-    <div class="campo" data-rilascio-campo><span class="pin" data-rilascio-pin="53">Izzo</span></div>
+    <div class="sorgente" [appTrascina]="{ giocatoreId: 70, origine: 'rosa', etichetta: 'Bettinelli', numero: 10 }" (click)="clic = clic + 1">Bettinelli</div>
+    <div class="campo" data-rilascio-campo><span class="pin" data-rilascio-pin="53">Valsecchi</span></div>
     <div class="panchina" data-rilascio-panchina></div>`,
 })
 class Banco {

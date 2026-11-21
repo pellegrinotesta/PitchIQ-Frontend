@@ -18,8 +18,8 @@ const pos = (id: number, cognome: string, titolare: boolean, x = 0, y = 0): Posi
     <app-panchina [posizioni]="posizioni()" [rosa]="rosa" (posizioniChange)="posizioni.set($event)" />`,
 })
 class Editor {
-  rosa = [g(53, 'Izzo', 'DC'), g(56, 'Venturi', 'DC')];
-  posizioni = signal<PosizioneCampo[]>([pos(53, 'Izzo', true, 38, 75), pos(56, 'Venturi', false)]);
+  rosa = [g(53, 'Valsecchi', 'DC'), g(56, 'Archetti', 'DC')];
+  posizioni = signal<PosizioneCampo[]>([pos(53, 'Valsecchi', true, 38, 75), pos(56, 'Archetti', false)]);
 }
 
 function pointer(bersaglio: EventTarget, tipo: string, x: number, y: number, pointerType = 'mouse'): void {

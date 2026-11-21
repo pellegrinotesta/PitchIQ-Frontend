@@ -10,10 +10,10 @@ function pos(giocatoreId: number, titolare = true): PosizioneCampo {
 }
 
 const rosa = [
-  g(1, 'Iannarilli', 'POR'), g(2, 'Sassi', 'POR'),
+  g(1, 'Ferrarin', 'POR'), g(2, 'Sartini', 'POR'),
   ...Array.from({ length: 10 }, (_, i) => g(10 + i, `Gioc${i}`, 'CC')),
-  g(30, 'Izzo', 'DC', { stato: 'INFORTUNATO' }),
-  g(31, 'Enrici', 'DC', { fuoriLista: true }),
+  g(30, 'Valsecchi', 'DC', { stato: 'INFORTUNATO' }),
+  g(31, 'Lunardi', 'DC', { fuoriLista: true }),
 ];
 const undici = [pos(1), ...Array.from({ length: 10 }, (_, i) => pos(10 + i))];
 const nessunCarico = new Map<number, CaricoGiocatore>();
@@ -36,8 +36,8 @@ describe('verificaFormazione', () => {
   it('segnala indisponibili e fuori lista anche se sono solo in panchina', () => {
     const controlli = verificaFormazione([...undici, pos(30, false), pos(31, false)], rosa, nessunCarico);
 
-    expect(controlli.find(c => c.id === 'indisponibili')?.testo).toContain('Izzo');
-    expect(controlli.find(c => c.id === 'lista')?.testo).toContain('Enrici');
+    expect(controlli.find(c => c.id === 'indisponibili')?.testo).toContain('Valsecchi');
+    expect(controlli.find(c => c.id === 'lista')?.testo).toContain('Lunardi');
     expect(gravita(controlli, 'portiere-riserva')).toBe('avviso');
   });
 
