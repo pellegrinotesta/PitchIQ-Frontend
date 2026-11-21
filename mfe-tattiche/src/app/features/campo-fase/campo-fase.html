@@ -1,0 +1,87 @@
+<div class="strumenti" role="toolbar" aria-label="Strumenti della fase">
+  <button type="button" class="strumento" [class.attivo]="strumento() === 'sposta'" [attr.aria-pressed]="strumento() === 'sposta'"
+          (click)="strumento.set('sposta')">
+    <i class="pi pi-arrows-alt" aria-hidden="true"></i> Sposta giocatori
+  </button>
+  @for (t of tipi; track t.valore) {
+    <button type="button" class="strumento" [class.attivo]="strumento() === t.valore" [attr.aria-pressed]="strumento() === t.valore"
+            (click)="strumento.set(t.valore)">
+      <span class="campione" [class]="'campione campione-' + t.valore.toLowerCase()" [style.border-color]="t.colore" aria-hidden="true"></span>
+      {{ t.nome }}
+    </button>
+  }
+  @if (frecciaSelezionata() !== null) {
+    <button type="button" class="strumento elimina" (click)="eliminaFreccia()">
+      <i class="pi pi-trash" aria-hidden="true"></i> Elimina freccia
+    </button>
+  }
+</div>
+
+<div #campo class="campo" tabindex="0" [class.disegno]="strumento() !== 'sposta'" [class.animato]="!trascina()"
+     [attr.aria-label]="'Campo della fase. ' + (strumento() === 'sposta' ? 'Trascina i giocatori per spostarli in questa fase.' : 'Trascina sul campo per disegnare una freccia.')"
+     (pointerdown)="iniziaFreccia($event)" (pointermove)="muoviFreccia($event)" (pointerup)="fineFreccia()" (pointercancel)="bozza.set(null)"
+     (keydown)="onTasto($event)">
+
+  <svg class="linee" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <rect x="2" y="2" width="96" height="96" />
+    <line x1="2" y1="50" x2="98" y2="50" />
+    <circle cx="50" cy="50" r="12" />
+    <rect x="22" y="75" width="56" height="23" />
+    <rect x="35" y="88" width="30" height="10" />
+    <rect x="22" y="2" width="56" height="23" />
+    <rect x="35" y="2" width="30" height="10" />
+  </svg>
+
+  <!-- frecce e spostamenti: coordinate nelle proporzioni del campo (68x105) così le punte non si deformano -->
+  <svg class="disegni" viewBox="0 0 68 105" preserveAspectRatio="none">
+    <defs>
+      @for (t of tipi; track t.valore) {
+        <marker [attr.id]="'punta-' + t.valore" viewBox="0 0 10 10" refX="7" refY="5" markerUnits="userSpaceOnUse"
+                markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" [attr.fill]="t.colore" />
+        </marker>
+      }
+    </defs>
+
+    <!-- da dove parte ogni giocatore (schieramento) a dove sta in questa fase -->
+    @for (g of pin(); track g.p.giocatoreId) {
+      @if (g.spostato) {
+        <line class="scia" [attr.x1]="X(g.p.coordX)" [attr.y1]="Y(g.p.coordY)" [attr.x2]="X(g.x)" [attr.y2]="Y(g.y)" />
+      }
+    }
+
+    @for (f of frecce(); track $index; let i = $index) {
+      <line class="freccia-area" [attr.x1]="X(f.startX)" [attr.y1]="Y(f.startY)" [attr.x2]="X(f.endX)" [attr.y2]="Y(f.endY)"
+            (pointerdown)="$event.stopPropagation()" (click)="selezionaFreccia($event, i)" />
+      <line class="freccia" [class]="'freccia freccia-' + f.tipo.toLowerCase()" [class.selezionata]="frecciaSelezionata() === i"
+            [attr.x1]="X(f.startX)" [attr.y1]="Y(f.startY)" [attr.x2]="X(f.endX)" [attr.y2]="Y(f.endY)"
+            [attr.stroke]="colore(f.tipo)" [attr.marker-end]="'url(#punta-' + f.tipo + ')'" />
+    }
+
+    @if (bozza(); as b) {
+      <line class="freccia bozza" [attr.x1]="X(b.x1)" [attr.y1]="Y(b.y1)" [attr.x2]="X(b.x2)" [attr.y2]="Y(b.y2)"
+            [attr.stroke]="colore($any(strumento()))" [attr.marker-end]="'url(#punta-' + strumento() + ')'" />
+    }
+  </svg>
+
+  <!-- posizione di schieramento in trasparenza -->
+  @for (g of pin(); track g.p.giocatoreId) {
+    @if (g.spostato) {
+      <span class="fantasma" [style.left.%]="g.p.coordX" [style.top.%]="g.p.coordY" aria-hidden="true"></span>
+    }
+  }
+
+  @for (g of pin(); track g.p.giocatoreId) {
+    <div class="pin" [class.spostato]="g.spostato" [class.trascinato]="trascina()?.id === g.p.giocatoreId"
+         [style.left.%]="g.x" [style.top.%]="g.y"
+         (pointerdown)="iniziaSpostamento($event, g.p.giocatoreId)" (pointermove)="muoviGiocatore($event)"
+         (pointerup)="fineSpostamento()" (pointercancel)="trascina.set(null)">
+      <span class="avatar">{{ g.p.numeroMaglia ?? g.p.cognomeGiocatore[0] }}</span>
+      <span class="nome">{{ g.p.cognomeGiocatore }}</span>
+    </div>
+  }
+
+  @if (pin().length === 0) {
+    <p class="vuoto">Prima schiera i titolari nella scheda "Schieramento".</p>
+  }
+</div>

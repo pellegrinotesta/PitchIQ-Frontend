@@ -19,6 +19,24 @@ export interface Formazione {
     posizioni: PosizioneCampo[];
 }
 
+export type Fase = 'POSSESSO' | 'NON_POSSESSO' | 'TRANSIZIONE_OFFENSIVA' | 'TRANSIZIONE_DIFENSIVA';
+export type TipoFreccia = 'CORSA' | 'PASSAGGIO' | 'PRESSIONE';
+
+export interface FrecciaFase {
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+    tipo: TipoFreccia;
+}
+
+export interface FaseFormazione {
+    posizioni: { giocatoreId: number; coordX: number; coordY: number }[];
+    frecce: FrecciaFase[];
+}
+
+export type FasiFormazione = Partial<Record<Fase, FaseFormazione>>;
+
 export interface FormazioneRequest {
     nome: string;
     modulo: string;

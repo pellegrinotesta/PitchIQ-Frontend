@@ -1,0 +1,69 @@
+:host { display: flex; flex-direction: column; align-items: center; gap: .6rem; width: 100%; height: 100%; min-height: 0; }
+
+.strumenti { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; align-self: stretch; } // va a capo invece di uscire dal bordo
+.strumento {
+  display: inline-flex; align-items: center; gap: .4rem; min-height: 2.25rem; padding: .35rem .7rem;
+  color: #c9d4cb; background: #202c24; border: 1px solid #415246; border-radius: 7px;
+  font: inherit; font-size: .76rem; font-weight: 600; cursor: pointer; touch-action: manipulation;
+}
+.strumento.attivo { color: #0b130e; background: #a7f3bd; border-color: #a7f3bd; }
+.strumento.elimina { color: #fecaca; border-color: rgba(248, 113, 113, .5); }
+.strumento:focus-visible { outline: 2px solid #6ee7a0; outline-offset: 2px; }
+.campione { width: 16px; border-top: 2px solid; }
+.campione-passaggio { border-top-style: dashed; }
+.campione-pressione { border-top-width: 3px; }
+
+.campo {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-width: 100%;
+  aspect-ratio: 68 / 105;
+  background: repeating-linear-gradient(180deg, #1e4a1e 0, #1e4a1e 8.33%, #1a3a1a 8.33%, #1a3a1a 16.66%);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .35), 0 0 0 5px #344c3a;
+  touch-action: none; // il dito trascina giocatori e frecce invece di scorrere la pagina
+  user-select: none;
+}
+.campo.disegno { cursor: crosshair; }
+.campo:focus-visible { outline: 2px solid #6ee7a0; outline-offset: 6px; }
+
+svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.linee { pointer-events: none; fill: none; stroke: rgba(255, 255, 255, .18); stroke-width: .4; }
+.disegni { pointer-events: none; overflow: visible; }
+
+.scia { stroke: rgba(255, 255, 255, .35); stroke-width: 1.5; stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }
+.freccia { stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; fill: none; }
+.freccia-passaggio { stroke-dasharray: 6 5; }
+.freccia-pressione { stroke-width: 3.5; }
+.freccia.selezionata { filter: drop-shadow(0 0 3px #fff); stroke-width: 4; }
+.freccia.bozza { opacity: .75; }
+.freccia-area { pointer-events: stroke; stroke: transparent; stroke-width: 16; vector-effect: non-scaling-stroke; cursor: pointer; }
+
+.fantasma {
+  position: absolute; width: 22px; height: 22px; border: 1.5px dashed rgba(255, 255, 255, .5);
+  border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none;
+}
+
+.pin {
+  position: absolute; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transform: translate(-50%, -50%); cursor: grab; touch-action: none;
+}
+.campo.disegno .pin { pointer-events: none; }
+.campo.animato .pin, .campo.animato .fantasma { transition: left .45s ease, top .45s ease; }
+.pin.trascinato { cursor: grabbing; z-index: 3; }
+.avatar {
+  display: grid; place-items: center; width: 34px; height: 34px; color: #172a1d; background: #d7f3b4;
+  border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0, 0, 0, .5); font-size: .75rem; font-weight: 800;
+}
+.pin.spostato .avatar { background: #a7f3bd; }
+.nome { max-width: 64px; overflow: hidden; color: #fff; font-size: .62rem; font-weight: 700; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); white-space: nowrap; }
+
+.vuoto { position: absolute; top: 50%; left: 50%; width: 80%; margin: 0; color: rgba(255, 255, 255, .8); font-size: .8rem; text-align: center; transform: translate(-50%, -50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .campo.animato .pin, .campo.animato .fantasma { transition: none; }
+}
+@media (max-width: 600px) {
+  .campo { width: min(100%, 340px); flex: none; }
+}
