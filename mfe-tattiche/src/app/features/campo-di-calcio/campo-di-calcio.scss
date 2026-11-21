@@ -342,3 +342,66 @@
         display: flex;
     }
 }
+/* Fuori reparto: consentito, solo segnalato */
+.errore-ruolo.info {
+    background: rgba(30, 30, 30, .95);
+    border: 1px solid rgba(255, 180, 0, .5);
+    color: #ffd27a;
+}
+
+.giocatore-pin.fuori-ruolo .pin-avatar {
+    border-color: #ffb400;
+    box-shadow: 0 0 0 2px rgba(255, 180, 0, .35), 0 2px 8px rgba(0, 0, 0, .5);
+}
+
+.dropdown-item.altro-ruolo {
+    opacity: .55;
+}
+
+.dropdown-item.altro-ruolo:hover {
+    opacity: 1;
+}
+
+.item-panchina {
+    margin-left: auto;
+    padding: .05rem .35rem;
+    color: #9aa;
+    border: 1px solid #333;
+    border-radius: 99px;
+    font-size: .6rem;
+    text-transform: uppercase;
+}
+
+/* ===== Uso con il dito ===== */
+.campo {
+    touch-action: none; // in campo il dito trascina i giocatori invece di scorrere la pagina
+}
+
+.giocatore-pin.trascinato {
+    opacity: .35;
+}
+
+/* su touch non c'è il passaggio del mouse: il pulsante per togliere compare col giocatore selezionato */
+.giocatore-pin.aperto .pin-remove {
+    display: flex;
+}
+
+@media (pointer: coarse) {
+    .pin-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: .85rem;
+    }
+
+    .pin-remove {
+        top: -10px;
+        right: -10px;
+        width: 26px;
+        height: 26px;
+        font-size: .75rem;
+    }
+
+    .dropdown-item {
+        min-height: 44px;
+    }
+}

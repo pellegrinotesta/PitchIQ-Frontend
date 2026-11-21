@@ -16,7 +16,11 @@ export interface Formazione {
     modulo: string;
     data: string | null;
     note: string | null;
+    /** Partita del calendario per cui è preparata; null per le formazioni generiche. */
+    partitaId: number | null;
     posizioni: PosizioneCampo[];
+    /** Disposizione dei titolari nelle fasi di gioco; assente o vuoto se non definita. */
+    fasi?: FasiFormazione | null;
 }
 
 export type Fase = 'POSSESSO' | 'NON_POSSESSO' | 'TRANSIZIONE_OFFENSIVA' | 'TRANSIZIONE_DIFENSIVA';
@@ -42,6 +46,8 @@ export interface FormazioneRequest {
     modulo: string;
     data: string | null;
     note: string | null;
+    partitaId: number | null;
+    fasi: FasiFormazione | null;
     posizioni: {
         giocatoreId: number;
         coordX: number;

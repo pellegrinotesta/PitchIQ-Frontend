@@ -26,7 +26,7 @@
             <div class="lista-item" [class.active]="formazioneAttiva()?.id === f.id" (click)="selezionaFormazione(f)">
                 <div class="item-info">
                     <span class="item-nome">{{ f.nome }}</span>
-                    <span class="item-sub">{{ f.modulo }}</span>
+                    <span class="item-sub">{{ sottotitoloFormazione(f) }}</span>
                 </div>
                 <button class="btn-elimina" title="Elimina formazione" aria-label="Elimina formazione" (click)="$event.stopPropagation(); eliminaFormazione(f)">
                     <i class="pi pi-trash"></i>
@@ -94,9 +94,27 @@
                 <input class="inp-nome" [ngModel]="formazioneAttiva()!.nome" (ngModelChange)="onNomeChange($event)"
                     placeholder="Nome formazione" />
                 <select class="inp-modulo" [ngModel]="formazioneAttiva()!.modulo"
-                    (ngModelChange)="onModuloChange($event)">
+                    (ngModelChange)="onModuloChange($event)" aria-label="Modulo">
                     @for (m of moduliDisponibili; track m) {
                     <option [value]="m">{{ m }}</option>
+                    }
+                </select>
+                <select class="inp-partita" [value]="formazioneAttiva()!.partitaId ?? ''"
+                    (change)="onPartitaChange($any($event.target).value)" aria-label="Partita">
+                    <option value="">Nessuna partita</option>
+                    @if (partiteDaGiocare().length) {
+                    <optgroup label="Da giocare">
+                        @for (p of partiteDaGiocare(); track p.id) {
+                        <option [value]="p.id" [selected]="p.id === formazioneAttiva()!.partitaId">{{ etichettaPartita(p) }}</option>
+                        }
+                    </optgroup>
+                    }
+                    @if (partiteGiocate().length) {
+                    <optgroup label="Giocate">
+                        @for (p of partiteGiocate(); track p.id) {
+                        <option [value]="p.id" [selected]="p.id === formazioneAttiva()!.partitaId">{{ etichettaPartita(p) }}</option>
+                        }
+                    </optgroup>
                     }
                 </select>
             </div>
@@ -108,11 +126,54 @@
                 </button>
             </div>
         </div>
+        <app-preparazione-partita [partita]="partitaAttiva()" [scouting]="scouting()" [recenti]="recenti()"
+            [caricandoBase]="caricandoBase()" (usaComeBase)="usaComeBase($event)" />
+        <div class="fasi-bar">
+            <div class="fasi-tabs" role="tablist" aria-label="Fase di gioco">
+                <button type="button" role="tab" class="fase-tab" [class.attiva]="faseAttiva() === 'SCHIERAMENTO'"
+                    [attr.aria-selected]="faseAttiva() === 'SCHIERAMENTO'" (click)="faseAttiva.set('SCHIERAMENTO')">
+                    Schieramento
+                </button>
+                @for (f of fasiDisponibili; track f.valore) {
+                <button type="button" role="tab" class="fase-tab" [class.attiva]="faseAttiva() === f.valore"
+                    [attr.aria-selected]="faseAttiva() === f.valore" [attr.title]="f.nome" (click)="faseAttiva.set(f.valore)">
+                    {{ f.breve }}
+                    @if (fasiConContenuto().has(f.valore)) { <span class="fase-punto" aria-label="definita"></span> }
+                </button>
+                }
+            </div>
+            @if (faseCorrente(); as fase) {
+            <div class="fasi-azioni">
+                <select class="inp-copia" aria-label="Copia posizioni da un'altra fase"
+                    (change)="copiaFaseDa($any($event.target).value); $any($event.target).value = ''">
+                    <option value="">Copia posizioni da…</option>
+                    @for (f of fasiDisponibili; track f.valore) {
+                    @if (f.valore !== fase) { <option [value]="f.valore">{{ f.nome }}</option> }
+                    }
+                </select>
+                <button type="button" class="btn-ripristina" [disabled]="!fasiConContenuto().has(fase)" (click)="ripristinaFase()">
+                    <i class="pi pi-replay" aria-hidden="true"></i> Ripristina
+                </button>
+            </div>
+            }
+        </div>
+        @if (faseCorrente(); as fase) {
+        <div class="campo-wrapper">
+            <app-campo-fase [posizioni]="formazioneAttiva()!.posizioni" [fasi]="formazioneAttiva()!.fasi" [fase]="fase"
+                (fasiChange)="onFasiChange($event)" />
+        </div>
+        <p class="fase-aiuto">{{ nomeFase(fase) }}: sposta i titolari solo per questa fase (lo schieramento resta tratteggiato) e disegna corse, passaggi e pressioni. Cambiando scheda i giocatori scorrono verso le nuove posizioni.</p>
+        } @else {
         <div class="campo-wrapper">
             <app-campo-di-calcio [posizioni]="formazioneAttiva()!.posizioni" [modulo]="formazioneAttiva()!.modulo"
                 [rosa]="rosa()" (posizioniChange)="onPosizioniChange($event)"
                 (moduloChange)="onModuloRiconosciuto($event)" />
         </div>
+        <div class="panchina-wrapper">
+            <app-panchina [posizioni]="formazioneAttiva()!.posizioni" [rosa]="rosa()" [carichi]="carichi()"
+                (posizioniChange)="onPosizioniChange($event)" />
+        </div>
+        }
         }
         }
 
@@ -161,24 +222,65 @@
     <!-- SIDEBAR DESTRA: rosa disponibile (solo tab formazioni) -->
     @if (tabAttivo === 'formazioni' && formazioneAttiva()) {
     <aside class="sidebar-destra">
+        <section class="verifica" aria-labelledby="verifica-titolo">
+            <p class="sidebar-label" id="verifica-titolo">VERIFICA</p>
+            <ul>
+                @for (c of controlli(); track c.id) {
+                <li [class]="'controllo ' + c.gravita">
+                    <i class="pi" aria-hidden="true"
+                       [class.pi-check-circle]="c.gravita === 'ok'" [class.pi-times-circle]="c.gravita === 'errore'"
+                       [class.pi-exclamation-triangle]="c.gravita === 'avviso'" [class.pi-info-circle]="c.gravita === 'info'"></i>
+                    <span>{{ c.testo }}</span>
+                </li>
+                }
+            </ul>
+        </section>
+
         <div class="sidebar-header">
             <p class="sidebar-label">ROSA</p>
         </div>
         <div class="rosa-list">
-            @for (g of rosa(); track g.id) {
-            <div class="giocatore-item" draggable="true" (dragstart)="onDragStart($event, g)">
-                <span class="giocatore-maglia">{{ g.numeroMaglia ?? '?' }}</span>
-                <div class="giocatore-info">
-                    <span class="giocatore-nome">{{ g.cognome }}</span>
-                    <span class="giocatore-ruolo" [class]="'ruolo-' + (g.categoriaRuolo ?? '').toLowerCase()">
-                        {{ g.ruolo }}
-                    </span>
-                </div>
-                <i class="pi pi-arrows-alt drag-icon"></i>
-            </div>
+            @for (v of rosaVista().disponibili; track v.g.id) {
+            <ng-container *ngTemplateOutlet="voceRosa; context: { $implicit: v }" />
+            }
+            @if (rosaVista().nonDisponibili.length) {
+            <p class="rosa-gruppo">Non disponibili</p>
+            @for (v of rosaVista().nonDisponibili; track v.g.id) {
+            <ng-container *ngTemplateOutlet="voceRosa; context: { $implicit: v }" />
+            }
             }
         </div>
     </aside>
     }
 
+    <ng-template #voceRosa let-v>
+        <div class="giocatore-item" [appTrascina]="elementoRosa(v.g)"
+             [class.schierato]="v.dove !== null" [class.non-disponibile]="v.segnali.length && v.segnali[0].gravita === 'errore'">
+            <span class="giocatore-maglia">{{ v.g.numeroMaglia ?? '?' }}</span>
+            <div class="giocatore-info">
+                <span class="giocatore-nome">{{ v.g.cognome }}</span>
+                <span class="giocatore-ruolo" [class]="'ruolo-' + (v.g.categoriaRuolo ?? '').toLowerCase()">
+                    {{ v.g.ruolo }}
+                    @if (v.dove === 'campo') { · in campo } @else if (v.dove === 'panchina') { · in panchina }
+                </span>
+                @if (v.segnali.length) {
+                <span class="giocatore-segnali">
+                    @for (s of v.segnali; track s.testo) {
+                    <span [class]="'segnale ' + s.gravita">{{ s.testo }}</span>
+                    }
+                </span>
+                }
+            </div>
+            <i class="pi pi-arrows-alt drag-icon" aria-hidden="true"></i>
+        </div>
+    </ng-template>
+
+
+    <!-- sagoma del giocatore trascinato: sotto il dito non si vede cosa si sta portando -->
+    @if (trascinamento.attivo(); as t) {
+    <div class="sagoma" [class.sopra-bersaglio]="trascinamento.sopra() !== null" [style.left.px]="t.x" [style.top.px]="t.y" aria-hidden="true">
+        <span class="sagoma-maglia">{{ t.numero ?? '?' }}</span>
+        <span class="sagoma-nome">{{ t.etichetta }}</span>
+    </div>
+    }
 </div>

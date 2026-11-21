@@ -1,9 +1,13 @@
-import { Component, ElementRef, EventEmitter, HostListener, inject, Input, Output, signal } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ElementoTrascinato, Rilascio, Trascina, TrascinamentoService } from '../../core/trascinamento';
 import { PosizioneCampo, GiocatoreDisponibile } from '../../core/model/formazione.model';
+import { NOME_REPARTO, distanzaRuolo, fuoriReparto, repartoSlot, repartoZona } from '../../core/ruoli';
+import { inCampo, rimuovi, scambia } from '../../core/movimenti-rosa';
 
 @Component({
   selector: 'app-campo-di-calcio',
-  imports: [],
+  imports: [Trascina],
   templateUrl: './campo-di-calcio.html',
   styleUrl: './campo-di-calcio.scss',
 })
@@ -15,173 +19,89 @@ export class CampoDiCalcio {
   @Input() rosa: GiocatoreDisponibile[] = [];
 
   giocatoreSelezionato: PosizioneCampo | null = null;
-  draggingPosizione: PosizioneCampo | null = null;
   pinAperto: PosizioneCampo | null = null;
+
+  /** In campo si disegnano solo i titolari: la panchina ha il suo riquadro sotto il campo. */
+  get titolari(): PosizioneCampo[] {
+    return this.posizioni.filter(p => p.titolare);
+  }
+
+  private emetti(posizioni: PosizioneCampo[]): void {
+    this.posizioniChange.emit(posizioni);
+    const riconosciuto = this.riconosciModulo(posizioni);
+    if (riconosciuto && riconosciuto !== this.modulo) this.moduloChange.emit(riconosciuto);
+  }
+
+  /** Trascinamento con pointer events (mouse, penna, dito): opzionale per usare il campo anche da solo. */
+  private readonly trascinamento = inject(TrascinamentoService, { optional: true });
+
+  constructor() {
+    this.trascinamento?.rilascio$.pipe(takeUntilDestroyed()).subscribe(r => this.onRilascio(r));
+  }
+
+  /** Durante un trascinamento si mostrano le zone dei reparti. */
+  get trascinamentoAttivo(): boolean {
+    return !!this.trascinamento?.attivo();
+  }
+
+  elementoPin(p: PosizioneCampo): ElementoTrascinato {
+    return { giocatoreId: p.giocatoreId, origine: 'campo', etichetta: p.cognomeGiocatore, numero: p.numeroMaglia };
+  }
+
+  /**
+   * Rilascio sul campo: dalla rosa o dalla panchina entra in campo, un titolare si sposta.
+   * Rilascio su un titolare: cambio (dalla panchina o dalla rosa) o scambio di posizione tra titolari.
+   */
+  private onRilascio({ elemento, bersaglio }: Rilascio): void {
+    const g = this.rosa.find(r => r.id === elemento.giocatoreId);
+    if (!g) return;
+    if (bersaglio.tipo === 'pin') {
+      const titolare = this.titolari.find(p => p.giocatoreId === bersaglio.giocatoreId);
+      if (!titolare || titolare.giocatoreId === g.id) return;
+      this.avvisaSeFuoriReparto(g, titolare.coordY);
+      this.emetti(scambia(this.posizioni, titolare.giocatoreId, g));
+      return;
+    }
+    if (bersaglio.tipo !== 'campo' || !this.el.nativeElement.contains(bersaglio.elemento)) return;
+    const esito = inCampo(this.posizioni, g, bersaglio.x, bersaglio.y);
+    if ('errore' in esito) {
+      this.mostraAvviso(esito.errore, 'errore');
+      return;
+    }
+    this.avvisaSeFuoriReparto(g, bersaglio.y);
+    this.emetti(esito.posizioni);
+  }
+
   private el = inject(ElementRef);
 
-  @HostListener('dragenter')
-  onDragEnter(): void {
-    (this.el.nativeElement as HTMLElement)
-      .querySelector('.campo')?.setAttribute('data-dragging', '');
+  /** Avviso temporaneo: "info" per i suggerimenti (fuori reparto), "errore" per i limiti veri (11 in campo). */
+  avviso = signal<{ testo: string; tipo: 'info' | 'errore' } | null>(null);
+  private timerAvviso?: ReturnType<typeof setTimeout>;
+
+  private mostraAvviso(testo: string, tipo: 'info' | 'errore'): void {
+    clearTimeout(this.timerAvviso);
+    this.avviso.set({ testo, tipo });
+    this.timerAvviso = setTimeout(() => this.avviso.set(null), 3500);
   }
 
-  @HostListener('dragleave')
-  onDragLeave(): void {
-    (this.el.nativeElement as HTMLElement)
-      .querySelector('.campo')?.removeAttribute('data-dragging');
+  private ruoloDi(giocatoreId: number): string | null {
+    return this.rosa.find(g => g.id === giocatoreId)?.ruolo ?? null;
   }
 
-  // Mappa slot → categoria ruolo attesa
-  private readonly SLOT_CATEGORIA: Record<string, string> = {
-    'GK': 'PORTIERE',
-    'CB': 'DIFENSORE', 'CB1': 'DIFENSORE', 'CB2': 'DIFENSORE', 'CB3': 'DIFENSORE',
-    'LB': 'DIFENSORE', 'RB': 'DIFENSORE', 'LWB': 'DIFENSORE', 'RWB': 'DIFENSORE',
-    'CM': 'CENTROCAMPISTA', 'CM1': 'CENTROCAMPISTA', 'CM2': 'CENTROCAMPISTA', 'CM3': 'CENTROCAMPISTA',
-    'LM': 'CENTROCAMPISTA', 'RM': 'CENTROCAMPISTA', 'DM': 'CENTROCAMPISTA',
-    'AM': 'CENTROCAMPISTA', 'LW': 'CENTROCAMPISTA', 'RW': 'CENTROCAMPISTA',
-    'ST': 'ATTACCANTE', 'ST1': 'ATTACCANTE', 'ST2': 'ATTACCANTE', 'CF': 'ATTACCANTE',
-  };
-
-  // Determina la categoria della zona campo in base alla coordinata Y
-  private getCategoriaZona(coordY: number): string {
-    if (coordY >= 80) return 'PORTIERE';
-    if (coordY >= 60) return 'DIFENSORE';
-    if (coordY >= 35) return 'CENTROCAMPISTA';
-    return 'ATTACCANTE';
+  /** Il giocatore è in una zona del campo lontana dai suoi reparti naturali (solo avviso, non vietato). */
+  fuoriRuolo(p: PosizioneCampo): boolean {
+    return fuoriReparto(this.ruoloDi(p.giocatoreId), repartoZona(p.coordY));
   }
 
-  // Verifica se il giocatore può essere posizionato in quella zona
-  private isCompatibile(g: GiocatoreDisponibile, coordY: number): boolean {
-    const zonaCategoria = this.getCategoriaZona(coordY);
-    const ruoloCategoria = (g as any).categoriaRuolo ?? this.inferisciCategoria(g.ruolo);
-    return zonaCategoria === ruoloCategoria;
-  }
-
-  private inferisciCategoria(ruolo: string): string {
-    const portieri = ['POR'];
-    const difensori = ['DC', 'TSD', 'TSS', 'LB'];
-    const centrocampisti = ['CDC', 'CC', 'MOC', 'ALD', 'ALS', 'W'];
-    const attaccanti = ['PC', 'SP', 'FW'];
-
-    if (portieri.includes(ruolo)) return 'PORTIERE';
-    if (difensori.includes(ruolo)) return 'DIFENSORE';
-    if (centrocampisti.includes(ruolo)) return 'CENTROCAMPISTA';
-    if (attaccanti.includes(ruolo)) return 'ATTACCANTE';
-    return '';
-  }
-
-  // Notifica errore ruolo
-  erroreRuolo = signal<string | null>(null);
-
-  private mostraErroreRuolo(g: GiocatoreDisponibile, zona: string): void {
-    this.erroreRuolo.set(`${g.cognome} (${g.ruolo}) non può giocare in ${zona}`);
-    setTimeout(() => this.erroreRuolo.set(null), 3000);
-  }
-
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-  }
-
-  onDropFromSidebar(event: DragEvent): void {
-    event.preventDefault();
-
-    const posizioneRaw = event.dataTransfer?.getData('posizione');
-    if (posizioneRaw) { this.onDropPosizione(event); return; }
-
-    const raw = event.dataTransfer?.getData('giocatore');
-    if (!raw) return;
-
-    const g: GiocatoreDisponibile = JSON.parse(raw);
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-    // Blocca se già in campo
-    if (this.posizioni.some(p => p.giocatoreId === g.id)) return;
-
-    // Blocca se fuori ruolo
-    if (!this.isCompatibile(g, y)) {
-      const zona = this.getCategoriaZona(y);
-      this.mostraErroreRuolo(g, zona);
-      return;
+  private avvisaSeFuoriReparto(g: { cognome: string; ruolo: string | null }, coordY: number): void {
+    const zona = repartoZona(coordY);
+    if (fuoriReparto(g.ruolo, zona)) {
+      this.mostraAvviso(`${g.cognome} (${g.ruolo}) gioca fuori reparto, in ${NOME_REPARTO[zona]}`, 'info');
     }
-
-    // Blocca se già 11 giocatori in campo
-    const titolari = this.posizioni.filter(p => p.titolare).length;
-    if (titolari >= 11) {
-      this.erroreRuolo.set('Hai già 11 giocatori in campo');
-      setTimeout(() => this.erroreRuolo.set(null), 3000);
-      return;
-    }
-
-    const nuovaPosizione: PosizioneCampo = {
-      giocatoreId: g.id,
-      nomeGiocatore: g.nome,
-      cognomeGiocatore: g.cognome,
-      numeroMaglia: g.numeroMaglia,
-      coordX: Math.min(Math.max(x, 3), 97),
-      coordY: Math.min(Math.max(y, 3), 97),
-      slotRuolo: null,
-      titolare: true,
-    };
-
-    const updated = [...this.posizioni, nuovaPosizione];
-    this.posizioniChange.emit(updated);
-
-    const riconosciuto = this.riconosciModulo(updated);
-    if (riconosciuto && riconosciuto !== this.modulo) {
-      this.moduloChange.emit(riconosciuto);
-    }
-  }
-
-  onDropPosizione(event: DragEvent): void {
-    event.preventDefault();
-    if (!this.draggingPosizione) return;
-
-    const el = (event.currentTarget as HTMLElement);
-    const rect = el.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-    // Trova il giocatore corrispondente nella rosa
-    const giocatore = this.rosa.find(g => g.id === this.draggingPosizione!.giocatoreId);
-
-    // Blocca se fuori ruolo
-    if (giocatore && !this.isCompatibile(giocatore, y)) {
-      const zona = this.getCategoriaZona(y);
-      this.mostraErroreRuolo(giocatore, zona);
-      this.draggingPosizione = null;
-      return;
-    }
-
-    const updated = this.posizioni.map(p =>
-      p.giocatoreId === this.draggingPosizione!.giocatoreId
-        ? {
-          ...p,
-          coordX: Math.min(Math.max(x, 3), 97),
-          coordY: Math.min(Math.max(y, 3), 97),
-        }
-        : p
-    );
-
-    this.draggingPosizione = null;
-    this.posizioniChange.emit(updated);
-
-    const riconosciuto = this.riconosciModulo(updated);
-    if (riconosciuto && riconosciuto !== this.modulo) {
-      this.moduloChange.emit(riconosciuto);
-    }
-  }
-
-  onDragStartPosizione(event: DragEvent, p: PosizioneCampo): void {
-    this.draggingPosizione = p;
-    event.dataTransfer?.setData('posizione', JSON.stringify(p));
   }
 
   rimuoviGiocatore(p: PosizioneCampo): void {
-    this.posizioniChange.emit(
-      this.posizioni.filter(pos => pos.giocatoreId !== p.giocatoreId)
-    );
+    this.posizioniChange.emit(rimuovi(this.posizioni, p.giocatoreId));
   }
 
   private riconosciModulo(posizioni: PosizioneCampo[]): string | null {
@@ -221,39 +141,36 @@ export class CampoDiCalcio {
     this.pinAperto = null;
   }
 
-  slotToRuolo(slotRuolo: string | null): string | null {
-    if (!slotRuolo) return null;
-    const s = slotRuolo.toUpperCase();
-    if (s === 'GK') return 'PORTIERE';
-    if (['CB', 'CB1', 'CB2', 'CB3', 'LB', 'RB', 'LWB', 'RWB'].some(r => s.startsWith(r))) return 'DIFENSORE';
-    if (['CM', 'CM1', 'CM2', 'CM3', 'LM', 'RM', 'DM', 'AM'].some(r => s.startsWith(r))) return 'CENTROCAMPISTA';
-    if (['ST', 'ST1', 'ST2', 'LW', 'RW', 'CF'].some(r => s.startsWith(r))) return 'ATTACCANTE';
-    return null;
+  /** Reparto del pin: quello dello slot del modulo, altrimenti quello della zona in cui si trova. */
+  repartoPin(p: PosizioneCampo) {
+    return repartoSlot(p.slotRuolo) ?? repartoZona(p.coordY);
   }
 
+  titoloPin(p: PosizioneCampo): string {
+    return `Ruolo: ${NOME_REPARTO[this.repartoPin(p)]}`;
+  }
+
+  /** Rosa e panchina, esclusi gli altri titolari: prima i ruoli adatti al reparto, poi gli altri. */
   giocatoriPerPin(p: PosizioneCampo): GiocatoreDisponibile[] {
-    const ruolo = this.slotToRuolo(p.slotRuolo);
-    const giàInCampo = new Set(this.posizioni.map(pos => pos.giocatoreId));
-
-    return this.rosa.filter(g =>
-      (!ruolo || g.ruolo === ruolo) &&
-      (g.id === p.giocatoreId || !giàInCampo.has(g.id))
-    );
+    const reparto = this.repartoPin(p);
+    const giaInCampo = new Set(this.titolari.map(pos => pos.giocatoreId));
+    return this.rosa
+      .filter(g => g.id === p.giocatoreId || !giaInCampo.has(g.id))
+      .sort((a, b) => distanzaRuolo(a.ruolo, reparto) - distanzaRuolo(b.ruolo, reparto)
+        || a.cognome.localeCompare(b.cognome));
   }
 
+  altroRuolo(p: PosizioneCampo, g: GiocatoreDisponibile): boolean {
+    return fuoriReparto(g.ruolo, this.repartoPin(p));
+  }
+
+  inPanchinaIds(): Set<number> {
+    return new Set(this.posizioni.filter(p => !p.titolare).map(p => p.giocatoreId));
+  }
+
+  /** Scelta dal menu del pin: se il nuovo giocatore è in panchina è un cambio, l'uscente va in panchina. */
   cambiaGiocatore(pin: PosizioneCampo, nuovoGiocatore: GiocatoreDisponibile): void {
-    const updated = this.posizioni.map(p =>
-      p.giocatoreId === pin.giocatoreId
-        ? {
-          ...p,
-          giocatoreId: nuovoGiocatore.id,
-          nomeGiocatore: nuovoGiocatore.nome,
-          cognomeGiocatore: nuovoGiocatore.cognome,
-          numeroMaglia: nuovoGiocatore.numeroMaglia,
-        }
-        : p
-    );
     this.pinAperto = null;
-    this.posizioniChange.emit(updated);
+    this.posizioniChange.emit(scambia(this.posizioni, pin.giocatoreId, nuovoGiocatore));
   }
 }

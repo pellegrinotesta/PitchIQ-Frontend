@@ -1,4 +1,4 @@
-<div class="campo" (dragover)="onDragOver($event)" (drop)="onDropFromSidebar($event)">
+<div class="campo" data-rilascio-campo [attr.data-dragging]="trascinamentoAttivo ? '' : null">
 
     <!-- Zone ruolo visive (appaiono solo durante il drag) -->
     <div class="zona-campo zona-portiere">POR</div>
@@ -6,11 +6,11 @@
     <div class="zona-campo zona-centrocampo">CEN</div>
     <div class="zona-campo zona-attacco">ATT</div>
 
-    <!-- Notifica errore -->
-    @if (erroreRuolo()) {
-    <div class="errore-ruolo">
-        <i class="pi pi-times-circle"></i>
-        {{ erroreRuolo() }}
+    <!-- Avviso: info per il fuori reparto (consentito), errore per i limiti veri -->
+    @if (avviso(); as a) {
+    <div class="errore-ruolo" [class.info]="a.tipo === 'info'" role="status" aria-live="polite">
+        <i class="pi" [class.pi-info-circle]="a.tipo === 'info'" [class.pi-times-circle]="a.tipo === 'errore'"></i>
+        {{ a.testo }}
     </div>
     }
 
@@ -42,10 +42,11 @@
     </svg>
 
     <!-- Giocatori posizionati -->
-    @for (p of posizioni; track p.giocatoreId) {
-    <div class="giocatore-pin" [class.aperto]="pinAperto?.giocatoreId === p.giocatoreId" [style.left.%]="p.coordX"
-        [style.top.%]="p.coordY" draggable="true" (dragstart)="onDragStartPosizione($event, p)"
-        (dragend)="draggingPosizione = null">
+    @for (p of titolari; track p.giocatoreId) {
+    <div class="giocatore-pin" [class.aperto]="pinAperto?.giocatoreId === p.giocatoreId"
+        [attr.data-rilascio-pin]="p.giocatoreId" [appTrascina]="elementoPin(p)" [ritardoTocco]="0"
+        [class.fuori-ruolo]="fuoriRuolo(p)" [attr.title]="fuoriRuolo(p) ? 'Fuori dal suo reparto' : null"
+        [style.left.%]="p.coordX" [style.top.%]="p.coordY">
         <div class="pin-avatar" (click)="togglePin(p, $event)">
             {{ p.numeroMaglia ?? p.cognomeGiocatore[0] }}
         </div>
@@ -55,14 +56,15 @@
         @if (pinAperto?.giocatoreId === p.giocatoreId) {
         <div class="pin-dropdown">
             <p class="dropdown-titolo">
-                {{ slotToRuolo(p.slotRuolo) ?? 'Tutti' }}
+                {{ titoloPin(p) }}
             </p>
             @for (g of giocatoriPerPin(p); track g.id) {
-            <div class="dropdown-item" [class.corrente]="g.id === p.giocatoreId"
+            <div class="dropdown-item" (pointerdown)="$event.stopPropagation()" [class.corrente]="g.id === p.giocatoreId" [class.altro-ruolo]="altroRuolo(p, g)"
                 (click)="cambiaGiocatore(p, g); $event.stopPropagation()">
                 <span class="item-maglia">{{ g.numeroMaglia ?? '?' }}</span>
                 <span class="item-nome">{{ g.cognome }}</span>
                 <span class="item-ruolo">{{ g.ruolo }}</span>
+                @if (inPanchinaIds().has(g.id)) { <span class="item-panchina">panchina</span> }
             </div>
             }
             @if (giocatoriPerPin(p).length === 0) {
@@ -71,7 +73,8 @@
         </div>
         }
 
-        <button class="pin-remove" (click)="rimuoviGiocatore(p); $event.stopPropagation()">
+        <button class="pin-remove" (pointerdown)="$event.stopPropagation()" (click)="rimuoviGiocatore(p); $event.stopPropagation()"
+            [attr.aria-label]="'Togli ' + p.cognomeGiocatore + ' dal campo'">
             <i class="pi pi-times"></i>
         </button>
     </div>
@@ -83,7 +86,7 @@
     }
 
     <!-- Hint se campo vuoto -->
-    @if (posizioni.length === 0) {
+    @if (titolari.length === 0) {
     <div class="campo-hint">
         <i class="pi pi-arrow-left"></i>
         Trascina i giocatori dalla sidebar

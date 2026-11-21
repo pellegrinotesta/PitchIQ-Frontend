@@ -1,4 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, catchError, of, switchMap } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
@@ -6,25 +9,41 @@ import { DynamicDialogModule, DialogService } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 import { CampoDiCalcio } from '../campo-di-calcio/campo-di-calcio';
-import { Formazione, GiocatoreDisponibile, PosizioneCampo } from '../../core/model/formazione.model';
+import { CaricoGiocatore, Formazione, GiocatoreDisponibile, PosizioneCampo } from '../../core/model/formazione.model';
+import { indisponibile, segnali, verificaFormazione } from '../../core/disponibilita';
+import { Panchina } from '../panchina/panchina';
+import { PreparazionePartita } from '../preparazione-partita/preparazione-partita';
+import { CampoFase } from '../campo-fase/campo-fase';
+import { ElementoTrascinato, Trascina, TrascinamentoService } from '../../core/trascinamento';
+import { FASI, copiaDa, haContenuto, ripristina } from '../../core/fasi';
+import { Fase, FasiFormazione } from '../../core/model/formazione.model';
+import { Partita } from '../../core/model/partita.model';
+import { posizioniDaPartita } from '../../core/posizioni-fonte';
 import { FormazioneService } from '../../core/services/formazione.service';
 import { SchemaFormazione, SlotSchema, FrecciaSchema } from '../../core/model/schema.model';
 import { CampoSchema } from '../campo-schema/campo-schema';
 import { ConfirmService } from '../confirm-dialog/confirm.service';
+import { assegnaASlot, repartoSlot } from '../../core/ruoli';
 
 @Component({
   selector: 'app-editor-tattiche',
   imports: [
     FormsModule,
+    NgTemplateOutlet,
     ButtonModule,
     SelectModule,
     InputTextModule,
     DynamicDialogModule,
     ToastModule,
     CampoDiCalcio,
-    CampoSchema],
-  providers: [MessageService, DialogService, ConfirmService],
+    CampoSchema,
+    Panchina,
+    PreparazionePartita,
+    CampoFase,
+    Trascina],
+  providers: [MessageService, DialogService, ConfirmService, TrascinamentoService],
   templateUrl: './editor-tattiche.html',
   styleUrl: './editor-tattiche.scss',
 })
@@ -41,6 +60,159 @@ export class EditorTattiche implements OnInit {
   formazioni = signal<Formazione[]>([]);
   formazioneAttiva = signal<Formazione | null>(null);
   rosa = signal<GiocatoreDisponibile[]>([]);
+  carichi = signal(new Map<number, CaricoGiocatore>());
+
+  /** Trascinamento condiviso da rosa, panchina e campo; la sagoma segue il puntatore. */
+  readonly trascinamento = inject(TrascinamentoService);
+
+  elementoRosa(g: GiocatoreDisponibile): ElementoTrascinato {
+    return { giocatoreId: g.id, origine: 'rosa', etichetta: g.cognome, numero: g.numeroMaglia };
+  }
+
+  // Fasi di gioco: "SCHIERAMENTO" è la disposizione di base, le altre la modificano
+  readonly fasiDisponibili = FASI;
+  faseAttiva = signal<'SCHIERAMENTO' | Fase>('SCHIERAMENTO');
+
+  readonly fasiConContenuto = computed(() => {
+    const fasi = this.formazioneAttiva()?.fasi;
+    return new Set(FASI.filter(f => haContenuto(fasi, f.valore)).map(f => f.valore));
+  });
+
+  readonly faseCorrente = computed(() => {
+    const f = this.faseAttiva();
+    return f === 'SCHIERAMENTO' ? null : f;
+  });
+
+  onFasiChange(fasi: FasiFormazione): void {
+    const f = this.formazioneAttiva();
+    if (f) { this.formazioneAttiva.set({ ...f, fasi }); this.modificata.set(true); }
+  }
+
+  ripristinaFase(): void {
+    const fase = this.faseCorrente();
+    const f = this.formazioneAttiva();
+    if (!fase || !f) return;
+    this.onFasiChange(ripristina(f.fasi, fase));
+  }
+
+  copiaFaseDa(da: string): void {
+    const fase = this.faseCorrente();
+    const f = this.formazioneAttiva();
+    if (!fase || !f || !da) return;
+    this.onFasiChange(copiaDa(f.fasi, da as Fase, fase, f.posizioni));
+  }
+
+  nomeFase(fase: Fase): string {
+    return FASI.find(f => f.valore === fase)?.nome ?? fase;
+  }
+
+  // Partite: collegamento della formazione al calendario
+  partite = signal<Partita[]>([]);
+  caricandoBase = signal<number | null>(null);
+
+  readonly partitaAttiva = computed(() => {
+    const id = this.formazioneAttiva()?.partitaId;
+    return id ? this.partite().find(p => p.id === id) ?? null : null;
+  });
+
+  /** Scouting dell'avversario della partita collegata (ricaricato quando cambia la partita). */
+  readonly scouting = toSignal(
+    toObservable(computed(() => this.partitaAttiva()?.scoutingId ?? null)).pipe(
+      switchMap(id => id ? this.service.getScouting(id).pipe(catchError(() => of(null))) : of(null)),
+    ),
+    { initialValue: null },
+  );
+
+  /** Opzioni della scelta partita: prima quelle da giocare (dalla più vicina), poi le giocate (dalla più recente). */
+  readonly partiteDaGiocare = computed(() =>
+    this.partite().filter(p => !p.giocata).sort((a, b) => a.data.localeCompare(b.data)));
+  readonly partiteGiocate = computed(() =>
+    this.partite().filter(p => p.giocata).sort((a, b) => b.data.localeCompare(a.data)));
+
+  /** Ultime 5 partite giocate, esclusa quella collegata, da usare come base. */
+  readonly recenti = computed(() =>
+    this.partiteGiocate().filter(p => p.id !== this.partitaAttiva()?.id).slice(0, 5));
+
+  etichettaPartita(p: Partita): string {
+    const [anno, mese, giorno] = p.data.split('-');
+    return `${giorno}/${mese}/${anno.slice(2)} · ${p.casaTrasferta === 'CASA' ? 'vs' : '@'} ${p.avversario}`;
+  }
+
+  sottotitoloFormazione(f: Formazione): string {
+    const p = f.partitaId ? this.partite().find(x => x.id === f.partitaId) : null;
+    return p ? `${f.modulo} · ${p.casaTrasferta === 'CASA' ? 'vs' : '@'} ${p.avversario}` : f.modulo;
+  }
+
+  onPartitaChange(valore: string): void {
+    const f = this.formazioneAttiva();
+    if (!f) return;
+    const partitaId = valore ? Number(valore) : null;
+    const partita = this.partite().find(p => p.id === partitaId);
+    // un nome mai toccato diventa quello della partita
+    const nome = partita && (f.nome === 'Nuova formazione' || /^(vs|@) /.test(f.nome))
+      ? `${partita.casaTrasferta === 'CASA' ? 'vs' : '@'} ${partita.avversario}` : f.nome;
+    this.formazioneAttiva.set({ ...f, partitaId, nome });
+    this.modificata.set(true);
+  }
+
+  /** Porta in campo i titolari di una partita giocata; la panchina attuale resta (tranne chi diventa titolare). */
+  usaComeBase(partita: Partita): void {
+    const f = this.formazioneAttiva();
+    if (!f) return;
+    const procedi = f.posizioni.some(p => p.titolare)
+      ? this.confirmService.conferma({
+          header: 'Usa come base',
+          messaggio: `Sostituire i titolari con quelli schierati contro ${partita.avversario}? La panchina resta.`,
+          labelConferma: 'Sostituisci',
+          labelAnnulla: 'Annulla',
+          pericoloso: false,
+        })
+      : of(true);
+    procedi.subscribe(ok => {
+      if (!ok) return;
+      this.caricandoBase.set(partita.id);
+      this.service.getTitolariPartita(partita.id).subscribe({
+        next: titolari => {
+          this.caricandoBase.set(null);
+          if (!titolari.length) {
+            this.toast('error', `Formazione non registrata per la partita contro ${partita.avversario}`);
+            return;
+          }
+          const corrente = this.formazioneAttiva();
+          if (!corrente) return;
+          const nuovi = posizioniDaPartita(titolari);
+          const titolariIds = new Set(nuovi.map(p => p.giocatoreId));
+          const panchina = corrente.posizioni.filter(p => !p.titolare && !titolariIds.has(p.giocatoreId));
+          const modulo = partita.modulo ?? titolari.find(t => t.moduloFonte)?.moduloFonte ?? corrente.modulo;
+          this.formazioneAttiva.set({ ...corrente, modulo, posizioni: [...nuovi, ...panchina] });
+          this.modificata.set(true);
+          this.toast('success', `Titolari contro ${partita.avversario} caricati: ora adattali`);
+        },
+        error: () => {
+          this.caricandoBase.set(null);
+          this.toast('error', 'Formazione della partita non disponibile');
+        },
+      });
+    });
+  }
+
+  /** Controlli sulla formazione aperta: titolari, portieri, indisponibili, lista, carico. */
+  readonly controlli = computed(() => {
+    const f = this.formazioneAttiva();
+    return f ? verificaFormazione(f.posizioni, this.rosa(), this.carichi()) : [];
+  });
+
+  /** Rosa per la barra laterale: disponibili e non disponibili, con dove si trova già il giocatore. */
+  readonly rosaVista = computed(() => {
+    const dove = new Map((this.formazioneAttiva()?.posizioni ?? []).map(p => [p.giocatoreId, p.titolare ? 'campo' : 'panchina'] as const));
+    const voci = [...this.rosa()]
+      .sort((a, b) => (a.numeroMaglia ?? 999) - (b.numeroMaglia ?? 999))
+      .map(g => ({ g, dove: dove.get(g.id) ?? null, segnali: segnali(g, this.carichi().get(g.id)) }));
+    return {
+      disponibili: voci.filter(v => !indisponibile(v.g)),
+      nonDisponibili: voci.filter(v => indisponibile(v.g)),
+    };
+  });
 
   // Schemi
   schemi = signal<SchemaFormazione[]>([]);
@@ -48,6 +220,25 @@ export class EditorTattiche implements OnInit {
 
   loading = signal(false);
   salvando = signal(false);
+  /** Modifiche non ancora salvate della formazione o dello schema aperti. */
+  modificata = signal(false);
+
+  @HostListener('window:beforeunload', ['$event'])
+  avvisaPrimaDiUscire(event: BeforeUnloadEvent): void {
+    if (this.modificata()) event.preventDefault();
+  }
+
+  /** Chiede conferma prima di abbandonare modifiche non salvate. */
+  private puoiAbbandonare(): Observable<boolean> {
+    if (!this.modificata()) return of(true);
+    return this.confirmService.conferma({
+      header: 'Modifiche non salvate',
+      messaggio: 'Hai modifiche non salvate: se continui andranno perse.',
+      labelConferma: 'Continua senza salvare',
+      labelAnnulla: 'Resta qui',
+      pericoloso: true,
+    });
+  }
 
   readonly moduliOptions = [
     '4-3-3', '4-4-2', '4-2-3-1', '3-5-2', '5-3-2', '3-4-3'
@@ -154,6 +345,7 @@ export class EditorTattiche implements OnInit {
   }
 
   ngOnInit(): void {
+    this.service.getPartite().subscribe({ next: partite => this.partite.set(partite) });
     this.caricaFormazioni();
     this.caricaRosa();
     this.caricaSchemi();
@@ -177,83 +369,77 @@ export class EditorTattiche implements OnInit {
     this.service.getRosaDisponibile().subscribe({
       next: (rosa) => this.rosa.set(rosa),
     });
+    // il carico è un'informazione in più: se non è disponibile (es. nessuna seduta registrata) si va avanti senza
+    this.service.getCarichi().subscribe({
+      next: (carichi) => this.carichi.set(new Map(carichi.map(c => [c.giocatoreId, c]))),
+      error: () => this.carichi.set(new Map()),
+    });
   }
 
   selezionaFormazione(f: Formazione): void {
-    this.service.getById(f.id).subscribe({
-      next: (full) => this.formazioneAttiva.set(full),
+    if (f.id === this.formazioneAttiva()?.id) return;
+    this.puoiAbbandonare().subscribe(ok => {
+      if (!ok) return;
+      this.service.getById(f.id).subscribe({
+        next: (full) => { this.formazioneAttiva.set(full); this.modificata.set(false); this.faseAttiva.set('SCHIERAMENTO'); },
+      });
     });
   }
 
   nuovaFormazione(): void {
-    this.formazioneAttiva.set({
-      id: 0, nome: 'Nuova formazione',
-      modulo: '4-3-3', data: null, note: null, posizioni: [],
+    this.puoiAbbandonare().subscribe(ok => {
+      if (!ok) return;
+      // proposta: la prossima partita da giocare, se c'è
+      const prossima = this.partiteDaGiocare()[0] ?? null;
+      this.formazioneAttiva.set({
+        id: 0,
+        nome: prossima ? `${prossima.casaTrasferta === 'CASA' ? 'vs' : '@'} ${prossima.avversario}` : 'Nuova formazione',
+        modulo: '4-3-3', data: null, note: null, partitaId: prossima?.id ?? null, posizioni: [], fasi: null,
+      });
+      this.faseAttiva.set('SCHIERAMENTO');
+      this.modificata.set(true);
     });
   }
 
   onPosizioniChange(posizioni: PosizioneCampo[]): void {
     const f = this.formazioneAttiva();
-    if (f) this.formazioneAttiva.set({ ...f, posizioni });
+    if (f) { this.formazioneAttiva.set({ ...f, posizioni }); this.modificata.set(true); }
   }
 
   onNomeChange(nome: string): void {
     const f = this.formazioneAttiva();
-    if (f) this.formazioneAttiva.set({ ...f, nome });
+    if (f) { this.formazioneAttiva.set({ ...f, nome }); this.modificata.set(true); }
   }
 
-  /** Modulo scelto dalla select: riposiziona i giocatori sulle coordinate standard. */
+  /**
+   * Modulo scelto dalla select: riposiziona i titolari sulle coordinate standard.
+   * Ogni giocatore va sullo slot più adatto al suo ruolo mantenendo il lato del campo;
+   * nessuno viene tolto dal campo, al massimo finisce fuori reparto.
+   */
   onModuloChange(modulo: string): void {
     const f = this.formazioneAttiva();
     if (!f) return;
+    this.modificata.set(true);
 
-    if (f.posizioni.length === 0) {
+    const coordinate = this.POSIZIONI_MODULO[modulo];
+    const titolari = f.posizioni.filter(p => p.titolare);
+    if (!coordinate || titolari.length === 0) {
       this.formazioneAttiva.set({ ...f, modulo });
       return;
     }
 
-    const nuoveCoordinate = this.POSIZIONI_MODULO[modulo];
-    if (!nuoveCoordinate) {
-      this.formazioneAttiva.set({ ...f, modulo });
-      return;
-    }
+    const giocatori = titolari.map(p => ({
+      p, x: p.coordX, ruolo: this.rosa().find(r => r.id === p.giocatoreId)?.ruolo ?? null,
+    }));
+    const slot = coordinate.map(c => ({ ...c, x: c.coordX, reparto: repartoSlot(c.slotRuolo) ?? 'CENTROCAMPISTA' as const }));
+    const assegnati = assegnaASlot(giocatori, slot);
 
-    // Raggruppa per categoria leggendo dalla rosa
-    const giocatoriPerCategoria: Record<string, PosizioneCampo[]> = {
-      PORTIERE: [], DIFENSORE: [], CENTROCAMPISTA: [], ATTACCANTE: [],
-    };
-
-    f.posizioni.forEach(p => {
-      const g = this.rosa().find(r => r.id === p.giocatoreId);
-      if (!g) return;
-
-      const categoria = this.inferisciCategoria(g.ruolo);
-      if (giocatoriPerCategoria[categoria]) {
-        giocatoriPerCategoria[categoria].push(p);
-      }
-    });
-
-    const contatori: Record<string, number> = {
-      PORTIERE: 0, DIFENSORE: 0, CENTROCAMPISTA: 0, ATTACCANTE: 0,
-    };
-
-    const nuovePosizioni: PosizioneCampo[] = nuoveCoordinate.map(slot => {
-      const giocatoriCategoria = giocatoriPerCategoria[slot.categoria] ?? [];
-      const indice = contatori[slot.categoria] ?? 0;
-      const giocatore = giocatoriCategoria[indice];
-      contatori[slot.categoria] = indice + 1;
-
-      if (!giocatore) return null;
-
-      return {
-        ...giocatore,
-        coordX: slot.coordX,
-        coordY: slot.coordY,
-        slotRuolo: slot.slotRuolo as string | null,
-      } as PosizioneCampo;
-    }).filter((p): p is PosizioneCampo => p !== null);
-
-    this.formazioneAttiva.set({ ...f, modulo, posizioni: nuovePosizioni });
+    const riposizionati: PosizioneCampo[] = [];
+    assegnati.forEach((g, s) => riposizionati.push({
+      ...g.p, coordX: s.coordX, coordY: s.coordY, slotRuolo: s.slotRuolo,
+    }));
+    const panchina = f.posizioni.filter(p => !p.titolare);
+    this.formazioneAttiva.set({ ...f, modulo, posizioni: [...riposizionati, ...panchina] });
   }
 
   /**
@@ -267,22 +453,6 @@ export class EditorTattiche implements OnInit {
     }
   }
 
-  private inferisciCategoria(ruolo: string): string {
-    const portieri = ['POR'];
-    const difensori = ['DC', 'TSD', 'TSS', 'LB'];
-    const centrocampisti = ['CDC', 'CC', 'MOC', 'ALD', 'ALS', 'W'];
-    const attaccanti = ['PC', 'SP', 'FW'];
-
-    if (portieri.includes(ruolo)) return 'PORTIERE';
-    if (difensori.includes(ruolo)) return 'DIFENSORE';
-    if (centrocampisti.includes(ruolo)) return 'CENTROCAMPISTA';
-    if (attaccanti.includes(ruolo)) return 'ATTACCANTE';
-    return 'CENTROCAMPISTA';
-  }
-
-  onDragStart(event: DragEvent, g: GiocatoreDisponibile): void {
-    event.dataTransfer?.setData('giocatore', JSON.stringify(g));
-  }
 
   salvaFormazione(): void {
     const f = this.formazioneAttiva();
@@ -290,7 +460,8 @@ export class EditorTattiche implements OnInit {
     this.salvando.set(true);
 
     const req = {
-      nome: f.nome, modulo: f.modulo, data: f.data, note: f.note,
+      nome: f.nome, modulo: f.modulo, data: f.data, note: f.note, partitaId: f.partitaId ?? null,
+      fasi: f.fasi ?? null,
       posizioni: f.posizioni.map(p => ({
         giocatoreId: p.giocatoreId, coordX: p.coordX, coordY: p.coordY,
         slotRuolo: p.slotRuolo, titolare: p.titolare,
@@ -305,6 +476,7 @@ export class EditorTattiche implements OnInit {
       next: (saved) => {
         this.salvando.set(false);
         this.formazioneAttiva.set(saved);
+        this.modificata.set(false);
         this.caricaFormazioni();
         this.toast('success', 'Formazione salvata');
       },
@@ -323,7 +495,7 @@ export class EditorTattiche implements OnInit {
       if (!confermato) return;
       this.service.delete(f.id).subscribe({
         next: () => {
-          if (this.formazioneAttiva()?.id === f.id) this.formazioneAttiva.set(null);
+          if (this.formazioneAttiva()?.id === f.id) { this.formazioneAttiva.set(null); this.modificata.set(false); }
           this.caricaFormazioni();
         },
       });
@@ -338,37 +510,38 @@ export class EditorTattiche implements OnInit {
   }
 
   selezionaSchema(s: SchemaFormazione): void {
-    this.service.getSchemaById(s.id).subscribe({
-      next: (full) => this.schemaAttivo.set(full),
+    if (s.id === this.schemaAttivo()?.id) return;
+    this.puoiAbbandonare().subscribe(ok => {
+      if (!ok) return;
+      this.service.getSchemaById(s.id).subscribe({
+        next: (full) => { this.schemaAttivo.set(full); this.modificata.set(false); },
+      });
     });
   }
 
   nuovoSchema(): void {
-    this.schemaAttivo.set({
-      id: 0, nome: 'Nuovo schema',
-      modulo: '4-3-3', descrizione: null, slot: [], frecce: [],
+    this.puoiAbbandonare().subscribe(ok => {
+      if (!ok) return;
+      this.schemaAttivo.set({
+        id: 0, nome: 'Nuovo schema',
+        modulo: '4-3-3', descrizione: null, slot: [], frecce: [],
+      });
+      this.modificata.set(true);
     });
   }
 
-  onSlotChange(slot: SlotSchema[]): void {
+  private aggiornaSchema(modifica: Partial<SchemaFormazione>): void {
     const s = this.schemaAttivo();
-    if (s) this.schemaAttivo.set({ ...s, slot });
+    if (s) { this.schemaAttivo.set({ ...s, ...modifica }); this.modificata.set(true); }
   }
 
-  onFrecceChange(frecce: FrecciaSchema[]): void {
-    const s = this.schemaAttivo();
-    if (s) this.schemaAttivo.set({ ...s, frecce });
-  }
+  onSlotChange(slot: SlotSchema[]): void { this.aggiornaSchema({ slot }); }
 
-  onNomeSchemaChange(nome: string): void {
-    const s = this.schemaAttivo();
-    if (s) this.schemaAttivo.set({ ...s, nome });
-  }
+  onFrecceChange(frecce: FrecciaSchema[]): void { this.aggiornaSchema({ frecce }); }
 
-  onModuloSchemaChange(modulo: string): void {
-    const s = this.schemaAttivo();
-    if (s) this.schemaAttivo.set({ ...s, modulo });
-  }
+  onNomeSchemaChange(nome: string): void { this.aggiornaSchema({ nome }); }
+
+  onModuloSchemaChange(modulo: string): void { this.aggiornaSchema({ modulo }); }
 
   salvaSchema(): void {
     const s = this.schemaAttivo();
@@ -396,6 +569,7 @@ export class EditorTattiche implements OnInit {
       next: (saved) => {
         this.salvando.set(false);
         this.schemaAttivo.set(saved);
+        this.modificata.set(false);
         this.caricaSchemi();
         this.toast('success', 'Schema salvato');
       },
@@ -414,7 +588,7 @@ export class EditorTattiche implements OnInit {
       if (!confermato) return;
       this.service.deleteSchema(s.id).subscribe({
         next: () => {
-          if (this.schemaAttivo()?.id === s.id) this.schemaAttivo.set(null);
+          if (this.schemaAttivo()?.id === s.id) { this.schemaAttivo.set(null); this.modificata.set(false); }
           this.caricaSchemi();
         },
       });
@@ -429,7 +603,9 @@ export class EditorTattiche implements OnInit {
       return;
     }
     this.confirmService.conferma({
-      messaggio: `Applicare "${s.nome}" a "${f.nome}"? Le posizioni attuali verranno sovrascritte.`,
+      messaggio: this.modificata()
+        ? `Applicare "${s.nome}" a "${f.nome}"? Lo schema parte dalla versione salvata: le modifiche non salvate andranno perse.`
+        : `Applicare "${s.nome}" a "${f.nome}"? I titolari verranno ridisposti secondo lo schema; la panchina resta.`,
       header: 'Applica schema',
       labelConferma: 'Applica',
       labelAnnulla: 'Annulla',
@@ -439,10 +615,11 @@ export class EditorTattiche implements OnInit {
       this.service.applicaSchema(s.id, f.id).subscribe({
         next: (updated) => {
           this.formazioneAttiva.set(updated);
+          this.modificata.set(false);
           this.cambiaTab('formazioni');
           this.toast('success', 'Schema applicato');
         },
-        error: () => this.toast('error', 'Applicazione fallita'),
+        error: (e: HttpErrorResponse) => this.toast('error', e.error?.detail ?? 'Applicazione fallita'),
       });
     });
   }

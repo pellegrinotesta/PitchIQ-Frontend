@@ -477,7 +477,7 @@
     color: #edf4ee;
 
     &:has(.sidebar-destra) {
-        grid-template-columns: 240px minmax(0, 1fr) 200px;
+        grid-template-columns: 240px minmax(0, 1fr) 250px;
     }
 }
 
@@ -563,6 +563,7 @@
 
 .inp-nome,
 .inp-modulo,
+.inp-partita,
 .btn-back {
     background: #202c24;
     border-color: #415246;
@@ -576,6 +577,219 @@
 .campo-wrapper {
     min-width: 0;
     background: repeating-linear-gradient(135deg, #1a2820 0, #1a2820 1px, #17231c 1px, #17231c 12px);
+}
+
+// ===== PARTITA =====
+.inp-partita {
+    max-width: 220px;
+    min-width: 0;
+    height: 2.1rem;
+    padding: 0 .5rem;
+    border: 1px solid;
+    border-radius: 7px;
+    font: inherit;
+    font-size: .8rem;
+    color-scheme: dark;
+}
+
+// ===== FASI DI GIOCO =====
+.fasi-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    padding: .55rem 1.25rem;
+    background: #17231c;
+    border-bottom: 1px solid #303d35;
+}
+
+.fasi-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.fase-tab {
+    position: relative;
+    min-height: 2.1rem;
+    padding: .3rem .75rem;
+    color: #a7b5a9;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font: inherit;
+    font-size: .76rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+
+    &:hover { color: #edf4ee; }
+    &.attiva { color: #a7f3bd; background: #274c37; border-color: #4a7655; }
+    &:focus-visible { outline: 2px solid #6ee7a0; outline-offset: 2px; }
+}
+
+.fase-punto {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: .3rem;
+    vertical-align: middle;
+    background: #6ee7a0;
+    border-radius: 50%;
+}
+
+.fasi-azioni {
+    display: flex;
+    gap: .4rem;
+}
+
+.inp-copia,
+.btn-ripristina {
+    height: 2.1rem;
+    padding: 0 .6rem;
+    color: #edf4ee;
+    background: #202c24;
+    border: 1px solid #415246;
+    border-radius: 7px;
+    font: inherit;
+    font-size: .75rem;
+    color-scheme: dark;
+}
+
+.btn-ripristina {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    cursor: pointer;
+
+    &:disabled { opacity: .45; cursor: not-allowed; }
+}
+
+.fase-aiuto {
+    margin: 0;
+    padding: .5rem 1.25rem .9rem;
+    color: #9bab9e;
+    font-size: .72rem;
+    line-height: 1.5;
+    background: #17231c;
+}
+
+// ===== DISPONIBILITÀ E PANCHINA =====
+.sidebar-destra {
+    overflow-y: auto;
+}
+
+.verifica {
+    padding: 1rem 1rem .5rem;
+    border-bottom: 1px solid #303d35;
+
+    ul { display: grid; gap: .35rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+}
+
+.controllo {
+    display: flex;
+    gap: .45rem;
+    align-items: flex-start;
+    font-size: .74rem;
+    line-height: 1.35;
+    color: #c9d4cb;
+
+    .pi { margin-top: .1rem; font-size: .8rem; }
+    &.ok .pi { color: #6ee7a0; }
+    &.info .pi { color: #93c5fd; }
+    &.avviso .pi { color: #fbbf24; }
+    &.errore { color: #fecaca; }
+    &.errore .pi { color: #f87171; }
+}
+
+.rosa-gruppo {
+    margin: .8rem .4rem .3rem;
+    color: #f87171;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.giocatore-item.schierato {
+    opacity: .55;
+}
+
+.giocatore-item.non-disponibile .giocatore-maglia {
+    color: #f87171;
+    background: rgba(248, 113, 113, .08);
+    border-color: rgba(248, 113, 113, .3);
+}
+
+.giocatore-segnali {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2rem;
+    margin-top: .15rem;
+}
+
+.segnale {
+    padding: 0 .35rem;
+    border-radius: 99px;
+    font-size: .6rem;
+    font-weight: 700;
+    line-height: 1.5;
+
+    &.errore { color: #fecaca; background: rgba(248, 113, 113, .15); }
+    &.avviso { color: #fde68a; background: rgba(251, 191, 36, .14); }
+    &.info { color: #bfdbfe; background: rgba(96, 165, 250, .14); }
+}
+
+.panchina-wrapper {
+    padding: 0 1.5rem 1.25rem;
+    background: #17231c;
+}
+
+// ===== TRASCINAMENTO E TABLET =====
+.giocatore-item {
+    touch-action: pan-y; // il dito scorre la rosa; tenendo premuto parte il trascinamento
+    -webkit-touch-callout: none;
+
+    &.trascinato { opacity: .4; }
+}
+
+.sagoma {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .7rem .3rem .3rem;
+    color: #0b130e;
+    background: #d7f3b4;
+    border-radius: 99px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+    font-size: .8rem;
+    font-weight: 700;
+    pointer-events: none; // altrimenti elementFromPoint troverebbe la sagoma invece del bersaglio
+    transform: translate(-50%, calc(-100% - 18px)); // sopra il dito, non sotto
+    opacity: .85;
+
+    &.sopra-bersaglio { opacity: 1; box-shadow: 0 0 0 3px #6ee7a0, 0 8px 24px rgba(0, 0, 0, .45); }
+}
+
+.sagoma-maglia {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    color: #d7f3b4;
+    background: #172a1d;
+    border-radius: 50%;
+    font-size: .72rem;
+}
+
+@media (pointer: coarse) {
+    .giocatore-item { min-height: 48px; }
+    .tab-btn, .fase-tab, .btn-salva, .btn-nuovo, .btn-elimina, .btn-applica,
+    .inp-nome, .inp-modulo, .inp-partita, .inp-copia, .btn-ripristina { min-height: 44px; }
+    .lista-item { min-height: 48px; }
 }
 
 @media (max-width: 900px) {
@@ -644,5 +858,9 @@
 
     .campo-wrapper {
         padding: .75rem;
+    }
+
+    .panchina-wrapper {
+        padding: 0 .75rem .75rem;
     }
 }
