@@ -38,3 +38,10 @@ h3 { margin: 0; color: #fff; font-size: .85rem; font-weight: 700; letter-spacing
 
 @media (prefers-reduced-motion: reduce) { .panchina { transition: none; } }
 
+.riserva { touch-action: pan-x pan-y; -webkit-touch-callout: none; user-select: none; }
+.riserva.trascinato { opacity: .4; }
+
+@media (pointer: coarse) {
+  .riserva { min-height: 44px; padding-right: .5rem; }
+  .togli { width: 2rem; height: 2rem; }
+}

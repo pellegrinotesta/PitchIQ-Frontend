@@ -18,7 +18,8 @@ export class PreparazionePartita {
   readonly caricandoBase = input<number | null>(null);
   readonly usaComeBase = output<Partita>();
 
-  protected readonly aperto = signal(true);
+  /** Sugli schermi bassi (tablet in orizzontale) parte chiuso per lasciare spazio al campo. */
+  protected readonly aperto = signal(typeof window === 'undefined' || window.innerHeight >= 820);
 
   protected readonly esito: Record<string, string> = { V: 'Vittoria', N: 'Pareggio', P: 'Sconfitta' };
 }

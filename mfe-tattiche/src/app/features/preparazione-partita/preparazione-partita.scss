@@ -47,3 +47,7 @@ h4 { margin: 0 0 .5rem; color: #a7f3bd; font-size: .72rem; font-weight: 700; let
   .prep-corpo { padding: .2rem .75rem .8rem; }
 }
 
+@media (pointer: coarse) {
+  .prep-testa { min-height: 48px; }
+  .btn-base { min-height: 40px; }
+}
