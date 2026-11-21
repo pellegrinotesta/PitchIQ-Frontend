@@ -23,6 +23,7 @@ export class MotionChartComponent {
   readonly soglia = input<number | null>(null);
   readonly eventi = input<EventoVideoDto[]>([]);
   readonly durata = input<number | null>(null);
+  readonly metodo = input<'giocatori' | 'pixel' | null | undefined>('pixel');
   readonly seleziona = output<string>();
 
   private readonly host = inject(ElementRef<HTMLElement>);
@@ -57,8 +58,16 @@ export class MotionChartComponent {
     return s === null ? null : s / this.picco() * 100;
   });
 
-  protected readonly punti = computed(() =>
-    this.campioni().map(c => ({ secondo: c.secondo, pct: c.valore / this.picco() * 100 })));
+  protected readonly conGiocatori = computed(() => this.metodo() === 'giocatori');
+
+  protected readonly punti = computed(() => this.campioni().map(c => ({
+    secondo: c.secondo,
+    pct: c.valore / this.picco() * 100,
+    giocatori: c.giocatori ?? null,
+    palla: c.palla ?? false,
+  })));
+
+  protected readonly pallone = computed(() => this.punti().filter(p => p.palla));
 
   protected x(secondo: number): number {
     return M.left + secondo / this.fine() * (this.larghezza() - M.left - M.right);
@@ -115,6 +124,8 @@ export class MotionChartComponent {
       valore: Math.round(p.pct),
       sopra: soglia !== null && p.pct >= soglia,
       clip: clip >= 0 ? clip + 1 : null,
+      giocatori: p.giocatori,
+      palla: p.palla,
       left,
       allineaDestra: left > this.larghezza() * 0.65,
     };
@@ -122,7 +133,8 @@ export class MotionChartComponent {
 
   protected readonly descrizione = computed(() => {
     const n = this.eventi().length;
-    return `Movimento nel tempo su ${this.timestamp(this.fine())}: ${n} ${n === 1 ? 'tratto supera' : 'tratti superano'} la soglia e ${n === 1 ? 'è diventato una clip' : 'sono diventati clip'}.`;
+    const cosa = this.conGiocatori() ? 'Attività dei giocatori' : 'Movimento';
+    return `${cosa} nel tempo su ${this.timestamp(this.fine())}: ${n} ${n === 1 ? 'tratto supera' : 'tratti superano'} la soglia e ${n === 1 ? 'è diventato una clip' : 'sono diventati clip'}.`;
   });
 
   protected onMove(event: PointerEvent): void {

@@ -1,0 +1,39 @@
+<div class="cl">
+  @if (indizi().length) {
+    <ul class="cl-indizi" aria-label="Indizi rilevati">
+      @for (indizio of indizi(); track indizio) {
+        <li>{{ indizio }}</li>
+      }
+    </ul>
+  }
+
+  @if (!etichettabile()) {
+    <p class="cl-nota">Analisi precedente al classificatore: rianalizza il video per etichettare questa clip.</p>
+  } @else {
+    @if (proposta(); as p) {
+      <div class="cl-proposta">
+        <span>Il modello propone <strong>{{ p.nome }}</strong> · {{ (p.confidenza * 100).toFixed(0) }}%</span>
+        <button type="button" class="cl-conferma" [disabled]="salvataggio() !== null" (click)="scegli(p.etichetta)">
+          <i class="pi pi-check" aria-hidden="true"></i> Conferma
+        </button>
+      </div>
+    }
+
+    <div class="cl-scelte" role="group" [attr.aria-label]="'Che azione è la clip ' + evento().id + '?'">
+      <span class="cl-domanda">{{ scelta() ? 'Etichetta:' : 'Che azione è?' }}</span>
+      @for (e of etichette; track e.valore) {
+        <button type="button" class="cl-scelta" [class.attiva]="scelta() === e.valore"
+                [attr.aria-pressed]="scelta() === e.valore" [disabled]="salvataggio() !== null"
+                [attr.title]="scelta() === e.valore ? 'Clicca di nuovo per togliere l\'etichetta' : null"
+                (click)="scegli(e.valore)">
+          @if (salvataggio() === e.valore) { <span class="cl-spinner" aria-hidden="true"></span> }
+          {{ e.nome }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (errore()) {
+    <p class="cl-errore" role="alert">{{ errore() }}</p>
+  }
+</div>

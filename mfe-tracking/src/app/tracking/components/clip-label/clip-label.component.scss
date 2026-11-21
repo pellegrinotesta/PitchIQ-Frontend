@@ -1,0 +1,38 @@
+:host { display: block; min-width: 0; }
+
+.cl { display: grid; gap: .55rem; }
+
+.cl-indizi { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.cl-indizi li { padding: .2rem .5rem; color: #bbb; background: #161616; border: 1px solid #262626; border-radius: 99px; font-size: .7rem; }
+
+.cl-proposta {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .5rem .65rem; color: #ccc; background: rgba(0, 255, 135, .05); border: 1px solid rgba(0, 255, 135, .25);
+  border-radius: 7px; font-size: .78rem;
+}
+.cl-proposta strong { color: #fff; }
+.cl-conferma {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .7rem; color: #000; background: #00ff87;
+  border: 0; border-radius: 6px; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer;
+}
+.cl-conferma:disabled { opacity: .5; cursor: progress; }
+
+.cl-scelte { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+.cl-domanda { margin-right: .15rem; color: #777; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+.cl-scelta {
+  display: inline-flex; align-items: center; gap: .3rem; min-height: 2rem; padding: .3rem .6rem;
+  color: #aaa; background: transparent; border: 1px solid #2a2a2a; border-radius: 6px;
+  font: inherit; font-size: .75rem; cursor: pointer; transition: border-color .12s, color .12s;
+}
+.cl-scelta:hover:not(:disabled) { color: #fff; border-color: #00ff87; }
+.cl-scelta.attiva { color: #000; background: #00ff87; border-color: #00ff87; font-weight: 700; }
+.cl-scelta:disabled { cursor: progress; }
+.cl-scelta:disabled:not(.attiva) { opacity: .55; }
+.cl-scelta:focus-visible, .cl-conferma:focus-visible { outline: 2px solid #00ff87; outline-offset: 2px; }
+
+.cl-nota { margin: 0; color: #666; font-size: .75rem; }
+.cl-errore { margin: 0; color: #ff6464; font-size: .75rem; }
+
+.cl-spinner { width: 10px; height: 10px; border: 2px solid rgba(0, 0, 0, .25); border-top-color: #000; border-radius: 50%; animation: cl-spin .8s linear infinite; }
+@keyframes cl-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cl-spinner { animation: none; } .cl-scelta { transition: none; } }

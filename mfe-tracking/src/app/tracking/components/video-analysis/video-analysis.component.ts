@@ -5,9 +5,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription, filter, forkJoin, switchMap, takeWhile, timer } from 'rxjs';
+import { ClipLabelComponent } from '../clip-label/clip-label.component';
 import { MotionChartComponent } from '../motion-chart/motion-chart.component';
 import { TrackingApi } from '../../data/tracking.api';
-import { AnalisiVideoDto, EventoVideoDto } from '../../data/tracking.models';
+import { AnalisiVideoDto, EventoVideoDto, ModelloEventiDto } from '../../data/tracking.models';
 
 const DURATA_MIN = 2;
 const DURATA_MAX = 120;
@@ -15,7 +16,7 @@ const DIMENSIONE_MAX = 250 * 1024 * 1024;
 
 @Component({
   selector: 'tk-video-analysis',
-  imports: [MotionChartComponent],
+  imports: [MotionChartComponent, ClipLabelComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './video-analysis.component.html',
   styleUrl: './video-analysis.component.scss',
@@ -31,6 +32,7 @@ export class VideoAnalysisComponent implements OnDestroy {
   readonly aggiornata = output<AnalisiVideoDto>();
   readonly nonTrovata = output<string>();
   readonly chiusa = output<void>();
+  readonly modelloAggiornato = output<ModelloEventiDto>();
 
   protected readonly file = signal<File | null>(null);
   protected readonly durataFile = signal<number | null>(null);
@@ -165,6 +167,19 @@ export class VideoAnalysisComponent implements OnDestroy {
     this.errore.set(null);
     this.fase.set('idle');
     this.chiusa.emit();
+  }
+
+  /** Dopo un'etichetta il modello cambia: si ricaricano le proposte delle altre clip (i video restano). */
+  protected onEtichettata(modello: ModelloEventiDto): void {
+    this.modelloAggiornato.emit(modello);
+    const corrente = this.analisi();
+    if (!corrente) return;
+    this.api.statoAnalisiVideo(corrente.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: stato => {
+        if (this.analisi()?.id === stato.id) this.analisi.set(stato);
+      },
+      error: () => undefined, // le proposte restano quelle di prima: non è un errore da mostrare
+    });
   }
 
   protected vaiAllaClip(id: string): void {

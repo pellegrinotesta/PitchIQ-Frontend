@@ -21,7 +21,44 @@
         (avviata)="onAvviata($event)"
         (aggiornata)="onAggiornata($event)"
         (nonTrovata)="onNonTrovata($event)"
-        (chiusa)="selezionata.set(null)" />
+        (chiusa)="selezionata.set(null)"
+        (modelloAggiornato)="onModelloAggiornato($event)" />
+
+      <section class="card" aria-labelledby="modello-title">
+        <h2 id="modello-title"><i class="pi pi-sitemap" aria-hidden="true"></i> Riconoscimento azioni</h2>
+        <p class="spiega">
+          Etichetta le clip con il tipo di azione: il modello impara dai tuoi esempi e, quando ne ha abbastanza,
+          propone l'etichetta per le clip nuove. Usa solo le misure di giocatori e pallone, nessun dato esterno.
+        </p>
+        @if (modello(); as m) {
+          <div class="modello-stato" [class.attivo]="m.attivo">
+            @if (m.attivo) {
+              <strong>Attivo</strong> · {{ m.esempi }} esempi
+              @if (m.accuratezzaStimata !== null) {
+                · accuratezza stimata {{ (m.accuratezzaStimata * 100).toFixed(0) }}%
+              }
+            } @else {
+              <strong>In apprendimento</strong> · servono almeno {{ m.minimoPerClasse }} esempi per due tipi di azione
+            }
+          </div>
+          <ul class="classi">
+            @for (c of classi(); track c.valore) {
+              <li [class.pronta]="c.pronta">
+                <span class="classe-nome">{{ c.nome }}</span>
+                <span class="classe-barra" aria-hidden="true"><span [style.width.%]="c.pct"></span></span>
+                <span class="classe-n">{{ c.n }}</span>
+              </li>
+            }
+          </ul>
+          @if (m.attivo && m.accuratezzaStimata !== null && m.esempi < 60) {
+            <p class="nota">Con pochi esempi l'accuratezza stimata varia molto: conferma o correggi sempre le proposte.</p>
+          }
+        } @else if (erroreModello()) {
+          <p class="nota">Stato del modello non disponibile: controlla che BFF e servizio di analisi siano avviati.</p>
+        } @else {
+          <p class="nota">Carico lo stato del modello…</p>
+        }
+      </section>
 
       <section class="card" aria-labelledby="storico-title">
         <h2 id="storico-title">Le tue analisi</h2>

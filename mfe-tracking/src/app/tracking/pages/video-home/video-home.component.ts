@@ -1,7 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { VideoAnalysisComponent } from '../../components/video-analysis/video-analysis.component';
-import { AnalisiVideoDto } from '../../data/tracking.models';
+import { TrackingApi } from '../../data/tracking.api';
+import { AnalisiVideoDto, ETICHETTE_EVENTO, ModelloEventiDto } from '../../data/tracking.models';
 import { VoceStoricoVideo, leggiStoricoVideo, salvaStoricoVideo } from '../../data/video-history';
 
 @Component({
@@ -12,6 +14,32 @@ import { VoceStoricoVideo, leggiStoricoVideo, salvaStoricoVideo } from '../../da
   styleUrl: './video-home.component.scss',
 })
 export class VideoHomeComponent {
+  private readonly api = inject(TrackingApi);
+  protected readonly modello = signal<ModelloEventiDto | null>(null);
+  protected readonly erroreModello = signal(false);
+
+  /** Esempi per tipo, con l'avanzamento verso il minimo che serve al modello per usarlo. */
+  protected readonly classi = computed(() => {
+    const m = this.modello();
+    if (!m) return [];
+    return ETICHETTE_EVENTO.map(e => {
+      const n = m.perClasse[e.valore] ?? 0;
+      return { ...e, n, pct: Math.min(100, n / m.minimoPerClasse * 100), pronta: n >= m.minimoPerClasse };
+    });
+  });
+
+  constructor() {
+    this.api.modelloEventi().pipe(takeUntilDestroyed(inject(DestroyRef))).subscribe({
+      next: m => this.modello.set(m),
+      error: () => this.erroreModello.set(true),
+    });
+  }
+
+  protected onModelloAggiornato(m: ModelloEventiDto): void {
+    this.modello.set(m);
+    this.erroreModello.set(false);
+  }
+
   protected readonly storico = signal<VoceStoricoVideo[]>(leggiStoricoVideo());
   protected readonly selezionata = signal<string | null>(null);
 

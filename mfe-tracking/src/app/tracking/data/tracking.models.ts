@@ -2,20 +2,55 @@ export type EsitoPressione = 'SUPERATA' | 'NEUTRALIZZATA' | 'CONTENUTA';
 export type StatoImport = 'IN_CODA' | 'IN_ELABORAZIONE' | 'COMPLETATO' | 'ERRORE';
 export type StatoAnalisiVideo = 'IN_CODA' | 'IN_ELABORAZIONE' | 'COMPLETATO' | 'ERRORE';
 
+export type EtichettaEvento = 'TIRO' | 'PASSAGGIO_LUNGO' | 'CONTRASTO' | 'RIPARTENZA' | 'CALCIO_PIAZZATO' | 'NIENTE';
+
+/** Ordine e nomi mostrati all'utente. */
+export const ETICHETTE_EVENTO: readonly { valore: EtichettaEvento; nome: string }[] = [
+  { valore: 'TIRO', nome: 'Tiro' },
+  { valore: 'PASSAGGIO_LUNGO', nome: 'Passaggio lungo' },
+  { valore: 'CONTRASTO', nome: 'Contrasto' },
+  { valore: 'RIPARTENZA', nome: 'Ripartenza' },
+  { valore: 'CALCIO_PIAZZATO', nome: 'Calcio piazzato' },
+  { valore: 'NIENTE', nome: 'Niente di rilevante' },
+];
+
+export interface PropostaEventoDto {
+  etichetta: EtichettaEvento;
+  confidenza: number;
+}
+
 export interface EventoVideoDto {
   id: string;
   etichetta: string;
   inizioSecondi: number;
   fineSecondi: number;
   intensitaMovimento: number;
+  /** Assenti nelle analisi precedenti al classificatore eventi. */
+  caratteristiche?: Record<string, number> | null;
+  indizi?: string[] | null;
+  proposta?: PropostaEventoDto | null;
+  etichettaUtente?: EtichettaEvento | null;
+}
+
+export interface ModelloEventiDto {
+  esempi: number;
+  perClasse: Partial<Record<EtichettaEvento, number>>;
+  attivo: boolean;
+  accuratezzaStimata: number | null;
+  minimoPerClasse: number;
 }
 
 export interface CampioneMovimentoDto {
   secondo: number;
   valore: number;
+  /** Solo con metodo "giocatori". */
+  giocatori?: number | null;
+  palla?: boolean | null;
 }
 
 export interface MovimentoVideoDto {
+  /** Assente nelle analisi precedenti: equivale a "pixel". */
+  metodo?: 'giocatori' | 'pixel' | null;
   soglia: number | null;
   campioni: CampioneMovimentoDto[];
 }

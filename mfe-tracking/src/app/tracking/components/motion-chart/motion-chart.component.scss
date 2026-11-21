@@ -10,6 +10,7 @@
 .mc-key li { display: inline-flex; align-items: center; gap: .35rem; }
 .mc-key-line { width: 14px; height: 2px; background: #00ff87; border-radius: 1px; }
 .mc-key-dash { width: 14px; border-top: 1.5px dashed #999; }
+.mc-key-ball { width: 7px; height: 7px; background: #fff; border-radius: 50%; }
 .mc-key-band { width: 12px; height: 10px; background: rgba(0, 255, 135, .14); border: 1px solid rgba(0, 255, 135, .35); border-radius: 2px; }
 
 .mc-plot { position: relative; min-width: 0; }
@@ -25,6 +26,7 @@ svg.cliccabile { cursor: pointer; }
 .mc-band-label { fill: #aaa; font: 600 10px "JetBrains Mono", ui-monospace, monospace; }
 
 .mc-line { fill: none; stroke: #00ff87; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mc-ball { fill: #fff; stroke: #0a0a0a; stroke-width: 1.5; }
 .mc-soglia { stroke: #999; stroke-width: 1.5; stroke-dasharray: 4 4; }
 .mc-soglia-label { fill: #999; font-size: 10px; }
 

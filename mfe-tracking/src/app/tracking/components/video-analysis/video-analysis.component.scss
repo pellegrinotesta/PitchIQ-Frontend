@@ -72,6 +72,7 @@
 .candidate-n { display: inline-grid; place-items: center; min-width: 1.3rem; height: 1.3rem; margin-right: .3rem; color: #000; background: #00ff87; border-radius: 4px; font: 700 .7rem "JetBrains Mono", ui-monospace, monospace; }
 .video-hint { margin: 0; color: #666; font-size: .78rem; }
 .candidate-info { display: grid; gap: .3rem; }
+.candidate-label { grid-column: 1 / -1; padding-top: .7rem; border-top: 1px solid #1c1c1c; }
 .candidate-info strong { color: #fff; font-size: .88rem; }
 .candidate-info span { color: #00ff87; font: .85rem "JetBrains Mono", ui-monospace, monospace; }
 .candidate-info small { color: #666; font-size: .73rem; }

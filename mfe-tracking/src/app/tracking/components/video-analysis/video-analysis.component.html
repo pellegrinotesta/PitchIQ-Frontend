@@ -101,6 +101,7 @@
         [soglia]="result.movimento!.soglia"
         [eventi]="result.eventi"
         [durata]="result.durataSecondi"
+        [metodo]="result.movimento!.metodo"
         (seleziona)="vaiAllaClip($event)" />
     } @else {
       <p class="video-hint">Il grafico del movimento è disponibile per le analisi nuove: rianalizza il video per vederlo.</p>
@@ -116,6 +117,8 @@
           <video controls preload="metadata" [src]="clipUrl(event)" [attr.aria-label]="'Clip candidata ' + event.id">
             Il browser non supporta la riproduzione video.
           </video>
+          <tk-clip-label class="candidate-label" [analisiId]="result.id" [evento]="event"
+                         (etichettata)="onEtichettata($event)" />
         </article>
       } @empty {
         <p class="video-status">Nessun intervallo candidato rilevato. Prova con una clip più dinamica.</p>

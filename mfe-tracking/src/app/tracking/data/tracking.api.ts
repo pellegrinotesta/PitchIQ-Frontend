@@ -2,7 +2,7 @@ import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  AggregatoEsitoDto, AnalisiVideoDto, AnimazioneDto, EsitoPressione, ImportDto,
+  AggregatoEsitoDto, AnalisiVideoDto, EtichettaEvento, ModelloEventiDto, AnimazioneDto, EsitoPressione, ImportDto,
   PartitaDettaglioDto, PartitaDto, SequenzaDto,
 } from './tracking.models';
 import { apiUrl } from './api-url';
@@ -48,6 +48,22 @@ export class TrackingApi {
 
   statoAnalisiVideo(id: string): Observable<AnalisiVideoDto> {
     return this.http.get<AnalisiVideoDto>(`${this.base}/video-analyses/${encodeURIComponent(id)}`);
+  }
+
+  etichettaClip(id: string, clipId: string, etichetta: EtichettaEvento): Observable<ModelloEventiDto> {
+    return this.http.put<ModelloEventiDto>(this.urlEtichetta(id, clipId), { etichetta });
+  }
+
+  rimuoviEtichettaClip(id: string, clipId: string): Observable<ModelloEventiDto> {
+    return this.http.delete<ModelloEventiDto>(this.urlEtichetta(id, clipId));
+  }
+
+  modelloEventi(): Observable<ModelloEventiDto> {
+    return this.http.get<ModelloEventiDto>(`${this.base}/modello-eventi`);
+  }
+
+  private urlEtichetta(id: string, clipId: string): string {
+    return `${this.base}/video-analyses/${encodeURIComponent(id)}/clips/${encodeURIComponent(clipId)}/etichetta`;
   }
 
   clipVideo(id: string, clipId: string): Observable<Blob> {

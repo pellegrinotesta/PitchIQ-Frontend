@@ -1,11 +1,19 @@
 <figure class="mc">
   <figcaption class="mc-head">
     <div>
-      <h3>Movimento nel tempo</h3>
-      <p>Quanto cambia l'immagine ogni mezzo secondo, rispetto al momento più agitato del video (100%).</p>
+      @if (conGiocatori()) {
+        <h3>Attività dei giocatori</h3>
+        <p>Velocità dei giocatori più rapidi in campo (e del pallone, quando è visibile), al netto dei movimenti della camera. 100% = il momento più intenso del video.</p>
+      } @else {
+        <h3>Movimento nel tempo</h3>
+        <p>Quanto cambia l'immagine sul campo ogni mezzo secondo, al netto dei movimenti della camera. 100% = il momento più agitato del video.</p>
+      }
     </div>
     <ul class="mc-key" aria-label="Legenda">
-      <li><span class="mc-key-line" aria-hidden="true"></span> Movimento</li>
+      <li><span class="mc-key-line" aria-hidden="true"></span> {{ conGiocatori() ? 'Attività' : 'Movimento' }}</li>
+      @if (conGiocatori()) {
+        <li><span class="mc-key-ball" aria-hidden="true"></span> Pallone visto</li>
+      }
       <li><span class="mc-key-dash" aria-hidden="true"></span> Soglia</li>
       <li><span class="mc-key-band" aria-hidden="true"></span> Clip estratta</li>
     </ul>
@@ -40,6 +48,11 @@
       <path class="mc-area" [attr.d]="area()" fill="url(#mc-fill)" />
       <path class="mc-line" [attr.d]="linea()" />
 
+      <!-- pallone riconosciuto: tacche sopra l'asse del tempo -->
+      @for (p of pallone(); track p.secondo) {
+        <circle class="mc-ball" [attr.cx]="x(p.secondo)" [attr.cy]="baseline - 5" r="3" />
+      }
+
       <!-- soglia -->
       @if (sogliaPct(); as s) {
         <line class="mc-soglia" [attr.x1]="m.left" [attr.x2]="larghezza() - m.right" [attr.y1]="y(s)" [attr.y2]="y(s)" />
@@ -62,7 +75,10 @@
     @if (tooltip(); as t) {
       <div class="mc-tooltip" [class.destra]="t.allineaDestra" [style.left.px]="t.left" aria-hidden="true">
         <strong>{{ t.tempo }}</strong>
-        <span>Movimento <b>{{ t.valore }}%</b></span>
+        <span>{{ conGiocatori() ? 'Attività' : 'Movimento' }} <b>{{ t.valore }}%</b></span>
+        @if (t.giocatori !== null) {
+          <span>{{ t.giocatori }} giocatori in campo{{ t.palla ? ' · pallone visto' : '' }}</span>
+        }
         <span class="mc-tt-meta">
           @if (t.clip) { Nella clip {{ t.clip }} · clicca per vederla }
           @else if (t.sopra) { Sopra soglia }
@@ -78,10 +94,16 @@
   @if (tabella()) {
     <div class="mc-table-wrap">
       <table>
-        <thead><tr><th>Tempo</th><th class="r">Movimento</th></tr></thead>
+        <thead><tr>
+          <th>Tempo</th><th class="r">{{ conGiocatori() ? 'Attività' : 'Movimento' }}</th>
+          @if (conGiocatori()) { <th class="r">Giocatori</th><th>Pallone</th> }
+        </tr></thead>
         <tbody>
           @for (p of punti(); track p.secondo) {
-            <tr><td>{{ timestamp(p.secondo) }}</td><td class="r">{{ p.pct.toFixed(0) }}%</td></tr>
+            <tr>
+              <td>{{ timestamp(p.secondo) }}</td><td class="r">{{ p.pct.toFixed(0) }}%</td>
+              @if (conGiocatori()) { <td class="r">{{ p.giocatori ?? '—' }}</td><td>{{ p.palla ? 'sì' : '—' }}</td> }
+            </tr>
           }
         </tbody>
       </table>
