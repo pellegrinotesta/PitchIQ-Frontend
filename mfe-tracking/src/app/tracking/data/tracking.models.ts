@@ -10,12 +10,26 @@ export interface EventoVideoDto {
   intensitaMovimento: number;
 }
 
+export interface CampioneMovimentoDto {
+  secondo: number;
+  valore: number;
+}
+
+export interface MovimentoVideoDto {
+  soglia: number | null;
+  campioni: CampioneMovimentoDto[];
+}
+
 export interface AnalisiVideoDto {
   id: string;
   stato: StatoAnalisiVideo;
   messaggio: string | null;
   durataSecondi: number | null;
   eventi: EventoVideoDto[];
+  /** Assente nelle analisi fatte prima dell'introduzione del grafico. */
+  movimento?: MovimentoVideoDto | null;
+  /** Solo nella risposta di avvio: per i link è il nome risolto dal server. */
+  nomeFile?: string | null;
 }
 
 export interface ImportDto {

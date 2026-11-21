@@ -9,7 +9,7 @@ interface VoceMenu {
   icon: string;
   route: string;
   prefix: string;
-  escludi?: string;
+  escludi?: string[];
 }
 
 @Component({
@@ -29,8 +29,9 @@ export class Layout {
     { label: 'Tattiche', icon: 'pi pi-map', route: '/tattiche', prefix: '/tattiche' },
     { label: 'Statistiche', icon: 'pi pi-chart-line', route: '/statistiche', prefix: '/statistiche' },
     { label: 'Partite', icon: 'pi pi-circle-fill', route: '/partite', prefix: '/partite' },
-    { label: 'Tracking', icon: 'pi pi-map-marker', route: '/tracking', prefix: '/tracking', escludi: '/tracking/statsbomb' },
+    { label: 'Tracking', icon: 'pi pi-map-marker', route: '/tracking', prefix: '/tracking', escludi: ['/tracking/statsbomb', '/tracking/video'] },
     { label: 'StatsBomb', icon: 'pi pi-chart-bar', route: '/tracking/statsbomb', prefix: '/tracking/statsbomb' },
+    { label: 'Analisi video', icon: 'pi pi-video', route: '/tracking/video', prefix: '/tracking/video' },
   ];
 
   readonly collassata = signal(false);
@@ -47,7 +48,7 @@ export class Layout {
 
   attiva(v: VoceMenu): boolean {
     const u = this.url();
-    return u.startsWith(v.prefix) && !(v.escludi && u.startsWith(v.escludi));
+    return u.startsWith(v.prefix) && !v.escludi?.some(e => u.startsWith(e));
   }
 
   logout(): void {

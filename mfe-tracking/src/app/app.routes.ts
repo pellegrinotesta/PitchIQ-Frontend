@@ -16,6 +16,11 @@ export const routes: Routes = [
     title: 'Partita · Laboratorio pressione',
   },
   {
+    path: 'video',
+    loadComponent: () => import('./tracking/pages/video-home/video-home.component').then(m => m.VideoHomeComponent),
+    title: 'Analisi video · PitchIQ',
+  },
+  {
     path: 'statsbomb',
     loadComponent: () => import('./tracking/pages/sb-home/sb-home.component').then(m => m.SbHomeComponent),
     title: 'StatsBomb · PitchIQ',

@@ -42,6 +42,10 @@ export class TrackingApi {
     });
   }
 
+  caricaVideoDaUrl(url: string): Observable<AnalisiVideoDto> {
+    return this.http.post<AnalisiVideoDto>(`${this.base}/video-analyses/da-url`, { url });
+  }
+
   statoAnalisiVideo(id: string): Observable<AnalisiVideoDto> {
     return this.http.get<AnalisiVideoDto>(`${this.base}/video-analyses/${encodeURIComponent(id)}`);
   }

@@ -102,6 +102,7 @@ export class Homepage implements OnInit {
     { label: 'Partite', icon: 'pi pi-circle-fill', route: '/partite', descrizione: 'Registra le partite, gli eventi e le statistiche' },
     { label: 'Tracking', icon: 'pi pi-map-marker', route: '/tracking', descrizione: 'Analisi pressioni con dati SkillCorner' },
     { label: 'StatsBomb', icon: 'pi pi-chart-bar', route: '/tracking/statsbomb', descrizione: 'Shot map, xG e analisi eventi su dati aperti StatsBomb' },
+    { label: 'Analisi video', icon: 'pi pi-video', route: '/tracking/video', descrizione: 'Estrai dai tuoi video le azioni da rivedere' },
   ];
 
   ngOnInit(): void {

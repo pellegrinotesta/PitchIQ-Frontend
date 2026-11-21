@@ -1,0 +1,90 @@
+<figure class="mc">
+  <figcaption class="mc-head">
+    <div>
+      <h3>Movimento nel tempo</h3>
+      <p>Quanto cambia l'immagine ogni mezzo secondo, rispetto al momento più agitato del video (100%).</p>
+    </div>
+    <ul class="mc-key" aria-label="Legenda">
+      <li><span class="mc-key-line" aria-hidden="true"></span> Movimento</li>
+      <li><span class="mc-key-dash" aria-hidden="true"></span> Soglia</li>
+      <li><span class="mc-key-band" aria-hidden="true"></span> Clip estratta</li>
+    </ul>
+  </figcaption>
+
+  <div class="mc-plot">
+    <svg [attr.width]="larghezza()" [attr.height]="altezza" [attr.viewBox]="'0 0 ' + larghezza() + ' ' + altezza"
+         role="img" [attr.aria-label]="descrizione()"
+         (pointermove)="onMove($event)" (pointerleave)="onLeave()" (click)="onClick()"
+         [class.cliccabile]="bandaAttiva() !== null">
+      <defs>
+        <linearGradient id="mc-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#00ff87" stop-opacity=".22" />
+          <stop offset="100%" stop-color="#00ff87" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+
+      <!-- griglia e asse y -->
+      @for (t of tickY; track t) {
+        <line class="mc-grid" [attr.x1]="m.left" [attr.x2]="larghezza() - m.right" [attr.y1]="y(t)" [attr.y2]="y(t)" />
+        <text class="mc-tick" [attr.x]="m.left - 8" [attr.y]="y(t)" text-anchor="end" dominant-baseline="middle">{{ t }}%</text>
+      }
+
+      <!-- fasce delle clip -->
+      @for (b of bande(); track b.id) {
+        <rect class="mc-band" [class.attiva]="bandaAttiva() === b.id"
+              [attr.x]="b.x" [attr.y]="m.top" [attr.width]="b.w" [attr.height]="baseline - m.top" rx="3" />
+        <text class="mc-band-label" [attr.x]="b.x + b.w / 2" [attr.y]="m.top - 5" text-anchor="middle">{{ b.n }}</text>
+      }
+
+      <!-- serie -->
+      <path class="mc-area" [attr.d]="area()" fill="url(#mc-fill)" />
+      <path class="mc-line" [attr.d]="linea()" />
+
+      <!-- soglia -->
+      @if (sogliaPct(); as s) {
+        <line class="mc-soglia" [attr.x1]="m.left" [attr.x2]="larghezza() - m.right" [attr.y1]="y(s)" [attr.y2]="y(s)" />
+        <text class="mc-soglia-label" [attr.x]="larghezza() - m.right" [attr.y]="y(s) - 5" text-anchor="end">soglia</text>
+      }
+
+      <!-- asse x -->
+      <line class="mc-axis" [attr.x1]="m.left" [attr.x2]="larghezza() - m.right" [attr.y1]="baseline" [attr.y2]="baseline" />
+      @for (t of tickX(); track t) {
+        <text class="mc-tick" [attr.x]="x(t)" [attr.y]="baseline + 16" text-anchor="middle">{{ timestamp(t) }}</text>
+      }
+
+      <!-- crosshair -->
+      @if (puntoHover(); as p) {
+        <line class="mc-cross" [attr.x1]="x(p.secondo)" [attr.x2]="x(p.secondo)" [attr.y1]="m.top" [attr.y2]="baseline" />
+        <circle class="mc-dot" [attr.cx]="x(p.secondo)" [attr.cy]="y(p.pct)" r="4.5" />
+      }
+    </svg>
+
+    @if (tooltip(); as t) {
+      <div class="mc-tooltip" [class.destra]="t.allineaDestra" [style.left.px]="t.left" aria-hidden="true">
+        <strong>{{ t.tempo }}</strong>
+        <span>Movimento <b>{{ t.valore }}%</b></span>
+        <span class="mc-tt-meta">
+          @if (t.clip) { Nella clip {{ t.clip }} · clicca per vederla }
+          @else if (t.sopra) { Sopra soglia }
+          @else { Sotto soglia }
+        </span>
+      </div>
+    }
+  </div>
+
+  <button type="button" class="mc-toggle" (click)="tabella.set(!tabella())" [attr.aria-expanded]="tabella()">
+    {{ tabella() ? 'Nascondi dati' : 'Vedi i dati in tabella' }}
+  </button>
+  @if (tabella()) {
+    <div class="mc-table-wrap">
+      <table>
+        <thead><tr><th>Tempo</th><th class="r">Movimento</th></tr></thead>
+        <tbody>
+          @for (p of punti(); track p.secondo) {
+            <tr><td>{{ timestamp(p.secondo) }}</td><td class="r">{{ p.pct.toFixed(0) }}%</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</figure>

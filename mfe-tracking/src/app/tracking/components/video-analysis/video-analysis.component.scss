@@ -1,5 +1,7 @@
 @use '../../tracking.tokens' as *;
 
+:host { display: block; min-width: 0; }
+
 .video-card {
   display: grid;
   gap: 1rem;
@@ -9,30 +11,79 @@
   border-radius: 12px;
 }
 
-.video-head h2 { margin: 0 0 .35rem; color: #fff; font-size: 1.1rem; }
-.video-head p { margin: 0; color: #777; font-size: .85rem; }
-.video-eyebrow { margin: 0 0 .4rem !important; color: #00ff87 !important; font-size: .68rem !important; font-weight: 700; letter-spacing: 1.2px; }
-.video-notice { margin: 0; padding: .75rem; color: #c8b87a; background: rgba(255, 190, 0, .06); border: 1px solid rgba(255, 190, 0, .18); border-radius: 7px; font-size: .8rem; line-height: 1.5; }
+.video-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.video-head h2 { margin: 0; color: #fff; font-size: 1rem; font-weight: 700; }
+
+.video-drop {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: .4rem;
+  padding: 2rem 1rem;
+  color: #888;
+  text-align: center;
+  background: #0a0a0a;
+  border: 1px dashed #333;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.video-drop:hover, .video-drop.attiva { border-color: #00ff87; background: rgba(0, 255, 135, .04); }
+.video-drop.disabilitata { opacity: .6; cursor: progress; }
+.video-drop .pi { color: #00ff87; font-size: 1.6rem; }
+.video-drop strong { color: #ddd; font-size: .9rem; overflow-wrap: anywhere; }
+.video-drop span { font-size: .78rem; }
+.video-drop input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.video-drop input:disabled { cursor: progress; }
+.video-drop:focus-within { outline: 2px solid #00ff87; outline-offset: 2px; }
+
+.video-tabs { display: inline-flex; gap: .25rem; padding: .25rem; justify-self: start; background: #0a0a0a; border: 1px solid #222; border-radius: 8px; }
+.video-tabs button { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .8rem; color: #888; background: none; border: 0; border-radius: 6px; font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+.video-tabs button.attiva { color: #000; background: #00ff87; }
+.video-tabs button:disabled { cursor: not-allowed; }
+
+.video-link { display: grid; gap: .45rem; }
+.video-link label { color: #777; font-size: .7rem; font-weight: 700; text-transform: uppercase; }
+.video-link-row { display: flex; gap: .6rem; }
+.video-link input { flex: 1; min-width: 0; height: 2.5rem; padding: 0 .75rem; color: #ddd; background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 7px; font: inherit; font-size: .85rem; }
+.video-link input:focus { outline: none; border-color: #00ff87; }
+.video-link small { color: #666; font-size: .75rem; line-height: 1.5; }
+
 .video-controls { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-.video-picker { position: relative; display: flex; align-items: center; min-height: 2.5rem; max-width: min(100%, 34rem); padding: 0 .75rem; overflow: hidden; color: #bbb; background: #0a0a0a; border: 1px dashed #333; border-radius: 7px; cursor: pointer; font-size: .82rem; }
-.video-picker input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-.video-submit { display: inline-flex; align-items: center; gap: .45rem; min-height: 2.5rem; padding: .55rem 1rem; color: #000; background: #00ff87; border: 0; border-radius: 7px; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.video-submit, .video-secondary {
+  display: inline-flex; align-items: center; gap: .45rem; min-height: 2.5rem; padding: .55rem 1rem;
+  border-radius: 7px; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
+}
+.video-submit { color: #000; background: #00ff87; border: 0; }
 .video-submit:disabled { opacity: .4; cursor: not-allowed; }
-.video-progress { display: grid; gap: .35rem; max-width: 22rem; color: #888; font-size: .78rem; }
+.video-secondary { color: #ddd; background: transparent; border: 1px solid #2a2a2a; }
+.video-secondary:hover { border-color: #00ff87; color: #fff; }
+
 .video-progress > div { height: 4px; overflow: hidden; background: #252525; border-radius: 99px; }
 .video-progress > div > span { display: block; height: 100%; background: #00ff87; transition: width .2s; }
-.video-status, .video-error { margin: 0; color: #888; font-size: .85rem; }
+
+.video-status, .video-error { display: flex; align-items: center; gap: .5rem; margin: 0; color: #888; font-size: .85rem; }
 .video-error { color: #ff6464; }
+
 .candidate-list { display: grid; gap: .75rem; }
 .candidate { display: grid; grid-template-columns: minmax(12rem, .7fr) minmax(0, 1fr); gap: 1rem; align-items: center; padding: .85rem; background: #0a0a0a; border: 1px solid #222; border-radius: 8px; }
+.candidate { scroll-margin: 1rem; transition: border-color .2s; }
+.candidate.evidenziata { border-color: rgba(0, 255, 135, .5); }
+.candidate-n { display: inline-grid; place-items: center; min-width: 1.3rem; height: 1.3rem; margin-right: .3rem; color: #000; background: #00ff87; border-radius: 4px; font: 700 .7rem "JetBrains Mono", ui-monospace, monospace; }
+.video-hint { margin: 0; color: #666; font-size: .78rem; }
 .candidate-info { display: grid; gap: .3rem; }
 .candidate-info strong { color: #fff; font-size: .88rem; }
 .candidate-info span { color: #00ff87; font: .85rem "JetBrains Mono", ui-monospace, monospace; }
 .candidate-info small { color: #666; font-size: .73rem; }
 .candidate video { width: 100%; max-height: 18rem; background: #000; border-radius: 6px; }
-.video-spinner { width: 13px; height: 13px; border: 2px solid rgba(0,0,0,.2); border-top-color: #000; border-radius: 50%; animation: spin .8s linear infinite; }
+
+.video-spinner { width: 13px; height: 13px; flex: none; border: 2px solid rgba(0,0,0,.2); border-top-color: #000; border-radius: 50%; animation: spin .8s linear infinite; }
+.video-spinner.chiaro { border-color: #333; border-top-color: #00ff87; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 640px) {
+  .video-card { padding: 1rem; }
+  .video-link-row { flex-direction: column; }
   .candidate { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .video-spinner { animation: none; } }

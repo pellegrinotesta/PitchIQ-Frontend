@@ -1,0 +1,101 @@
+<div class="page">
+
+  <header class="page-header">
+    <p class="page-label">ANALISI VIDEO · SPERIMENTALE</p>
+    <h1>Analisi video</h1>
+    <p class="page-sub">
+      Carica una clip di gioco e ottieni i momenti con più movimento, già tagliati e pronti da rivedere.
+    </p>
+  </header>
+
+  <p class="avviso">
+    <i class="pi pi-info-circle" aria-hidden="true"></i>
+    Il motore individua solo intervalli con movimento visivo intenso: non riconosce ancora passaggi,
+    tiri, dribbling o gol. Le clip sono candidate da verificare a occhio.
+  </p>
+
+  <div class="layout">
+    <div class="colonna-principale">
+      <tk-video-analysis
+        [analisiId]="selezionata()"
+        (avviata)="onAvviata($event)"
+        (aggiornata)="onAggiornata($event)"
+        (nonTrovata)="onNonTrovata($event)"
+        (chiusa)="selezionata.set(null)" />
+
+      <section class="card" aria-labelledby="storico-title">
+        <h2 id="storico-title">Le tue analisi</h2>
+        @if (storico().length) {
+          <ul class="storico">
+            @for (v of storico(); track v.id) {
+              <li [class.selezionata]="v.id === selezionata()">
+                <button type="button" class="storico-apri" (click)="apri(v.id)">
+                  <span class="storico-nome">{{ v.nomeFile }}</span>
+                  <span class="storico-meta">
+                    {{ v.creataIl | date: 'dd/MM/yyyy HH:mm' }}
+                    · {{ statoLabel[v.stato ?? ''] ?? '—' }}
+                    @if (v.clip !== undefined) { · {{ v.clip }} clip }
+                  </span>
+                </button>
+                <button type="button" class="storico-rimuovi" (click)="rimuovi(v.id)"
+                        [attr.aria-label]="'Rimuovi ' + v.nomeFile + ' dallo storico'">
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+          <p class="nota">Lo storico è salvato in questo browser. Clicca un'analisi per rivederne le clip.</p>
+        } @else {
+          <p class="vuoto">Nessuna analisi ancora. Le clip che analizzi compariranno qui e potrai riaprirle in seguito.</p>
+        }
+      </section>
+    </div>
+
+    <aside class="card guida" aria-labelledby="guida-title">
+      <h2 id="guida-title"><i class="pi pi-question-circle" aria-hidden="true"></i> Dove trovo i video?</h2>
+
+      <div class="fonte">
+        <h3>Le tue partite</h3>
+        <p>
+          La fonte migliore. Riprendi da una posizione rialzata (tribuna, treppiede) con
+          inquadratura larga e camera il più possibile ferma, in 720p o 1080p.
+          Se usi Veo, Pixellot, Hudl o Trace, scarica la partita in MP4 dalla loro piattaforma.
+        </p>
+      </div>
+
+      <div class="fonte">
+        <h3>Video gratuiti per provare</h3>
+        <p>
+          Il modo più rapido: apri una pagina video di
+          <a href="https://commons.wikimedia.org/wiki/Category:Videos_of_association_football" target="_blank" rel="noopener">Wikimedia Commons <i class="pi pi-external-link" aria-hidden="true"></i></a>,
+          copia il link e incollalo in “Da link”. Altre clip libere da scaricare:
+        </p>
+        <ul class="link">
+          <li><a href="https://www.pexels.com/search/videos/soccer/" target="_blank" rel="noopener">Pexels · soccer <i class="pi pi-external-link" aria-hidden="true"></i></a></li>
+          <li><a href="https://pixabay.com/videos/search/football/" target="_blank" rel="noopener">Pixabay · football <i class="pi pi-external-link" aria-hidden="true"></i></a></li>
+        </ul>
+      </div>
+
+      <div class="fonte">
+        <h3>Dataset di ricerca</h3>
+        <p>
+          <a href="https://www.soccer-net.org/" target="_blank" rel="noopener">SoccerNet <i class="pi pi-external-link" aria-hidden="true"></i></a>
+          offre partite intere in formato broadcast per uso di ricerca, previa registrazione e accordo di riservatezza.
+        </p>
+      </div>
+
+      <div class="fonte">
+        <h3>Taglia la clip a 2 minuti</h3>
+        <p>
+          Sul telefono usa “Modifica → Taglia” nella galleria; su Mac “Modifica → Taglia” in QuickTime.
+          Da terminale, con ffmpeg (inizio al minuto 12:30, 90 secondi):
+        </p>
+        <code>{{ comandoTaglio }}</code>
+      </div>
+
+      <p class="nota">
+        Evita di scaricare highlight da TV o YouTube: sono coperti da diritti.
+      </p>
+    </aside>
+  </div>
+</div>
